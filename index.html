@@ -8,161 +8,68 @@
   <meta name="theme-color" content="#1a1a2e">
   <title>CalorieTracker</title>
   <style>
-    :root {
-      --bg: #0f0f1a; --card: #1a1a2e; --accent: #e94560; --green: #00d474;
-      --yellow: #f5a623; --text: #eee; --muted: #888; --radius: 16px;
-      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
-      background: var(--bg); color: var(--text); min-height: 100dvh;
-      padding: calc(var(--safe-top) + 8px) 16px calc(var(--safe-bottom) + 80px);
-      overflow-x: hidden;
-    }
-    h1 { font-size: 1.6rem; text-align: center; padding: 12px 0; }
-    h1 span { color: var(--accent); }
-
-    .card {
-      background: var(--card); border-radius: var(--radius); padding: 20px;
-      margin-bottom: 12px; animation: fadeUp .4s ease;
-    }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } }
-
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    label { font-size: .75rem; color: var(--muted); display: block; margin-bottom: 4px; }
-    input, select {
-      width: 100%; padding: 10px 12px; border: 1px solid #333; border-radius: 10px;
-      background: #111; color: var(--text); font-size: 1rem; outline: none; transition: border .2s;
-    }
-    input:focus, select:focus { border-color: var(--accent); }
-
-    .btn {
-      width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem;
-      font-weight: 600; cursor: pointer; transition: transform .15s, opacity .15s;
-    }
-    .btn:active { transform: scale(.97); opacity: .8; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-green { background: var(--green); color: #fff; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--accent); color: var(--accent); }
-    .btn-sm { width: auto; padding: 8px 16px; font-size: .85rem; border-radius: 8px; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-    .tab {
-      flex: 1; padding: 10px; border: 1.5px solid #333; border-radius: 10px;
-      background: transparent; color: var(--muted); font-size: .85rem; font-weight: 600;
-      cursor: pointer; text-align: center; transition: all .2s;
-    }
-    .tab.active { border-color: var(--accent); color: var(--accent); background: #e9456015; }
-
-    /* Ring */
-    .ring-wrap { text-align: center; padding: 10px 0; }
-    .ring-wrap svg { width: 180px; height: 180px; transform: rotate(-90deg); }
-    .ring-bg { fill: none; stroke: #222; stroke-width: 10; }
-    .ring-fg { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset .6s ease, stroke .3s; }
-    .ring-text { font-size: 1.8rem; font-weight: 700; }
-    .ring-sub { font-size: .85rem; color: var(--muted); }
-
-    /* Meals */
-    .meal-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px 0;
-      border-bottom: 1px solid #222;
-    }
-    .meal-item:last-child { border: none; }
-    .meal-thumb {
-      width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #222;
-      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    }
-    .meal-info { flex: 1; min-width: 0; }
-    .meal-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .meal-meta { font-size: .8rem; color: var(--muted); }
-    .meal-kcal { font-weight: 700; color: var(--accent); white-space: nowrap; }
-    .meal-del { background: none; border: none; color: #555; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
-
-    /* Search */
-    .search-wrap { position: relative; margin-bottom: 10px; }
-    .search-wrap input { padding-left: 36px; }
-    .search-wrap::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: .9rem; }
-    .results { max-height: 200px; overflow-y: auto; }
-    .result-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px; border-radius: 8px; cursor: pointer; transition: background .15s;
-    }
-    .result-item:active { background: #ffffff10; }
-
-    /* Recipe builder */
-    .ingredient-row {
-      display: flex; gap: 8px; align-items: center; padding: 8px 0;
-      border-bottom: 1px solid #222; font-size: .9rem;
-    }
-    .ingredient-row:last-child { border: none; }
-    .ing-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ing-detail { color: var(--muted); font-size: .8rem; }
-    .ing-kcal { font-weight: 700; color: var(--accent); white-space: nowrap; min-width: 55px; text-align: right; }
-    .ing-del { background: none; border: none; color: #555; font-size: 1rem; cursor: pointer; }
-    .recipe-total {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 0; margin-top: 8px; border-top: 2px solid var(--accent);
-      font-weight: 700; font-size: 1.1rem;
-    }
-    .recipe-total span { color: var(--accent); }
-    .add-ing-form { display: flex; gap: 6px; margin-bottom: 10px; }
-    .add-ing-form input { font-size: .85rem; padding: 8px 10px; }
-    .add-ing-form input:first-child { flex: 2; }
-    .add-ing-form input:nth-child(2) { flex: 1; }
-
-    /* Photo */
-    .photo-area {
-      border: 2px dashed #333; border-radius: 12px; padding: 20px; text-align: center;
-      cursor: pointer; transition: border-color .2s; position: relative; overflow: hidden;
-      margin-top: 10px;
-    }
-    .photo-area:active { border-color: var(--accent); }
-    .photo-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-    .photo-preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
-
-    /* Chart */
-    .chart-canvas { width: 100%; height: 200px; }
-
-    .weight-row { display: flex; gap: 8px; margin-top: 10px; }
-    .weight-row input { flex: 1; }
-    .weight-row .btn { width: auto; padding: 10px 16px; }
-
-    /* Nav */
-    nav {
-      position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
-      display: flex; justify-content: space-around; padding: 8px 0 calc(var(--safe-bottom) + 8px);
-      border-top: 1px solid #222; z-index: 100;
-    }
-    .nav-btn {
-      background: none; border: none; color: var(--muted); font-size: .65rem;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      cursor: pointer; padding: 4px 12px; transition: color .2s;
-    }
-    .nav-btn.active { color: var(--accent); }
-    .nav-btn span { font-size: 1.4rem; }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .mt { margin-top: 10px; }
-    .mb { margin-bottom: 10px; }
-    .center { text-align: center; }
-    .tag { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
-    .tag-ok { background: #00d47422; color: var(--green); }
-    .tag-warn { background: #f5a62322; color: var(--yellow); }
-    .tag-over { background: #e9456022; color: var(--accent); }
-    .empty { text-align: center; color: var(--muted); padding: 30px 0; font-size: .9rem; }
-    .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff3; border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .hidden { display: none !important; }
-
-    /* Macro summary mini */
-    .macro-bar { display: flex; gap: 12px; justify-content: center; margin-top: 8px; }
-    .macro-item { text-align: center; }
-    .macro-val { font-weight: 700; font-size: 1rem; }
-    .macro-label { font-size: .65rem; color: var(--muted); }
+    :root{--bg:#0f0f1a;--card:#1a1a2e;--accent:#e94560;--green:#00d474;--yellow:#f5a623;--text:#eee;--muted:#888;--radius:16px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 8px) 16px calc(var(--safe-bottom) + 80px);overflow-x:hidden}
+    h1{font-size:1.6rem;text-align:center;padding:12px 0}h1 span{color:var(--accent)}
+    .card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:12px;animation:fadeUp .4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:4px}
+    input,select{width:100%;padding:10px 12px;border:1px solid #333;border-radius:10px;background:#111;color:var(--text);font-size:1rem;outline:none;transition:border .2s}
+    input:focus,select:focus{border-color:var(--accent)}
+    .btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s}
+    .btn:active{transform:scale(.97);opacity:.8}
+    .btn-primary{background:var(--accent);color:#fff}.btn-green{background:var(--green);color:#fff}
+    .btn-outline{background:transparent;border:1.5px solid var(--accent);color:var(--accent)}
+    .btn-sm{width:auto;padding:8px 16px;font-size:.85rem;border-radius:8px}
+    .tabs{display:flex;gap:8px;margin-bottom:14px}
+    .tab{flex:1;padding:10px;border:1.5px solid #333;border-radius:10px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+    .tab.active{border-color:var(--accent);color:var(--accent);background:#e9456015}
+    .ring-wrap{text-align:center;padding:10px 0}
+    .ring-wrap svg{width:180px;height:180px;transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:#222;stroke-width:10}.ring-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .6s ease,stroke .3s}
+    .ring-text{font-size:1.8rem;font-weight:700}.ring-sub{font-size:.85rem;color:var(--muted)}
+    .meal-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #222}
+    .meal-item:last-child{border:none}
+    .meal-thumb{width:50px;height:50px;border-radius:10px;object-fit:cover;background:#222;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .meal-info{flex:1;min-width:0}.meal-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .meal-meta{font-size:.8rem;color:var(--muted)}.meal-kcal{font-weight:700;color:var(--accent);white-space:nowrap}
+    .meal-del{background:none;border:none;color:#555;font-size:1.2rem;cursor:pointer;padding:4px 8px}
+    .search-wrap{position:relative;margin-bottom:10px}.search-wrap input{padding-left:36px}
+    .search-wrap::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.9rem}
+    .results{max-height:200px;overflow-y:auto}
+    .result-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;cursor:pointer;transition:background .15s}
+    .result-item:active{background:#ffffff10}
+    .ingredient-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #222;font-size:.9rem}
+    .ingredient-row:last-child{border:none}
+    .ing-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ing-detail{color:var(--muted);font-size:.8rem}.ing-kcal{font-weight:700;color:var(--accent);white-space:nowrap;min-width:55px;text-align:right}
+    .ing-del{background:none;border:none;color:#555;font-size:1rem;cursor:pointer}
+    .recipe-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-top:8px;border-top:2px solid var(--accent);font-weight:700;font-size:1.1rem}
+    .recipe-total span{color:var(--accent)}
+    .add-ing-form{display:flex;gap:6px;margin-bottom:10px}
+    .add-ing-form input{font-size:.85rem;padding:8px 10px}.add-ing-form input:first-child{flex:2}.add-ing-form input:nth-child(2){flex:1}
+    .photo-area{border:2px dashed #333;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden;margin-top:10px}
+    .photo-area:active{border-color:var(--accent)}
+    .photo-area input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .photo-preview{width:100%;border-radius:10px;margin-top:10px;display:none}
+    .chart-canvas{width:100%;height:200px}
+    .weight-row{display:flex;gap:8px;margin-top:10px}.weight-row input{flex:1}.weight-row .btn{width:auto;padding:10px 16px}
+    nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;justify-content:space-around;padding:8px 0 calc(var(--safe-bottom) + 8px);border-top:1px solid #222;z-index:100}
+    .nav-btn{background:none;border:none;color:var(--muted);font-size:.65rem;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 12px;transition:color .2s}
+    .nav-btn.active{color:var(--accent)}.nav-btn span{font-size:1.4rem}
+    .page{display:none}.page.active{display:block}
+    .mt{margin-top:10px}.mb{margin-bottom:10px}.center{text-align:center}
+    .tag{display:inline-block;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+    .tag-ok{background:#00d47422;color:var(--green)}.tag-warn{background:#f5a62322;color:var(--yellow)}.tag-over{background:#e9456022;color:var(--accent)}
+    .empty{text-align:center;color:var(--muted);padding:30px 0;font-size:.9rem}
+    .loader{display:inline-block;width:18px;height:18px;border:2px solid #fff3;border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .hidden{display:none!important}
+    .macro-bar{display:flex;gap:12px;justify-content:center;margin-top:8px}
+    .macro-item{text-align:center}.macro-val{font-weight:700;font-size:1rem}.macro-label{font-size:.65rem;color:var(--muted)}
+    .translate-hint{font-size:.7rem;color:var(--muted);font-style:italic;margin-top:2px}
   </style>
 </head>
 <body>
@@ -178,16 +85,7 @@
       <div><label>Altura (cm)</label><input id="height" type="number" placeholder="175" inputmode="numeric"></div>
       <div><label>Peso Atual (kg)</label><input id="weight" type="number" placeholder="80" inputmode="decimal"></div>
       <div><label>Peso Objetivo (kg)</label><input id="goal" type="number" placeholder="70" inputmode="decimal"></div>
-      <div>
-        <label>Atividade</label>
-        <select id="activity">
-          <option value="1.2">Sedentário</option>
-          <option value="1.375">Leve</option>
-          <option value="1.55" selected>Moderado</option>
-          <option value="1.725">Intenso</option>
-          <option value="1.9">Atleta</option>
-        </select>
-      </div>
+      <div><label>Atividade</label><select id="activity"><option value="1.2">Sedentário</option><option value="1.375">Leve</option><option value="1.55" selected>Moderado</option><option value="1.725">Intenso</option><option value="1.9">Atleta</option></select></div>
     </div>
     <button class="btn btn-primary mt" onclick="saveProfile()">Começar 🚀</button>
   </div>
@@ -196,13 +94,8 @@
 <!-- HOME -->
 <div id="home" class="page">
   <h1>🔥 <span>Calorie</span>Tracker</h1>
-
-  <!-- Ring -->
   <div class="card ring-wrap">
-    <svg viewBox="0 0 120 120">
-      <circle class="ring-bg" cx="60" cy="60" r="52"/>
-      <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
-    </svg>
+    <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
     <div class="ring-text" id="kcalNow">0</div>
     <div class="ring-sub">de <b id="kcalGoal">0</b> kcal</div>
     <div class="mt" id="statusTag"></div>
@@ -213,7 +106,6 @@
     </div>
   </div>
 
-  <!-- Add Meal -->
   <div class="card">
     <label>Adicionar Refeição</label>
     <div class="tabs">
@@ -221,34 +113,26 @@
       <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Montar Receita</button>
     </div>
 
-    <!-- TAB: Search -->
     <div id="tabSearch">
-      <div class="search-wrap">
-        <input id="foodSearch" type="text" placeholder="Ex: arroz com frango grelhado" enterkeyhint="search">
-      </div>
+      <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: frango desfiado, arroz, pizza..." enterkeyhint="search"></div>
       <div id="searchResults" class="results"></div>
     </div>
 
-    <!-- TAB: Recipe -->
     <div id="tabRecipe" class="hidden">
-      <input id="recipeName" type="text" placeholder="Nome da receita (ex: Almoço)" class="mb" style="font-size:.9rem">
+      <input id="recipeName" type="text" placeholder="Nome da refeição (ex: Almoço)" class="mb" style="font-size:.9rem">
       <div class="add-ing-form">
-        <input id="ingName" type="text" placeholder="Ingrediente (ex: arroz)">
+        <input id="ingName" type="text" placeholder="Ingrediente (ex: frango)">
         <input id="ingWeight" type="number" placeholder="g" inputmode="numeric">
         <button class="btn btn-primary btn-sm" onclick="searchIngredient()">+</button>
       </div>
       <div id="ingResults" class="results"></div>
       <div id="ingredientList"></div>
       <div id="recipeTotal" class="hidden">
-        <div class="recipe-total">
-          <div>Total</div>
-          <span id="recipeTotalKcal">0 kcal</span>
-        </div>
+        <div class="recipe-total"><div>Total</div><span id="recipeTotalKcal">0 kcal</span></div>
         <button class="btn btn-green mt" onclick="saveRecipe()">✅ Salvar Refeição</button>
       </div>
     </div>
 
-    <!-- Photo (shared) -->
     <div class="photo-area" id="photoArea">
       📷 Toque para tirar foto da refeição
       <input type="file" accept="image/*" capture="environment" id="photoInput">
@@ -256,7 +140,6 @@
     </div>
   </div>
 
-  <!-- Today's Meals -->
   <div class="card">
     <label>Refeições de Hoje</label>
     <div id="mealList"><div class="empty">Nenhuma refeição registada 🍽️</div></div>
@@ -266,13 +149,7 @@
 <!-- PROGRESS -->
 <div id="progress" class="page">
   <h1>📈 <span>Evolução</span></h1>
-  <div class="card">
-    <label>Registar Peso Atual</label>
-    <div class="weight-row">
-      <input id="newWeight" type="number" placeholder="kg" inputmode="decimal">
-      <button class="btn btn-primary" onclick="logWeight()">+</button>
-    </div>
-  </div>
+  <div class="card"><label>Registar Peso Atual</label><div class="weight-row"><input id="newWeight" type="number" placeholder="kg" inputmode="decimal"><button class="btn btn-primary" onclick="logWeight()">+</button></div></div>
   <div class="card"><label>Calorias — Últimos 7 dias</label><canvas id="chartCal" class="chart-canvas"></canvas></div>
   <div class="card"><label>Peso — Evolução</label><canvas id="chartWeight" class="chart-canvas"></canvas></div>
 </div>
@@ -284,7 +161,6 @@
   <button class="btn btn-outline mt" onclick="resetApp()">Redefinir Tudo 🗑️</button>
 </div>
 
-<!-- NAV -->
 <nav>
   <button class="nav-btn active" data-page="home"><span>🏠</span>Início</button>
   <button class="nav-btn" data-page="progress"><span>📈</span>Evolução</button>
@@ -298,6 +174,147 @@ const CIRCUM = 2 * Math.PI * 52;
 const $ = s => document.querySelector(s);
 const LS = { get: k => JSON.parse(localStorage.getItem(k)), set: (k, v) => localStorage.setItem(k, JSON.stringify(v)) };
 
+// ── Dicionário PT → EN (200+ alimentos) ───────────────────
+const DICT = {
+  // Carnes
+  'frango':'chicken','frango grelhado':'grilled chicken','frango desfiado':'shredded chicken','frango assado':'roasted chicken',
+  'peito de frango':'chicken breast','coxa de frango':'chicken thigh','asa de frango':'chicken wing','frango frito':'fried chicken',
+  'carne':'beef','carne moida':'ground beef','carne moída':'ground beef','carne de porco':'pork','carne seca':'beef jerky',
+  'bife':'beef steak','bife grelhado':'grilled beef steak','costela':'beef ribs','costela de porco':'pork ribs',
+  'picanha':'picanha steak','alcatra':'top sirloin','patinho':'beef round','acém':'chuck beef','maminha':'tri-tip steak',
+  'linguiça':'sausage','linguica':'sausage','salsicha':'hot dog sausage','bacon':'bacon','presunto':'ham',
+  'peru':'turkey','pato':'duck','cordeiro':'lamb','vitela':'veal','hambúrguer':'hamburger','hamburguer':'hamburger',
+  'almôndega':'meatball','almondega':'meatball','carne assada':'roast beef','cupim':'beef hump',
+  'figado':'beef liver','fígado':'beef liver','rabada':'oxtail','charque':'dried salted beef',
+
+  // Peixes e frutos do mar
+  'peixe':'fish','salmão':'salmon','salmao':'salmon','atum':'tuna','bacalhau':'codfish','tilápia':'tilapia','tilapia':'tilapia',
+  'sardinha':'sardine','camarão':'shrimp','camarao':'shrimp','lula':'squid','polvo':'octopus',
+  'merluza':'hake fish','pescada':'hake fish','robalo':'sea bass','dourado':'mahi mahi',
+  'peixe grelhado':'grilled fish','peixe frito':'fried fish','sushi':'sushi','sashimi':'sashimi',
+
+  // Ovos e laticínios
+  'ovo':'egg','ovo cozido':'boiled egg','ovo frito':'fried egg','ovo mexido':'scrambled egg','omelete':'omelette','clara de ovo':'egg white',
+  'leite':'milk','leite integral':'whole milk','leite desnatado':'skim milk','queijo':'cheese',
+  'queijo mussarela':'mozzarella cheese','queijo prato':'muenster cheese','queijo minas':'fresh white cheese',
+  'queijo coalho':'grilled cheese','queijo parmesão':'parmesan cheese','queijo parmesan':'parmesan cheese',
+  'requeijão':'cream cheese','requeijao':'cream cheese','iogurte':'yogurt','iogurte natural':'plain yogurt',
+  'iogurte grego':'greek yogurt','manteiga':'butter','creme de leite':'heavy cream','nata':'cream',
+  'coalhada':'curdled milk','ricota':'ricotta cheese','cottage':'cottage cheese',
+
+  // Grãos e cereais
+  'arroz':'rice','arroz branco':'white rice','arroz integral':'brown rice','arroz parboilizado':'parboiled rice',
+  'feijão':'beans','feijao':'beans','feijão preto':'black beans','feijão carioca':'pinto beans',
+  'lentilha':'lentils','grão de bico':'chickpeas','grao de bico':'chickpeas','ervilha':'peas',
+  'milho':'corn','aveia':'oats','granola':'granola','quinoa':'quinoa','cevada':'barley',
+  'trigo':'wheat','farinha':'flour','farinha de trigo':'wheat flour','farinha de mandioca':'cassava flour',
+  'farofa':'toasted cassava flour','fubá':'cornmeal','fuba':'cornmeal','tapioca':'tapioca',
+  'macarrão':'pasta','macarrao':'pasta','espaguete':'spaghetti','lasanha':'lasagna','nhoque':'gnocchi',
+  'pão':'bread','pao':'bread','pão integral':'whole wheat bread','pão francês':'french bread roll',
+  'pão de forma':'sliced bread','pão de queijo':'cheese bread','torrada':'toast','biscoito':'cookie',
+  'bolacha':'cracker','bolo':'cake','cuscuz':'couscous',
+
+  // Legumes e verduras
+  'alface':'lettuce','tomate':'tomato','cebola':'onion','alho':'garlic','cenoura':'carrot',
+  'batata':'potato','batata doce':'sweet potato','batata frita':'french fries',
+  'mandioca':'cassava','aipim':'cassava','inhame':'yam','abóbora':'pumpkin','abobora':'pumpkin',
+  'abobrinha':'zucchini','berinjela':'eggplant','pepino':'cucumber','pimentão':'bell pepper','pimentao':'bell pepper',
+  'brócolis':'broccoli','brocolis':'broccoli','couve-flor':'cauliflower','couve':'kale','espinafre':'spinach',
+  'repolho':'cabbage','rúcula':'arugula','rucula':'arugula','agrião':'watercress','agriao':'watercress',
+  'beterraba':'beet','quiabo':'okra','vagem':'green beans','ervilha':'peas','milho verde':'sweet corn',
+  'palmito':'heart of palm','aspargo':'asparagus','cogumelo':'mushroom','champignon':'mushroom',
+  'chuchu':'chayote','jiló':'jilo','jilo':'jilo','maxixe':'maxixe','salada':'salad',
+
+  // Frutas
+  'banana':'banana','maçã':'apple','maca':'apple','laranja':'orange','limão':'lemon','limao':'lemon',
+  'uva':'grape','morango':'strawberry','manga':'mango','abacaxi':'pineapple','melancia':'watermelon',
+  'melão':'melon','melao':'melon','mamão':'papaya','mamao':'papaya','goiaba':'guava','pêra':'pear','pera':'pear',
+  'pêssego':'peach','pessego':'peach','ameixa':'plum','kiwi':'kiwi','coco':'coconut',
+  'abacate':'avocado','maracujá':'passion fruit','maracuja':'passion fruit','acerola':'acerola',
+  'jabuticaba':'jabuticaba','caju':'cashew fruit','pitaya':'dragon fruit','açaí':'acai','acai':'acai',
+  'tangerina':'tangerine','mexerica':'tangerine','lima':'lime','framboesa':'raspberry','mirtilo':'blueberry',
+  'amora':'blackberry','figo':'fig','romã':'pomegranate','roma':'pomegranate','carambola':'star fruit',
+
+  // Oleaginosas e sementes
+  'amendoim':'peanut','castanha':'cashew nut','castanha de caju':'cashew nut','castanha do pará':'brazil nut',
+  'nozes':'walnut','amêndoa':'almond','amendoa':'almond','avelã':'hazelnut','avela':'hazelnut',
+  'semente de girassol':'sunflower seed','semente de abóbora':'pumpkin seed','linhaça':'flaxseed','linhaca':'flaxseed',
+  'chia':'chia seed','gergelim':'sesame seed','pistache':'pistachio','macadâmia':'macadamia','macadamia':'macadamia',
+  'pasta de amendoim':'peanut butter',
+
+  // Temperos e molhos
+  'azeite':'olive oil','óleo':'vegetable oil','oleo':'vegetable oil','vinagre':'vinegar',
+  'molho de tomate':'tomato sauce','ketchup':'ketchup','mostarda':'mustard','maionese':'mayonnaise',
+  'molho de soja':'soy sauce','shoyu':'soy sauce','pimenta':'pepper','sal':'salt','açúcar':'sugar','acucar':'sugar',
+  'mel':'honey','canela':'cinnamon','orégano':'oregano','oregano':'oregano','manjericão':'basil','manjericao':'basil',
+  'salsinha':'parsley','cebolinha':'chives','coentro':'cilantro','cominho':'cumin','curry':'curry',
+  'páprica':'paprika','paprica':'paprika','noz moscada':'nutmeg','cravo':'clove','louro':'bay leaf',
+  'gengibre':'ginger','açafrão':'turmeric','acafrao':'turmeric','cúrcuma':'turmeric','curcuma':'turmeric',
+
+  // Bebidas
+  'café':'coffee','cafe':'coffee','chá':'tea','cha':'tea','suco':'juice','suco de laranja':'orange juice',
+  'suco de uva':'grape juice','refrigerante':'soda','coca cola':'coca cola','cerveja':'beer',
+  'vinho':'wine','vinho tinto':'red wine','vinho branco':'white wine','água de coco':'coconut water',
+  'agua de coco':'coconut water','vitamina':'smoothie','shake':'protein shake','whey':'whey protein',
+  'leite de soja':'soy milk','leite de amêndoa':'almond milk','leite de amendoa':'almond milk',
+  'leite de aveia':'oat milk','energético':'energy drink','energetico':'energy drink',
+
+  // Doces e sobremesas
+  'chocolate':'chocolate','chocolate ao leite':'milk chocolate','chocolate amargo':'dark chocolate',
+  'sorvete':'ice cream','pudim':'pudding','brigadeiro':'chocolate truffle','beijinho':'coconut truffle',
+  'paçoca':'peanut candy','pacoca':'peanut candy','goiabada':'guava paste','doce de leite':'dulce de leche',
+  'gelatina':'gelatin','mousse':'mousse','torta':'pie','cheesecake':'cheesecake','brownie':'brownie',
+  'panqueca':'pancake','waffle':'waffle','crepe':'crepe','churros':'churros',
+  'barra de cereal':'cereal bar','rapadura':'raw sugar candy',
+
+  // Pratos prontos
+  'pizza':'pizza','pizza margherita':'margherita pizza','pizza calabresa':'pepperoni pizza',
+  'feijoada':'feijoada black bean stew','estrogonofe':'stroganoff','strogonoff':'stroganoff',
+  'estrogonofe de frango':'chicken stroganoff','macarrão com carne':'pasta with beef',
+  'arroz com feijão':'rice and beans','misto quente':'grilled ham and cheese sandwich',
+  'sanduíche':'sandwich','sanduiche':'sandwich','hot dog':'hot dog','cachorro quente':'hot dog',
+  'coxinha':'chicken croquette','pastel':'fried pastry','empada':'chicken pie',
+  'esfiha':'meat pie','esfirra':'meat pie','pão de queijo':'cheese bread',
+  'açaí na tigela':'acai bowl','tapioca com queijo':'tapioca with cheese',
+  'baião de dois':'rice and beans with cheese','acarajé':'acaraje','acaraje':'acaraje',
+  'moqueca':'fish stew','vatapá':'vatapa','vatapa':'vatapa','bobó de camarão':'shrimp bobo',
+  'bobo de camarao':'shrimp bobo','tutu de feijão':'bean puree','tutu de feijao':'bean puree',
+  'virado à paulista':'paulista style beans','frango xadrez':'kung pao chicken',
+  'yakisoba':'yakisoba','sopa':'soup','caldo verde':'kale soup','risoto':'risotto',
+  'omelete':'omelette','wrap':'wrap','burrito':'burrito','taco':'taco','salada caesar':'caesar salad',
+
+  // Suplementos
+  'whey protein':'whey protein','creatina':'creatine','albumina':'egg albumin','caseína':'casein','caseina':'casein',
+  'bcaa':'bcaa','glutamina':'glutamine','colágeno':'collagen','colageno':'collagen',
+  'hipercalórico':'mass gainer','hipercalorico':'mass gainer','maltodextrina':'maltodextrin',
+};
+
+// ── Tradução inteligente ───────────────────────────────────
+function translate(text) {
+  const lower = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const lowerOrig = text.toLowerCase();
+
+  // Tenta match exato primeiro
+  if (DICT[lowerOrig]) return { en: DICT[lowerOrig], pt: text };
+  if (DICT[lower]) return { en: DICT[lower], pt: text };
+
+  // Tenta match parcial (maior match primeiro)
+  const keys = Object.keys(DICT).sort((a, b) => b.length - a.length);
+  let translated = lowerOrig;
+  let found = false;
+  for (const key of keys) {
+    if (translated.includes(key)) {
+      translated = translated.replace(key, DICT[key]);
+      found = true;
+    }
+  }
+  if (found) return { en: translated, pt: text };
+
+  // Sem tradução — envia como está
+  return { en: text, pt: text };
+}
+
+// ── State ──────────────────────────────────────────────────
 const today = () => new Date().toISOString().slice(0, 10);
 const getProfile = () => LS.get('ct_profile');
 const getMeals = () => LS.get('ct_meals') || {};
@@ -306,10 +323,9 @@ const todayMeals = () => (getMeals()[today()] || []);
 const todayKcal = () => todayMeals().reduce((s, m) => s + m.kcal, 0);
 const todayMacros = () => todayMeals().reduce((o, m) => ({ p: o.p + (m.protein || 0), c: o.c + (m.carbs || 0), g: o.g + (m.fat || 0) }), { p: 0, c: 0, g: 0 });
 
-let currentPhoto = null;
-let recipeIngredients = [];
+let currentPhoto = null, recipeIngredients = [];
 
-// ── Profile & Goal ─────────────────────────────────────────
+// ── Profile ────────────────────────────────────────────────
 function calcGoal(p) {
   const bmr = p.sex === 'M' ? 10 * p.weight + 6.25 * p.height - 5 * p.age + 5 : 10 * p.weight + 6.25 * p.height - 5 * p.age - 161;
   let tdee = bmr * p.activity;
@@ -339,7 +355,6 @@ function navigate(page) {
 }
 document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => navigate(b.dataset.page)));
 
-// ── Tabs ───────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
@@ -357,18 +372,13 @@ function renderHome() {
   ring.style.stroke = pct <= .75 ? 'var(--green)' : pct <= 1 ? 'var(--yellow)' : 'var(--accent)';
   $('#kcalNow').textContent = eaten;
   $('#kcalGoal').textContent = goal;
-
   const remain = goal - eaten;
   const tag = $('#statusTag');
   if (remain > goal * .25) tag.innerHTML = `<span class="tag tag-ok">👍 Restam ${remain} kcal</span>`;
   else if (remain > 0) tag.innerHTML = `<span class="tag tag-warn">⚠️ Quase no limite — ${remain} kcal</span>`;
   else tag.innerHTML = `<span class="tag tag-over">🚫 Excedeu ${Math.abs(remain)} kcal</span>`;
-
   const m = todayMacros();
-  $('#macroP').textContent = m.p + 'g';
-  $('#macroC').textContent = m.c + 'g';
-  $('#macroG').textContent = m.g + 'g';
-
+  $('#macroP').textContent = m.p + 'g'; $('#macroC').textContent = m.c + 'g'; $('#macroG').textContent = m.g + 'g';
   renderMealList();
 }
 
@@ -380,22 +390,43 @@ function renderMealList() {
       ${m.photo ? `<img class="meal-thumb" src="${m.photo}" alt="">` : `<div class="meal-thumb">${m.isRecipe ? '🧑‍🍳' : '🍽️'}</div>`}
       <div class="meal-info">
         <div class="meal-name">${m.name}</div>
-        <div class="meal-meta">${m.isRecipe ? m.ingredients + ' ingredientes · ' : ''}${m.protein}g P · ${m.carbs}g C · ${m.fat}g G</div>
+        <div class="meal-meta">${m.isRecipe ? m.ingredients + ' itens · ' : ''}${m.protein}g P · ${m.carbs}g C · ${m.fat}g G</div>
       </div>
       <div class="meal-kcal">${m.kcal}</div>
       <button class="meal-del" onclick="delMeal(${i})">✕</button>
     </div>`).join('');
 }
 
-function delMeal(i) {
-  const all = getMeals(); all[today()].splice(i, 1); LS.set('ct_meals', all); renderHome();
-}
+function delMeal(i) { const all = getMeals(); all[today()].splice(i, 1); LS.set('ct_meals', all); renderHome(); }
 
-// ── API Search ─────────────────────────────────────────────
-async function apiSearch(query) {
+// ── API Search (com tradução) ──────────────────────────────
+async function apiSearch(query, originalPt) {
   const res = await fetch(API_URL + encodeURIComponent(query), { headers: { 'X-Api-Key': API_KEY } });
   const data = await res.json();
-  return data.items || [];
+  const items = data.items || [];
+  // Se buscou em inglês, adiciona o nome PT original
+  if (originalPt) items.forEach(it => it.namePt = originalPt);
+  return items;
+}
+
+async function smartSearch(text) {
+  const { en, pt } = translate(text);
+  // Tenta em inglês traduzido
+  let items = await apiSearch(en, pt);
+  // Se não encontrou e o texto original é diferente, tenta o original
+  if (!items.length && en !== text) items = await apiSearch(text);
+  return items;
+}
+
+async function smartSearchWithWeight(text, weight) {
+  const { en, pt } = translate(text);
+  const query = weight ? `${weight}g ${en}` : en;
+  let items = await apiSearch(query, pt);
+  if (!items.length) {
+    const fallback = weight ? `${weight}g ${text}` : text;
+    items = await apiSearch(fallback);
+  }
+  return items;
 }
 
 // ── Tab 1: Quick Search ────────────────────────────────────
@@ -411,22 +442,29 @@ async function quickSearch(query) {
   const el = $('#searchResults');
   el.innerHTML = '<div class="center"><div class="loader"></div></div>';
   try {
-    const items = await apiSearch(query);
-    if (!items.length) { el.innerHTML = '<div class="empty">Nenhum resultado</div>'; return; }
-    el.innerHTML = items.map((it, i) => `
-      <div class="result-item" onclick='addQuickFood(${JSON.stringify(it).replace(/'/g,"&#39;")})'>
+    const items = await smartSearch(query);
+    if (!items.length) { el.innerHTML = '<div class="empty">Nenhum resultado encontrado 😕</div>'; return; }
+    el.innerHTML = items.map(it => {
+      const displayName = it.namePt || it.name;
+      const safe = JSON.stringify(it).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+      return `<div class="result-item" onclick='addQuickFood(JSON.parse(this.dataset.item))' data-item='${JSON.stringify(it)}'>
         <div>
-          <div style="font-weight:600">${it.name}</div>
+          <div style="font-weight:600">${capitalize(displayName)}</div>
+          <div style="font-size:.7rem;color:#666;font-style:italic">${it.name}</div>
           <div style="font-size:.75rem;color:var(--muted)">${it.serving_size_g}g · P:${it.protein_g}g C:${it.carbohydrates_total_g}g G:${it.fat_total_g}g</div>
         </div>
         <div style="font-weight:700;color:var(--accent)">${Math.round(it.calories)} kcal</div>
-      </div>`).join('');
-  } catch { el.innerHTML = '<div class="empty">Erro na busca. Verifique a API Key.</div>'; }
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Erro na busca. Verifique a API Key.</div>'; }
 }
 
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
 function addQuickFood(item) {
+  const name = item.namePt || item.name;
   saveMeal({
-    name: item.name, kcal: Math.round(item.calories),
+    name: capitalize(name), kcal: Math.round(item.calories),
     protein: Math.round(item.protein_g), carbs: Math.round(item.carbohydrates_total_g),
     fat: Math.round(item.fat_total_g), isRecipe: false
   });
@@ -439,26 +477,29 @@ $('#ingName').addEventListener('keydown', e => { if (e.key === 'Enter') searchIn
 async function searchIngredient() {
   const name = $('#ingName').value.trim(), weight = +$('#ingWeight').value;
   if (!name) return alert('Digite o nome do ingrediente.');
-  const query = weight ? `${weight}g ${name}` : name;
   const el = $('#ingResults');
   el.innerHTML = '<div class="center"><div class="loader"></div></div>';
   try {
-    const items = await apiSearch(query);
-    if (!items.length) { el.innerHTML = '<div class="empty">Ingrediente não encontrado</div>'; return; }
-    el.innerHTML = items.map(it => `
-      <div class="result-item" onclick='addIngredient(${JSON.stringify(it).replace(/'/g,"&#39;")})'>
+    const items = await smartSearchWithWeight(name, weight);
+    if (!items.length) { el.innerHTML = '<div class="empty">Ingrediente não encontrado 😕<br><span style="font-size:.75rem">Tente outro nome (ex: "frango" em vez de "frango desfiado")</span></div>'; return; }
+    el.innerHTML = items.map(it => {
+      const displayName = it.namePt || it.name;
+      return `<div class="result-item" onclick='addIngredient(JSON.parse(this.dataset.item))' data-item='${JSON.stringify(it)}'>
         <div>
-          <div style="font-weight:600">${it.name}</div>
+          <div style="font-weight:600">${capitalize(displayName)}</div>
+          <div style="font-size:.7rem;color:#666;font-style:italic">${it.name}</div>
           <div style="font-size:.75rem;color:var(--muted)">${it.serving_size_g}g · P:${it.protein_g}g C:${it.carbohydrates_total_g}g G:${it.fat_total_g}g</div>
         </div>
         <div style="font-weight:700;color:var(--accent)">${Math.round(it.calories)} kcal</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch { el.innerHTML = '<div class="empty">Erro na busca.</div>'; }
 }
 
 function addIngredient(item) {
+  const name = item.namePt || item.name;
   recipeIngredients.push({
-    name: item.name, grams: item.serving_size_g,
+    name: capitalize(name), grams: item.serving_size_g,
     kcal: Math.round(item.calories), protein: Math.round(item.protein_g),
     carbs: Math.round(item.carbohydrates_total_g), fat: Math.round(item.fat_total_g)
   });
@@ -487,17 +528,11 @@ function saveRecipe() {
   if (!recipeIngredients.length) return alert('Adicione pelo menos 1 ingrediente.');
   const sum = recipeIngredients.reduce((o, ing) => ({ kcal: o.kcal + ing.kcal, p: o.p + ing.protein, c: o.c + ing.carbs, g: o.g + ing.fat }), { kcal: 0, p: 0, c: 0, g: 0 });
   const name = $('#recipeName').value.trim() || recipeIngredients.map(i => i.name).join(' + ');
-  saveMeal({
-    name, kcal: sum.kcal, protein: sum.p, carbs: sum.c, fat: sum.g,
-    isRecipe: true, ingredients: recipeIngredients.length,
-    ingredientList: [...recipeIngredients]
-  });
-  recipeIngredients = [];
-  $('#recipeName').value = '';
-  renderIngredients();
+  saveMeal({ name, kcal: sum.kcal, protein: sum.p, carbs: sum.c, fat: sum.g, isRecipe: true, ingredients: recipeIngredients.length });
+  recipeIngredients = []; $('#recipeName').value = ''; renderIngredients();
 }
 
-// ── Save Meal (shared) ─────────────────────────────────────
+// ── Save Meal ──────────────────────────────────────────────
 function saveMeal(meal) {
   const all = getMeals(), d = today();
   if (!all[d]) all[d] = [];
@@ -505,8 +540,7 @@ function saveMeal(meal) {
   meal.time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   all[d].push(meal);
   LS.set('ct_meals', all);
-  currentPhoto = null;
-  $('#photoPreview').style.display = 'none';
+  currentPhoto = null; $('#photoPreview').style.display = 'none';
   renderHome();
 }
 
@@ -517,13 +551,11 @@ $('#photoInput').addEventListener('change', e => {
   reader.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      const c = document.createElement('canvas'), max = 400;
-      const ratio = Math.min(max / img.width, max / img.height, 1);
+      const c = document.createElement('canvas'), max = 400, ratio = Math.min(max / img.width, max / img.height, 1);
       c.width = img.width * ratio; c.height = img.height * ratio;
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
       currentPhoto = c.toDataURL('image/jpeg', 0.6);
-      $('#photoPreview').src = currentPhoto;
-      $('#photoPreview').style.display = 'block';
+      $('#photoPreview').src = currentPhoto; $('#photoPreview').style.display = 'block';
     };
     img.src = ev.target.result;
   };
@@ -537,8 +569,7 @@ function logWeight() {
   if (idx >= 0) w[idx].kg = kg; else w.push({ date: today(), kg });
   LS.set('ct_weights', w);
   const p = getProfile(); p.weight = kg; p.kcalGoal = calcGoal(p); LS.set('ct_profile', p);
-  $('#newWeight').value = '';
-  renderCharts();
+  $('#newWeight').value = ''; renderCharts();
 }
 
 // ── Charts ─────────────────────────────────────────────────
@@ -584,8 +615,7 @@ function drawLineChart(id, data) {
   canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
   ctx.scale(dpr, dpr);
   const W = canvas.offsetWidth, H = canvas.offsetHeight, pad = 35;
-  const vals = data.map(d => d.kg), min = Math.min(...vals) - 2, max = Math.max(...vals) + 2;
-  const goal = getProfile()?.goal;
+  const vals = data.map(d => d.kg), min = Math.min(...vals) - 2, max = Math.max(...vals) + 2, goal = getProfile()?.goal;
   ctx.clearRect(0, 0, W, H);
   if (goal) {
     const gy = H - pad - ((goal - min) / (max - min)) * (H - pad * 2);
@@ -609,7 +639,6 @@ function drawLineChart(id, data) {
   });
 }
 
-// ── Profile ────────────────────────────────────────────────
 function renderProfile() {
   const p = getProfile(); if (!p) return;
   const diff = p.weight - p.goal;
@@ -627,7 +656,6 @@ function resetApp() {
   navigate('setup');
 }
 
-// ── Init ───────────────────────────────────────────────────
 getProfile() ? navigate('home') : navigate('setup');
 </script>
 </body>
