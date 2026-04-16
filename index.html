@@ -121,6 +121,7 @@
     .imc-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
     .imc-detail-item{background:rgba(0,0,0,0.2);border-radius:14px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
 
+    /* CORREÇÃO DO TMB E IMC */
     .imc-detail-value { font-size:1.25rem; font-weight:800; }
     .imc-detail-label { font-size:0.75rem; color:var(--muted); margin-top:4px; font-weight:700; }
     .imc-scale-labels { display:flex; justify-content:space-between; font-size:0.65rem; color:var(--muted); font-weight:700; margin-top:4px; padding:0 4px; }
@@ -155,7 +156,7 @@
     .cal-stat-value{font-size:1.2rem;font-weight:800}
     .measure-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 
-    /* PROGRESS CONTROLS (Adicionado do Patch) */
+    /* PROGRESS CONTROLS */
     .progress-section{display:none}
     .progress-section.active{display:block;animation:fadeIn .3s ease}
     .progress-controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
@@ -496,7 +497,7 @@
 
 <script>
 /* ========================================================================
-   CalorieTracker Premium — JavaScript Completo e Corrigido
+   CalorieTracker Premium — Final Seguro (Limpo para GitHub)
    ======================================================================== */
 
 const OFF_SEARCH_URL = 'https://world.openfoodfacts.org/cgi/search.pl';
@@ -579,8 +580,6 @@ let STATE = {
 };
 
 let currentHomeCardMode = 'tmb';
-
-// VARIÁVEIS DE ESTADO DA EVOLUÇÃO
 let currentProgressTab = 'calories';
 let progressRangeDays = 7;
 
@@ -599,7 +598,7 @@ const viewingMacros = () => viewingMeals().reduce((o, m) => ({
 const viewingWater = () => (getWater()[getViewingDateStr()] || 0);
 const docRef = () => db.collection('users').doc(currentUser.uid).collection('app').doc('data');
 
-/* ── UTILITÁRIOS ── */
+/* ── UTILITÁRIOS & SEGURANÇA ── */
 function showToast(msg, isError = false) {
   const t = $('#toast');
   t.innerHTML = isError ? `⚠️ ${msg}` : `✓ ${msg}`;
@@ -613,6 +612,16 @@ function showOnly(pageId) {
   document.getElementById(pageId)?.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+/* Proteção contra ataques XSS */
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(tag) {
+    const charsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return charsToReplace[tag] || tag;
+  });
+}
+
 function queueSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
@@ -900,7 +909,7 @@ function navigate(page) {
   if (page === 'progress') {
     document.getElementById('progressCategorySelect').value = currentProgressTab;
     document.getElementById('progressRangeSelect').value = String(progressRangeDays);
-    renderProgress(); 
+    renderProgress();
   }
   if (page === 'profile') renderProfile();
 }
@@ -1217,7 +1226,9 @@ function confirmPortion() {
   const totalGrams = getCalculatedGrams();
   const p = calcPortion(_selectedItem, totalGrams);
   if (isNaN(p.kcal)) { showToast('Erro no cálculo', true); return; }
-  let displayName = cap(_selectedItem.name);
+  
+  // SANITIZAÇÃO NO NOME VINDO DO SEARCH/API
+  let displayName = escapeHTML(cap(_selectedItem.name));
   const unitSelect = $('#portionUnit');
   const unitText = unitSelect.options[unitSelect.selectedIndex].text.split(' ')[0];
   const amt = parseFloat($('#portionAmt').value);
@@ -1252,10 +1263,14 @@ function saveMeal(meal) {
 }
 
 function addManualFood() {
-  const name = $('#manualName').value.trim();
-  if (!name) return showToast('Digite um nome', true);
+  // SANITIZAÇÃO DO TEXTO INTRODUZIDO PELO UTILIZADOR (XSS)
+  const rawName = $('#manualName').value.trim();
+  if (!rawName) return showToast('Digite um nome', true);
+  const name = escapeHTML(rawName);
+
   const kcal = +$('#manualKcal').value || 0, protein = +$('#manualProtein').value || 0,
     carbs = +$('#manualCarbs').value || 0, fat = +$('#manualFat').value || 0, grams = +$('#manualGrams').value || 100;
+  
   saveMeal({ name: cap(name), kcal, protein, carbs, fat, grams, type: $('#mealTypeSelect').value, isRecipe: false });
   const recipes = getSavedRecipes();
   recipes.push({
@@ -1308,6 +1323,7 @@ $('#ingName').addEventListener('input', e => {
     }, 500);
   }
 });
+
 function renderIngredientResults() {
   $('#ingResults').innerHTML = _ingredientItems.map((it, idx) =>
     `<div class="result-item" onclick="openPortionModal(${idx}, 'ingredient')"><div style="flex:1"><div style="font-weight:600">${cap(it.name)}</div><div style="font-size:.75rem;color:var(--muted)">por 100g · P:${it.protein100}g</div></div><div style="font-weight:700;color:var(--accent)">${Math.round(it.kcal100)} kcal</div></div>`
@@ -1333,7 +1349,10 @@ function renderIngredients() {
 function saveRecipe(alsoLog) {
   if (!recipeIngredients.length) return showToast('Adicione ingredientes primeiro.', true);
   const sum = recipeIngredients.reduce((o, g) => ({ kcal: o.kcal + g.kcal, p: o.p + g.protein, c: o.c + g.carbs, g: o.g + g.fat }), { kcal: 0, p: 0, c: 0, g: 0 });
-  const name = $('#recipeName').value.trim() || recipeIngredients.map(i => i.name).join(' + ');
+  
+  // SANITIZAÇÃO DO NOME DA RECEITA
+  const name = escapeHTML($('#recipeName').value.trim()) || recipeIngredients.map(i => i.name).join(' + ');
+  
   const recipes = getSavedRecipes();
   if (_editingRecipeId) {
     const idx = recipes.findIndex(r => r.id === _editingRecipeId);
@@ -1576,7 +1595,7 @@ function drawLineChartCal(id, data, goal) {
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   ctx.strokeStyle = '#48dbfb'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
   
-  const step = Math.max(1, Math.floor(data.length / 10)); // Impede etiquetas sobrepostas em meses/trimestres
+  const step = Math.max(1, Math.floor(data.length / 10)); // Impede etiquetas sobrepostas
   
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = data[i].value <= goal ? '#10ac84' : '#ff4757'; ctx.fill();
@@ -1770,6 +1789,44 @@ function drawBarChartWater(id, data, goal) {
       ctx.fillText(progressRangeDays > 14 ? d.label : d.weekday, x + barW / 2, H - 8);
     }
   });
+}
+
+/* ── MEDIDAS ── */
+const MEASURE_FIELDS = [
+  { id: 'measureChest', key: 'chest', label: '🫁 Peito', unit: 'cm' },
+  { id: 'measureArm', key: 'arm', label: '💪 Braço', unit: 'cm' },
+  { id: 'measureWaist', key: 'waist', label: '📐 Cintura', unit: 'cm' },
+  { id: 'measureHip', key: 'hip', label: '🍑 Anca', unit: 'cm' },
+  { id: 'measureThigh', key: 'thigh', label: '🦵 Coxa', unit: 'cm' },
+  { id: 'measureCalf', key: 'calf', label: '🦶 Gémeo', unit: 'cm' }
+];
+
+function saveMeasures() {
+  const entry = { date: todayStr() };
+  let hasValue = false;
+  MEASURE_FIELDS.forEach(f => {
+    const val = parseFloat($(`#${f.id}`).value);
+    if (val && val > 0) { entry[f.key] = val; hasValue = true; }
+  });
+  if (!hasValue) return showToast('Preencha pelo menos uma medida.', true);
+  const measures = getMeasures();
+  const idx = measures.findIndex(m => m.date === entry.date);
+  if (idx >= 0) { MEASURE_FIELDS.forEach(f => { if (entry[f.key]) measures[idx][f.key] = entry[f.key]; }); }
+  else { measures.push(entry); }
+  measures.sort((a, b) => a.date.localeCompare(b.date));
+  setState('ct_measures', measures);
+  MEASURE_FIELDS.forEach(f => $(`#${f.id}`).value = '');
+  showToast('Medidas registadas com sucesso!');
+  renderMeasuresProgress();
+}
+
+function deleteMeasure(idx) {
+  const measures = getMeasures();
+  if (idx < 0 || idx >= measures.length) return;
+  if (!confirm('Apagar este registo de medidas?')) return;
+  measures.splice(idx, 1);
+  setState('ct_measures', measures);
+  renderMeasuresProgress();
 }
 
 function renderMeasuresProgress() {
