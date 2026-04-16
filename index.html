@@ -96,7 +96,7 @@
     .water-btn.add{background:var(--blue);color:#111;box-shadow:0 4px 12px var(--blue-dim)}
     .water-btn.minus{background:rgba(255,255,255,0.05);color:var(--muted);padding:0 16px}
 
-    /* WATER PROGRESS BAR (HOME) */
+    /* WATER PROGRESS BAR */
     .water-progress-section{margin-top:4px}
     .water-progress-bar-bg{width:100%;height:12px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden}
     .water-progress-bar-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg, var(--blue), #1dd1a1)}
@@ -267,11 +267,11 @@
       </div>
       <div style="flex:1.5">
         <label>Medida</label>
-        <select id="portionUnit">
+        <select id="portionUnit" style="padding:14px 10px;font-size:0.9rem">
           <option value="1">Gramas / ml (g)</option>
           <option value="15">Colher de Sopa (~15g)</option>
           <option value="5">Colher de Chá (~5g)</option>
-          <option value="30">Escumadeira / Fatia (~30g)</option>
+          <option value="30">Escumadeira (~30g)</option>
           <option value="150">Xícara / Copo (~150g)</option>
           <option value="100">Unidade Média (~100g)</option>
         </select>
@@ -293,7 +293,7 @@
     </div>
   </div>
 </div>
-  
+
 <!-- AUTHENTICATION -->
 <div id="auth" class="page active">
   <h1>🔥 <span>Calorie</span>Tracker</h1>
@@ -342,7 +342,63 @@
     </div>
   </div>
 
-  <!-- 1. DASHBOARD GRÁFICO -->
+  <!-- 1. ADD MEALS & TABS (MOVIMENTADO PARA O TOPO) -->
+  <div class="card" id="addMealSection" style="border: 2px solid var(--accent); box-shadow: 0 8px 25px var(--accent-dim);">
+    <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">O que vai comer?</label>
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
+      <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
+      <button class="tab" data-tab="manual" onclick="switchTab('manual')">✍️ Digitar</button>
+      <button class="tab" data-tab="saved" onclick="switchTab('saved')">⭐ Meus Alimentos</button>
+    </div>
+
+    <!-- TAB: SEARCH -->
+    <div id="tabSearch">
+      <div class="search-header">
+        <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: arroz, feijão, pão, maçã..." enterkeyhint="search"></div>
+        <button class="btn-recent" onclick="showRecent()" title="Ver histórico recente">🕒</button>
+      </div>
+      <div id="searchResults" class="results" style="background:transparent;padding:0"></div>
+    </div>
+
+    <!-- TAB: RECIPE BUILDER -->
+    <div id="tabRecipe" class="hidden">
+      <input id="recipeName" type="text" placeholder="Nome da receita (ex: Salada Atum)" class="mb">
+      <div style="display:flex;gap:10px;align-items:center">
+        <input id="ingName" type="text" placeholder="Adicionar ingrediente" style="flex:2">
+      </div>
+      <div id="ingResults" class="results mt" style="background:transparent;padding:0"></div>
+      <div id="ingredientList" style="margin-top:16px"></div>
+      <div id="recipeTotal" class="hidden">
+        <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
+        <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px"></div>
+      </div>
+    </div>
+
+    <!-- TAB: MANUAL ENTRY -->
+    <div id="tabManual" class="hidden">
+      <div class="manual-entry">
+        <label>Nome do Alimento</label>
+        <input id="manualName" type="text" placeholder="Ex: Tapioca com Queijo" class="mb">
+        <div class="manual-grid">
+          <div><label>Calorias totais</label><input id="manualKcal" type="number" placeholder="0" inputmode="numeric"></div>
+          <div><label>Quantidade (g ou un)</label><input id="manualGrams" type="number" placeholder="100" inputmode="numeric"></div>
+          <div><label>Proteína (g)</label><input id="manualProtein" type="number" placeholder="0" inputmode="numeric"></div>
+          <div><label>Carbos (g)</label><input id="manualCarbs" type="number" placeholder="0" inputmode="numeric"></div>
+          <div><label>Gordura (g)</label><input id="manualFat" type="number" placeholder="0" inputmode="numeric"></div>
+        </div>
+        <button class="btn btn-primary mt" style="margin-top:20px" onclick="addManualFood()">Adicionar e Salvar Favorito</button>
+      </div>
+    </div>
+
+    <!-- TAB: SAVED RECIPES -->
+    <div id="tabSaved" class="hidden">
+      <div id="savedRecipeList" class="results" style="background:transparent;padding:0"></div>
+    </div>
+  </div>
+
+  <!-- 2. DASHBOARD (GRÁFICOS) -->
   <div class="card" style="padding-top:30px">
     <div class="ring-wrap">
       <svg viewBox="0 0 200 200"><circle class="ring-bg" cx="100" cy="100" r="88"/><circle class="ring-fg" id="ringFg" cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="552.92"/></svg>
@@ -359,18 +415,32 @@
     </div>
   </div>
 
-  <!-- 2. O QUE COMI HOJE (DIÁRIO) -->
+  <!-- 3. DIÁRIO DE HOJE (ACORDEÃO OCULTÁVEL) -->
   <div class="card" id="mealListContainer">
-    <label style="font-size:1.15rem;margin-bottom:8px;color:var(--text);font-weight:800">Diário de Hoje</label>
-    <div id="mealList"><div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares</div></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleMealList()">
+      <label style="font-size:1.15rem; margin:0; color:var(--text); font-weight:800; cursor:pointer;">
+        🍽️ Diário de Hoje <span id="mealCountStr" style="color:var(--muted); font-size:0.9rem; font-weight:600">(0)</span>
+      </label>
+      <span id="mealToggleIcon" style="font-size:1.2rem; transition:transform 0.3s; color:var(--muted)">▼</span>
+    </div>
     
-    <!-- Botão fluido para adicionar nova refeição -->
-    <button class="btn btn-primary mt" onclick="document.getElementById('addMealSection').scrollIntoView({behavior: 'smooth'})" style="margin-top:20px; font-size:1.1rem; box-shadow: 0 8px 25px var(--accent-dim);">
-      ➕ Adicionar Refeição
-    </button>
+    <div id="mealListWrapper" style="display:none; margin-top:16px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05);">
+      <div id="mealList"><div class="empty">Sem registos alimentares hoje</div></div>
+    </div>
   </div>
 
-  <!-- 3. ÁGUA -->
+  <!-- 4. IMC DIÁRIO CARD -->
+  <div class="imc-home-card" id="imcHomeCard">
+    <div class="imc-home-header">
+      <span class="imc-home-title">📐 IMC Diário</span>
+      <span id="imcDateLabel" style="font-size:.8rem;color:var(--muted);font-weight:600"></span>
+    </div>
+    <div id="imcContent">
+      <div class="empty" style="padding:20px 0">Registe o peso para ver o IMC</div>
+    </div>
+  </div>
+
+  <!-- 5. WATER TRACKER -->
   <div class="water-tracker">
     <div class="water-top-row">
       <div class="water-info">
@@ -393,7 +463,7 @@
     </div>
   </div>
 
-  <!-- 4. PESO DIÁRIO -->
+  <!-- 6. WEIGHT HOME CARD -->
   <div class="weight-home-card">
     <div class="weight-home-header">
       <span class="weight-home-title">⚖️ Peso</span>
@@ -407,72 +477,16 @@
     <div class="weight-home-stats">
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatCurrent" style="color:var(--text)">--</div>
-        <div class="weight-home-stat-label">Peso do Dia</div>
+        <div class="weight-home-stat-label">Peso do Dia (kg)</div>
       </div>
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatVsYesterday" style="color:var(--muted)">--</div>
-        <div class="weight-home-stat-label">vs Ontem</div>
+        <div class="weight-home-stat-label">vs Dia Anterior</div>
       </div>
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatVsGoal" style="color:var(--accent)">--</div>
         <div class="weight-home-stat-label">Falta p/ Meta</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 5. ÁREA DE PESQUISA / ADICIONAR -->
-  <div class="card" id="addMealSection" style="margin-top:20px; border: 2px solid var(--card-hover);">
-    <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">O que vai comer?</label>
-    
-    <div class="tabs">
-      <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
-      <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Criar Receita</button>
-      <button class="tab" data-tab="manual" onclick="switchTab('manual')">✍️ Digitar</button>
-      <button class="tab" data-tab="saved" onclick="switchTab('saved')">⭐ Meus Alimentos</button>
-    </div>
-
-    <!-- TAB: SEARCH -->
-    <div id="tabSearch">
-      <div class="search-header">
-        <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: arroz, frango, maçã..." enterkeyhint="search"></div>
-        <button class="btn-recent" onclick="showRecent()" title="Ver histórico recente">🕒</button>
-      </div>
-      <div id="searchResults" class="results" style="background:transparent;padding:0"></div>
-    </div>
-
-    <!-- TAB: RECIPE BUILDER -->
-    <div id="tabRecipe" class="hidden">
-      <input id="recipeName" type="text" placeholder="Nome da receita (ex: Salada Atum)" class="mb">
-      <div style="display:flex;gap:10px;align-items:center">
-        <input id="ingName" type="text" placeholder="Pesquisar ingrediente..." style="flex:2">
-      </div>
-      <div id="ingResults" class="results mt" style="background:transparent;padding:0"></div>
-      <div id="ingredientList" style="margin-top:16px"></div>
-      <div id="recipeTotal" class="hidden">
-        <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
-        <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px"></div>
-      </div>
-    </div>
-
-    <!-- TAB: MANUAL ENTRY -->
-    <div id="tabManual" class="hidden">
-      <div class="manual-entry">
-        <label>Nome do Alimento ou Refeição</label>
-        <input id="manualName" type="text" placeholder="Ex: Tapioca com Queijo" class="mb">
-        <div class="manual-grid">
-          <div><label>Calorias totais</label><input id="manualKcal" type="number" placeholder="0" inputmode="numeric"></div>
-          <div><label>Quantidade (g ou un)</label><input id="manualGrams" type="number" placeholder="100" inputmode="numeric"></div>
-          <div><label>Proteína (g)</label><input id="manualProtein" type="number" placeholder="0" inputmode="numeric"></div>
-          <div><label>Carbos (g)</label><input id="manualCarbs" type="number" placeholder="0" inputmode="numeric"></div>
-          <div><label>Gordura (g)</label><input id="manualFat" type="number" placeholder="0" inputmode="numeric"></div>
-        </div>
-        <button class="btn btn-primary mt" style="margin-top:20px" onclick="addManualFood()">Adicionar e Salvar nos Favoritos</button>
-      </div>
-    </div>
-
-    <!-- TAB: SAVED RECIPES -->
-    <div id="tabSaved" class="hidden">
-      <div id="savedRecipeList" class="results" style="background:transparent;padding:0"></div>
     </div>
   </div>
 
@@ -707,7 +721,7 @@ function setNavVisible(show){ $('#mainNav').style.display = show ? 'flex' : 'non
 function showOnly(pageId){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(pageId)?.classList.add('active');
-  window.scrollTo(0,0); // Garante que a página começa no topo ao navegar
+  window.scrollTo({top: 0, behavior: 'smooth'}); // Inicia sempre no topo da aba
 }
 function queueSave(){
   clearTimeout(saveTimer);
@@ -731,7 +745,7 @@ async function loadCloudState(){
       STATE.ct_weights = d.ct_weights || []; 
       STATE.ct_water = d.ct_water || {}; 
       STATE.ct_measures = d.ct_measures || [];
-      return true;
+      return true; // Sucesso
     }
   } catch (error) {
     console.error("Erro na leitura da cloud:", error);
@@ -980,6 +994,8 @@ function renderHome(){
   $('#pctC').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.c*4 / totalMacroKcal)*100)}%` : '0%';
   $('#pctG').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.g*9 / totalMacroKcal)*100)}%` : '0%';
 
+  renderIMCHome();
+
   const currentWater = viewingWater();
   const waterGoal = getWaterGoal();
   const waterRemaining = Math.max(0, waterGoal - currentWater);
@@ -1000,12 +1016,36 @@ function renderHome(){
   renderWeightHome();
 
   const meals = viewingMeals();
-  if(!meals.length){ $('#mealList').innerHTML='<div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares hoje</div>'; return; }
+  const countEl = document.getElementById('mealCountStr');
+  if(countEl) countEl.textContent = `(${meals.length})`;
+
+  if(!meals.length){ 
+    $('#mealList').innerHTML='<div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares hoje</div>'; 
+    return; 
+  }
   $('#mealList').innerHTML = meals.map((ml,i)=>`
     <div class="meal-item"><div class="meal-thumb">${ml.isRecipe?'🧑‍🍳':'🍽️'}</div>
     <div class="meal-info"><div class="meal-name">${ml.name}</div><div class="meal-meta">P:${Math.round(ml.protein)}g · C:${Math.round(ml.carbs)}g</div></div>
     <div class="meal-kcal">${ml.kcal} <span style="font-size:.7rem;color:var(--muted)">kcal</span></div><button class="meal-del" onclick="delMeal(${i})">✕</button></div>
   `).join('');
+}
+
+function renderIMCHome(){
+  const p = getProfile();
+  const viewDate = getViewingDateStr();
+  const todayFmt = todayStr();
+  
+  $('#imcDateLabel').textContent = viewDate === todayFmt ? 'Hoje' : viewingDate.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
+  const dayWeight = getWeightForDate(viewDate);
+  const heightCm = p ? p.height : null;
+  
+  let dateInfo = '';
+  if(dayWeight){
+    const weights = getWeights();
+    const exact = weights.find(w => w.date === viewDate);
+    dateInfo = exact ? `Peso registado: ${dayWeight} kg` : `Peso estimado: ${dayWeight} kg (último registo)`;
+  }
+  renderIMCCard('imcContent', dayWeight, heightCm, dateInfo);
 }
 
 function renderWeightHome(){
@@ -1072,7 +1112,7 @@ function saveWeightFromHome(){
 function logWater(amt){ const w = getWater(), d = getViewingDateStr(); w[d] = Math.max(0, (w[d]||0) + amt); setState('ct_water', w); renderHome(); }
 function delMeal(i){ const all = getMeals(); all[getViewingDateStr()].splice(i,1); setState('ct_meals', all); renderHome(); }
 
-/* ================== SEARCH (INSTANT LOCAL + CLOUD) ================== */
+/* ================== SEARCH E MODAL ================== */
 let searchTimer;
 $('#foodSearch').addEventListener('input', e => {
   clearTimeout(searchTimer); 
@@ -1117,21 +1157,19 @@ function openPortionModal(idx, ctx){
   
   $('#portionTitle').textContent = cap(_selectedItem.name); 
   $('#portionAmt').value = 100;
-  $('#portionUnit').value = "1"; // Volta para Gramas por defeito
+  $('#portionUnit').value = "1";
   
   document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.portion-btn')[0].classList.add('active'); // Foca nos 100g
+  document.querySelectorAll('.portion-btn')[0].classList.add('active'); 
   
-  setTimeout(() => $('#portionAmt').select(), 100); // Seleciona número auto para reescrever
+  setTimeout(() => $('#portionAmt').select(), 100); 
   
   updatePortionPreview(); 
   $('#portionModal').classList.add('show');
 }
-
 function closePortionModal(){ $('#portionModal').classList.remove('show'); }
 
-// Botões rápidos (Ex: 1 C. Sopa)
-function setPreset(amt, unitVal, btnElement){ 
+function setPreset(amt, unitVal){ 
   $('#portionAmt').value = amt; 
   $('#portionUnit').value = unitVal;
   document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
@@ -1144,7 +1182,6 @@ $('#portionAmt').addEventListener('input', () => {
   updatePortionPreview();
 });
 
-// UX inteligente: se trocar de "Gramas" para "Colher", muda o número de 100 para 1 auto
 $('#portionUnit').addEventListener('change', () => {
   document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
   if($('#portionAmt').value == "100" && $('#portionUnit').value != "1") $('#portionAmt').value = "1";
@@ -1152,7 +1189,6 @@ $('#portionUnit').addEventListener('change', () => {
   updatePortionPreview();
 });
 
-// Calcula as gramas totais invisíveis por trás do ecrã
 function getCalculatedGrams() {
   const amt = parseFloat($('#portionAmt').value) || 0;
   const mult = parseFloat($('#portionUnit').value) || 1;
@@ -1164,7 +1200,6 @@ function updatePortionPreview(){
   const totalGrams = getCalculatedGrams();
   const p = calcPortion(_selectedItem, totalGrams);
   
-  // Formata os números para no máximo 1 casa decimal (evita "13.333333g")
   const pKcal = Math.round(p.kcal);
   const pProt = Number(p.protein).toFixed(1).replace(/\.0$/, '');
   const pCarb = Number(p.carbs).toFixed(1).replace(/\.0$/, '');
@@ -1186,10 +1221,9 @@ function confirmPortion(){
   
   let displayName = cap(_selectedItem.name);
   const unitSelect = $('#portionUnit');
-  const unitText = unitSelect.options[unitSelect.selectedIndex].text.split(' ')[0]; // Ex: "Colher"
+  const unitText = unitSelect.options[unitSelect.selectedIndex].text.split(' ')[0]; 
   const amt = parseFloat($('#portionAmt').value);
 
-  // Se não forem gramas, junta a medida ao nome para aparecer bonito no Diário!
   if(unitSelect.value != "1") {
       displayName += ` (${amt} ${unitText})`;
   }
@@ -1212,10 +1246,10 @@ function saveMeal(meal){
   const all = getMeals(), d = getViewingDateStr(); if(!all[d]) all[d] = [];
   all[d].push(meal); setState('ct_meals', all); renderHome();
   
-  // UX: Desliza suavemente de volta para o topo da lista de refeições após adicionar
+  toggleMealList(true); // UX: Abre a lista ao adicionar
   setTimeout(() => {
     document.getElementById('mealListContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 300);
+  }, 100);
 }
 
 /* ================== MANUAL FOOD -> TO SAVED ================== */
@@ -1261,7 +1295,7 @@ function showRecent(){
   else renderSearchResults();
 }
 
-/* ================== TAB RECEITAS E EDIÇÃO (INSTANT LOCAL) ================== */
+/* ================== TAB RECEITAS E EDIÇÃO ================== */
 $('#ingName').addEventListener('input', e => { 
     clearTimeout(searchTimer); 
     const q = e.target.value.trim(); 
@@ -1888,6 +1922,21 @@ async function resetApp(){
   if (!confirm('Vai apagar TODOS os seus dados. Tem a certeza?')) return;
   STATE = { ct_profile:null, ct_meals:{}, ct_recipes:[], ct_weights:[], ct_water:{}, ct_measures:[] };
   await docRef().set(STATE, { merge:false }); navigate('setup');
+}
+
+/* ================== UX: TOGGLE DO DIÁRIO ================== */
+function toggleMealList(forceOpen = false) {
+  const wrapper = document.getElementById('mealListWrapper');
+  const icon = document.getElementById('mealToggleIcon');
+  if(!wrapper || !icon) return;
+  
+  if(forceOpen || wrapper.style.display === 'none') {
+    wrapper.style.display = 'block';
+    icon.style.transform = 'rotate(180deg)';
+  } else {
+    wrapper.style.display = 'none';
+    icon.style.transform = 'rotate(0deg)';
+  }
 }
 </script>
 </body>
