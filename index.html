@@ -693,15 +693,47 @@ function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
     const snap = await docRef().get();
     if (snap.exists){
       const d = snap.data();
-      STATE.ct_profile = d.ct_profile || null; STATE.ct_meals = d.ct_meals || {};
-      STATE.ct_recipes = d.ct_recipes || []; STATE.ct_weights = d.ct_weights || []; 
-      STATE.ct_water = d.ct_water || {}; STATE.ct_measures = d.ct_measures || [];
-      return true; // Sucesso ao carregar
+      STATE.ct_profile = d.ct_profile || null; 
+      STATE.ct_meals = d.ct_meals || {};
+      STATE.ct_recipes = d.ct_recipes || []; 
+      STATE.ct_weights = d.ct_weights || []; 
+      STATE.ct_water = d.ct_water || {}; 
+      STATE.ct_measures = d.ct_measures || [];
+      return true; // Sucesso
     }
   } catch (error) {
     console.error("Erro na leitura da cloud:", error);
+    alert("ERRO FIREBASE: Não foi possível ler os dados. Verifique as regras do Firestore.");
   }
-  return false; // Falha ou documento não existe (conta nova)
+  return false; 
+}
+
+async function saveProfile(){
+  const p = { sex:$('#sex').value, age:+$('#age').value, height:+$('#height').value, weight:+$('#weight').value, goal:+$('#goal').value, activity:+$('#activity').value };
+  if ([p.age,p.height,p.weight,p.goal].some(v=>!v||v<=0)) return showToast('Preencha os campos com valores válidos.', true);
+  
+  p.kcalGoal = calcGoal(p); 
+  STATE.ct_profile = p; 
+  
+  if(currentUser){
+    try {
+      const btn = document.querySelector('#setup .btn-primary');
+      const textoOriginal = btn.textContent;
+      btn.textContent = 'A gravar na nuvem... ⏳'; 
+      
+      // Obriga a esperar pela confirmação da base de dados
+      await docRef().set(STATE, { merge: true }); 
+      
+      btn.textContent = textoOriginal;
+    } catch(e) {
+      console.error(e);
+      alert("ERRO FIREBASE: O perfil não foi guardado! Verifique as regras de segurança da base de dados.");
+      return; // Trava aqui, não deixa avançar se não gravou!
+    }
+  }
+  
+  showToast('Perfil atualizado com sucesso!'); 
+  navigate('home');
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -713,22 +745,23 @@ auth.onAuthStateChanged(async (user) => {
     return; 
   }
   
-  $('#authMsg').textContent = 'A carregar dados...';
+  $('#authMsg').textContent = 'A sincronizar dados...';
   STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
   currentUser = user; 
   
-  // Esperar obrigatoriamente pelos dados da cloud antes de decidir para onde ir
+  // Espera que os dados venham da cloud
   await loadCloudState(); 
   
   $('#authMsg').textContent = ''; 
-  // Verifica o STATE.ct_profile (agora garantido de ter sido lido, se existir na BD)
-  if(STATE.ct_profile) {
+  
+  // Garante que o perfil existe e tem dados válidos (ex: idade)
+  if(STATE.ct_profile && STATE.ct_profile.age) {
       navigate('home');
   } else {
       navigate('setup');
   }
 });
-  
+
 
 /* ========== PESO CONTEXTUAL POR DIA ========== */
 /* Retorna o peso para uma data específica: o registo desse dia, ou o mais recente anterior */
