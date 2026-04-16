@@ -20,6 +20,8 @@
       --yellow-dim:rgba(254,202,87,0.15);
       --blue:#48dbfb;
       --blue-dim:rgba(72,219,251,0.15);
+      --purple:#a55eea;
+      --purple-dim:rgba(165,94,234,0.15);
       --text:#f1f2f6;
       --muted:#8395a7;
       --radius:24px;
@@ -48,6 +50,7 @@
     .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 20px var(--accent-dim)}
     .btn-green{background:var(--green);color:#fff;box-shadow:0 6px 20px var(--green-dim)}
     .btn-blue{background:var(--blue);color:#111;box-shadow:0 6px 20px var(--blue-dim)}
+    .btn-purple{background:var(--purple);color:#fff;box-shadow:0 6px 20px var(--purple-dim)}
     .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
     .btn-sm{width:auto;padding:10px 20px;font-size:.9rem;border-radius:12px}
     
@@ -109,6 +112,21 @@
     .weight-home-stat-value{font-size:1.25rem;font-weight:800;letter-spacing:-0.5px}
     .weight-home-stat-label{font-size:.7rem;color:var(--muted);margin-top:4px;font-weight:700;text-align:center}
     .weight-home-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:16px;font-size:.8rem;font-weight:800;margin-top:12px}
+
+    /* IMC HOME CARD */
+    .imc-home-card{background:linear-gradient(135deg, var(--card), rgba(165,94,234,0.05));border:1px solid rgba(165,94,234,0.12);border-radius:var(--radius);padding:18px;margin-top:16px;box-shadow:0 8px 24px var(--purple-dim)}
+    .imc-home-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .imc-home-title{color:var(--purple);font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:6px}
+    .imc-display{display:flex;align-items:center;justify-content:center;gap:20px;margin:10px 0}
+    .imc-value-big{font-size:2.8rem;font-weight:800;letter-spacing:-1px;line-height:1}
+    .imc-category-badge{padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800}
+    .imc-scale{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:16px 0 8px}
+    .imc-scale div{flex:1}
+    .imc-scale-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);font-weight:600}
+    .imc-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .imc-detail-item{background:rgba(0,0,0,0.2);border-radius:14px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
+    .imc-detail-value{font-size:1.1rem;font-weight:800;color:var(--text)}
+    .imc-detail-label{font-size:.7rem;color:var(--muted);margin-top:4px;font-weight:600}
 
     /* MEALS LIST */
     .meal-item{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
@@ -176,8 +194,9 @@
     .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;font-size:.95rem;border:1px solid rgba(255,255,255,0.02)}
 
     /* PÁGINA DE EVOLUÇÃO (PROGRESSO) */
-    .progress-tabs{display:flex;gap:8px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:6px;border-radius:16px}
-    .progress-tab{flex:1;padding:12px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .progress-tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:4px;border-radius:16px;overflow-x:auto;scrollbar-width:none}
+    .progress-tabs::-webkit-scrollbar{display:none}
+    .progress-tab{flex:1;min-width:60px;padding:12px 6px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;text-align:center}
     .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     .progress-section{display:none;animation:fadeIn .3s ease}
     .progress-section.active{display:block}
@@ -215,6 +234,17 @@
     .manual-entry{background:#111;border-radius:12px;padding:15px;margin-top:10px}
     .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .auth-box{max-width:400px;margin:0 auto}
+
+    /* MEASURES SECTION */
+    .measure-input-card{background:linear-gradient(135deg, var(--card), rgba(165,94,234,0.05));border:1px solid rgba(165,94,234,0.1);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+    .measure-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+    .measure-grid label{margin-bottom:2px}
+    .measure-grid input{padding:12px 14px;font-size:.95rem;text-align:center;font-weight:700}
+    .measure-history-item{padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .measure-history-item:last-child{border:none}
+    .measure-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .measure-chip{background:rgba(255,255,255,0.05);padding:6px 12px;border-radius:12px;font-size:.8rem;font-weight:700;color:var(--text)}
+    .measure-chip span{color:var(--muted);font-weight:600}
   </style>
 </head>
 <body>
@@ -313,7 +343,18 @@
     </div>
   </div>
 
-  <!-- WATER TRACKER (MELHORADO COM COMPARATIVA) -->
+  <!-- IMC DIÁRIO CARD -->
+  <div class="imc-home-card" id="imcHomeCard">
+    <div class="imc-home-header">
+      <span class="imc-home-title">📐 IMC Diário</span>
+      <span id="imcDateLabel" style="font-size:.8rem;color:var(--muted);font-weight:600"></span>
+    </div>
+    <div id="imcContent">
+      <div class="empty" style="padding:20px 0">Registe o peso para ver o IMC</div>
+    </div>
+  </div>
+
+  <!-- WATER TRACKER -->
   <div class="water-tracker">
     <div class="water-top-row">
       <div class="water-info">
@@ -325,7 +366,6 @@
         <button class="water-btn add" onclick="logWater(250)">+250ml</button>
       </div>
     </div>
-    <!-- Barra de progresso + quanto falta -->
     <div class="water-progress-section">
       <div class="water-progress-bar-bg">
         <div class="water-progress-bar-fill" id="waterProgressFill" style="width:0%"></div>
@@ -337,7 +377,7 @@
     </div>
   </div>
 
-  <!-- WEIGHT HOME CARD (NOVO) -->
+  <!-- WEIGHT HOME CARD -->
   <div class="weight-home-card">
     <div class="weight-home-header">
       <span class="weight-home-title">⚖️ Peso</span>
@@ -351,11 +391,11 @@
     <div class="weight-home-stats">
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatCurrent" style="color:var(--text)">--</div>
-        <div class="weight-home-stat-label">Atual (kg)</div>
+        <div class="weight-home-stat-label">Peso do Dia (kg)</div>
       </div>
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatVsYesterday" style="color:var(--muted)">--</div>
-        <div class="weight-home-stat-label">vs Ontem</div>
+        <div class="weight-home-stat-label">vs Dia Anterior</div>
       </div>
       <div class="weight-home-stat">
         <div class="weight-home-stat-value" id="whStatVsGoal" style="color:var(--accent)">--</div>
@@ -368,7 +408,6 @@
   <div class="card" style="margin-top:20px">
     <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     
-    <!-- TABS MENU -->
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
       <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
@@ -396,8 +435,7 @@
       <div id="ingredientList" style="margin-top:16px"></div>
       <div id="recipeTotal" class="hidden">
         <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
-        <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px">
-        </div>
+        <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px"></div>
       </div>
     </div>
 
@@ -438,6 +476,7 @@
     <button class="progress-tab active" onclick="switchProgressTab('calories')">🔥 Calorias</button>
     <button class="progress-tab" onclick="switchProgressTab('weight')">⚖️ Peso</button>
     <button class="progress-tab" onclick="switchProgressTab('water')">💧 Água</button>
+    <button class="progress-tab" onclick="switchProgressTab('measures')">📏 Medidas</button>
   </div>
 
   <!-- ===== CALORIES SECTION ===== -->
@@ -480,7 +519,14 @@
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightGoalDiff" style="color:var(--accent);font-size:1.3rem">--</div><div class="cal-stat-label">Falta</div></div>
     </div>
     
+    <!-- IMC na Evolução -->
+    <div class="card">
+      <div class="section-title">📐 IMC Atual</div>
+      <div id="progressImcContent"><div class="empty" style="padding:20px 0">Registe o peso para ver o IMC</div></div>
+    </div>
+    
     <div class="card"><div class="section-title">Evolução do Peso</div><div class="chart-container chart-container-tall"><canvas id="chartWeight"></canvas></div></div>
+    <div class="card"><div class="section-title">Evolução do IMC</div><div class="chart-container chart-container-tall"><canvas id="chartIMC"></canvas></div></div>
     <div class="card"><div class="section-title">Histórico de Pesagens</div><div id="weightHistoryList"><div class="empty">Nenhum registo de peso</div></div></div>
   </div>
 
@@ -499,6 +545,44 @@
       <div id="waterComparison"></div>
     </div>
     <div class="card"><div class="section-title">Últimos 7 dias (Água)</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
+  </div>
+
+  <!-- ===== MEASURES SECTION (NOVO) ===== -->
+  <div id="progressMeasures" class="progress-section">
+    <div class="measure-input-card">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:2rem">📏</span>
+        <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">Registar Medidas Corporais</div><div style="font-size:.85rem;color:var(--muted);font-weight:600" id="measureDateLabel"></div></div>
+      </div>
+      <div class="measure-grid">
+        <div><label>🫁 Peito (cm)</label><input id="measureChest" type="number" step="0.1" placeholder="Ex: 95" inputmode="decimal"></div>
+        <div><label>💪 Braço (cm)</label><input id="measureArm" type="number" step="0.1" placeholder="Ex: 33" inputmode="decimal"></div>
+        <div><label>📐 Cintura (cm)</label><input id="measureWaist" type="number" step="0.1" placeholder="Ex: 80" inputmode="decimal"></div>
+        <div><label>🍑 Anca (cm)</label><input id="measureHip" type="number" step="0.1" placeholder="Ex: 95" inputmode="decimal"></div>
+        <div><label>🦵 Coxa (cm)</label><input id="measureThigh" type="number" step="0.1" placeholder="Ex: 55" inputmode="decimal"></div>
+        <div><label>🦶 Gémeo (cm)</label><input id="measureCalf" type="number" step="0.1" placeholder="Ex: 37" inputmode="decimal"></div>
+      </div>
+      <button class="btn btn-purple mt" style="margin-top:20px" onclick="saveMeasures()">💾 Guardar Medidas</button>
+      <div id="measureTodayBadge" style="margin-top:12px"></div>
+    </div>
+
+    <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr" id="measureStatsGrid">
+    </div>
+
+    <div class="card">
+      <div class="section-title">Evolução da Cintura</div>
+      <div class="chart-container chart-container-tall"><canvas id="chartMeasureWaist"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Comparação Geral</div>
+      <div id="measureComparisonContent"><div class="empty">Registe pelo menos 2 medições para ver a comparação</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Histórico de Medidas</div>
+      <div id="measureHistoryList"><div class="empty">Nenhum registo de medidas</div></div>
+    </div>
   </div>
 </div>
 
@@ -564,13 +648,14 @@ let _editingRecipeId = null;
 let viewingDate = new Date(); 
 const getViewingDateStr = () => viewingDate.toISOString().slice(0, 10);
 
-let STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {} };
+let STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
 
 const getProfile = () => STATE.ct_profile;
 const getMeals = () => STATE.ct_meals || {};
 const getSavedRecipes = () => STATE.ct_recipes || [];
 const getWeights = () => STATE.ct_weights || [];
 const getWater = () => STATE.ct_water || {};
+const getMeasures = () => STATE.ct_measures || [];
 
 const viewingMeals = () => (getMeals()[getViewingDateStr()] || []);
 const viewingKcal = () => viewingMeals().reduce((s, m) => s + (m.kcal || 0), 0);
@@ -606,8 +691,110 @@ async function loadCloudState(){
   if (snap.exists){
     const d = snap.data();
     STATE.ct_profile = d.ct_profile || null; STATE.ct_meals = d.ct_meals || {};
-    STATE.ct_recipes = d.ct_recipes || []; STATE.ct_weights = d.ct_weights || []; STATE.ct_water = d.ct_water || {};
+    STATE.ct_recipes = d.ct_recipes || []; STATE.ct_weights = d.ct_weights || []; 
+    STATE.ct_water = d.ct_water || {}; STATE.ct_measures = d.ct_measures || [];
   }
+}
+
+/* ========== PESO CONTEXTUAL POR DIA ========== */
+/* Retorna o peso para uma data específica: o registo desse dia, ou o mais recente anterior */
+function getWeightForDate(dateStr){
+  const weights = getWeights();
+  // Procurar registo exato do dia
+  const exact = weights.find(w => w.date === dateStr);
+  if(exact) return exact.value;
+  // Procurar o registo mais recente antes dessa data
+  const before = weights.filter(w => w.date <= dateStr).sort((a,b) => b.date.localeCompare(a.date));
+  if(before.length > 0) return before[0].value;
+  // Fallback: peso do perfil
+  const p = getProfile();
+  return p ? p.weight : null;
+}
+
+/* Retorna o peso do dia anterior à data fornecida */
+function getWeightForPreviousDay(dateStr){
+  const weights = getWeights();
+  const before = weights.filter(w => w.date < dateStr).sort((a,b) => b.date.localeCompare(a.date));
+  if(before.length > 0) return before[0].value;
+  return null;
+}
+
+/* ========== CÁLCULO IMC ========== */
+function calcIMC(weightKg, heightCm){
+  if(!weightKg || !heightCm || heightCm <= 0) return null;
+  const heightM = heightCm / 100;
+  return weightKg / (heightM * heightM);
+}
+
+function getIMCCategory(imc){
+  if(imc < 16) return { label:'Magreza Grave', color:'#ff4757', bg:'rgba(255,71,87,0.15)' };
+  if(imc < 17) return { label:'Magreza Moderada', color:'#ffa502', bg:'rgba(255,165,2,0.15)' };
+  if(imc < 18.5) return { label:'Abaixo do Peso', color:'#feca57', bg:'rgba(254,202,87,0.15)' };
+  if(imc < 25) return { label:'Peso Normal', color:'#10ac84', bg:'rgba(16,172,132,0.15)' };
+  if(imc < 30) return { label:'Sobrepeso', color:'#feca57', bg:'rgba(254,202,87,0.15)' };
+  if(imc < 35) return { label:'Obesidade I', color:'#ffa502', bg:'rgba(255,165,2,0.15)' };
+  if(imc < 40) return { label:'Obesidade II', color:'#ff4757', bg:'rgba(255,71,87,0.15)' };
+  return { label:'Obesidade III', color:'#ff4757', bg:'rgba(255,71,87,0.15)' };
+}
+
+function getIMCScalePosition(imc){
+  // Escala visual de 15 a 40+
+  const min = 15, max = 42;
+  return Math.max(0, Math.min(100, ((imc - min) / (max - min)) * 100));
+}
+
+function renderIMCCard(containerId, weightKg, heightCm, dateLabel){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  
+  const imc = calcIMC(weightKg, heightCm);
+  if(!imc){
+    el.innerHTML = '<div class="empty" style="padding:20px 0">Registe o peso para ver o IMC</div>';
+    return;
+  }
+  
+  const cat = getIMCCategory(imc);
+  const pos = getIMCScalePosition(imc);
+  
+  // Peso ideal range (IMC 18.5-24.9)
+  const heightM = heightCm / 100;
+  const idealMin = (18.5 * heightM * heightM).toFixed(1);
+  const idealMax = (24.9 * heightM * heightM).toFixed(1);
+  
+  el.innerHTML = `
+    <div class="imc-display">
+      <div class="imc-value-big" style="color:${cat.color}">${imc.toFixed(1)}</div>
+      <div>
+        <div class="imc-category-badge" style="background:${cat.bg};color:${cat.color}">${cat.label}</div>
+        ${dateLabel ? `<div style="font-size:.75rem;color:var(--muted);margin-top:6px;text-align:center;font-weight:600">${dateLabel}</div>` : ''}
+      </div>
+    </div>
+    <div style="position:relative;margin:8px 0 4px">
+      <div class="imc-scale">
+        <div style="background:#ff4757"></div>
+        <div style="background:#ffa502"></div>
+        <div style="background:#feca57"></div>
+        <div style="background:#10ac84;flex:2"></div>
+        <div style="background:#feca57"></div>
+        <div style="background:#ffa502"></div>
+        <div style="background:#ff4757"></div>
+      </div>
+      <div style="position:absolute;top:-4px;left:${pos}%;transform:translateX(-50%);width:18px;height:18px;background:${cat.color};border-radius:50%;border:3px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:left .6s ease"></div>
+    </div>
+    <div class="imc-scale-labels">
+      <span>16</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40</span>
+    </div>
+    <div class="imc-details-grid">
+      <div class="imc-detail-item">
+        <div class="imc-detail-value" style="color:var(--green)">${idealMin} - ${idealMax}</div>
+        <div class="imc-detail-label">Peso Ideal (kg)</div>
+      </div>
+      <div class="imc-detail-item">
+        <div class="imc-detail-value" style="color:${cat.color}">${weightKg.toFixed(1)}</div>
+        <div class="imc-detail-label">Peso Usado (kg)</div>
+      </div>
+    </div>
+  `;
 }
 
 /* ================== AUTENTICAÇÃO ================== */
@@ -688,7 +875,8 @@ function changeDate(days){ viewingDate.setDate(viewingDate.getDate() + days); re
 
 function getWaterGoal(){
   const p = getProfile();
-  const weight = p ? p.weight : 70;
+  const viewDate = getViewingDateStr();
+  const weight = getWeightForDate(viewDate) || (p ? p.weight : 70);
   return Math.round(weight * 35);
 }
 
@@ -696,8 +884,9 @@ function renderHome(){
   const p = getProfile(); if (!p) return navigate('setup');
   
   const todayStrFmt = new Date().toISOString().slice(0, 10);
-  $('#displayDate').textContent = getViewingDateStr() === todayStrFmt ? "Hoje" : viewingDate.toLocaleDateString('pt-PT', {day:'2-digit', month:'short'});
-  $('#btnNextDate').style.visibility = getViewingDateStr() === todayStrFmt ? 'hidden' : 'visible';
+  const viewDate = getViewingDateStr();
+  $('#displayDate').textContent = viewDate === todayStrFmt ? "Hoje" : viewingDate.toLocaleDateString('pt-PT', {day:'2-digit', month:'short'});
+  $('#btnNextDate').style.visibility = viewDate === todayStrFmt ? 'hidden' : 'visible';
 
   const eaten = viewingKcal(), goal = p.kcalGoal, pct = Math.min(eaten/goal, 1.5);
   $('#ringFg').style.strokeDashoffset = CIRCUM - (Math.min(pct,1) * CIRCUM);
@@ -716,6 +905,9 @@ function renderHome(){
   $('#pctP').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.p*4 / totalMacroKcal)*100)}%` : '0%';
   $('#pctC').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.c*4 / totalMacroKcal)*100)}%` : '0%';
   $('#pctG').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.g*9 / totalMacroKcal)*100)}%` : '0%';
+
+  // === IMC DIÁRIO ===
+  renderIMCHome();
 
   // === ÁGUA COM COMPARATIVA ===
   const currentWater = viewingWater();
@@ -748,7 +940,34 @@ function renderHome(){
   `).join('');
 }
 
-/* === RENDER WEIGHT NA HOME === */
+/* === RENDER IMC NA HOME === */
+function renderIMCHome(){
+  const p = getProfile();
+  const viewDate = getViewingDateStr();
+  const todayFmt = todayStr();
+  
+  // Data label
+  if(viewDate === todayFmt){
+    $('#imcDateLabel').textContent = 'Hoje';
+  } else {
+    $('#imcDateLabel').textContent = viewingDate.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
+  }
+  
+  const dayWeight = getWeightForDate(viewDate);
+  const heightCm = p ? p.height : null;
+  
+  let dateInfo = '';
+  if(dayWeight){
+    // Verificar se é registo exato ou estimado
+    const weights = getWeights();
+    const exact = weights.find(w => w.date === viewDate);
+    dateInfo = exact ? `Peso registado: ${dayWeight} kg` : `Peso estimado: ${dayWeight} kg (último registo)`;
+  }
+  
+  renderIMCCard('imcContent', dayWeight, heightCm, dateInfo);
+}
+
+/* === RENDER WEIGHT NA HOME (CONTEXTUAL POR DIA) === */
 function renderWeightHome(){
   const weights = getWeights(), p = getProfile();
   const viewDate = getViewingDateStr();
@@ -769,15 +988,14 @@ function renderWeightHome(){
     $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">Sem registo para este dia</div>`;
   }
 
-  // Peso atual (último registo)
-  const latestWeight = weights.length > 0 ? weights[weights.length - 1].value : (p ? p.weight : null);
-  $('#whStatCurrent').textContent = latestWeight ? `${latestWeight}` : '--';
+  // Peso do dia (contextual) — usa o peso desse dia ou o mais recente anterior
+  const dayWeight = getWeightForDate(viewDate);
+  $('#whStatCurrent').textContent = dayWeight ? `${dayWeight}` : '--';
 
-  // vs Dia anterior
-  if(weights.length >= 2){
-    const last = weights[weights.length - 1];
-    const prev = weights[weights.length - 2];
-    const diff = last.value - prev.value;
+  // vs Dia anterior (relativo ao dia em visualização)
+  const prevWeight = getWeightForPreviousDay(viewDate);
+  if(dayWeight && prevWeight){
+    const diff = dayWeight - prevWeight;
     const diffStr = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
     $('#whStatVsYesterday').textContent = diffStr;
     $('#whStatVsYesterday').style.color = diff <= 0 ? 'var(--green)' : 'var(--accent)';
@@ -787,17 +1005,15 @@ function renderWeightHome(){
   }
 
   // vs Meta (quanto falta)
-  if(p && latestWeight){
-    const goalDiff = latestWeight - p.goal;
+  if(p && dayWeight){
+    const goalDiff = dayWeight - p.goal;
     if(Math.abs(goalDiff) < 0.1){
       $('#whStatVsGoal').textContent = '🎯 Meta!';
       $('#whStatVsGoal').style.color = 'var(--green)';
     } else if(goalDiff > 0){
-      // Precisa perder peso
       $('#whStatVsGoal').textContent = `-${goalDiff.toFixed(1)} kg`;
       $('#whStatVsGoal').style.color = 'var(--accent)';
     } else {
-      // Precisa ganhar peso
       $('#whStatVsGoal').textContent = `+${Math.abs(goalDiff).toFixed(1)} kg`;
       $('#whStatVsGoal').style.color = 'var(--blue)';
     }
@@ -807,20 +1023,22 @@ function renderWeightHome(){
   }
 }
 
-/* === GUARDAR PESO A PARTIR DA HOME === */
+/* === GUARDAR PESO A PARTIR DA HOME (para o dia em visualização) === */
 function saveWeightFromHome(){
   const val = parseFloat($('#weightHomeInput').value);
   if(!val || val < 20 || val > 400) return showToast('Insira um peso válido (20-400 kg).', true);
   
-  const w = getWeights(), today = todayStr();
-  const idx = w.findIndex(x => x.date === today);
-  if(idx >= 0) w[idx].value = val; else w.push({ date: today, value: val });
+  const w = getWeights(), targetDate = getViewingDateStr();
+  const idx = w.findIndex(x => x.date === targetDate);
+  if(idx >= 0) w[idx].value = val; else w.push({ date: targetDate, value: val });
   w.sort((a,b) => a.date.localeCompare(b.date));
   setState('ct_weights', w);
   
-  // Atualizar peso no perfil
-  const p = getProfile();
-  if(p){ p.weight = val; p.kcalGoal = calcGoal(p); setState('ct_profile', p); }
+  // Atualizar peso no perfil apenas se for o dia de hoje
+  if(targetDate === todayStr()){
+    const p = getProfile();
+    if(p){ p.weight = val; p.kcalGoal = calcGoal(p); setState('ct_profile', p); }
+  }
   
   $('#weightHomeInput').value = '';
   showToast('Peso registado com sucesso!');
@@ -1046,11 +1264,12 @@ function switchProgressTab(tab){
   document.querySelectorAll('.progress-section').forEach(s=>s.classList.remove('active'));
   if(tab==='calories'){ document.querySelectorAll('.progress-tab')[0].classList.add('active'); $('#progressCalories').classList.add('active'); }
   else if(tab==='weight'){ document.querySelectorAll('.progress-tab')[1].classList.add('active'); $('#progressWeight').classList.add('active'); }
-  else { document.querySelectorAll('.progress-tab')[2].classList.add('active'); $('#progressWater').classList.add('active'); }
+  else if(tab==='water'){ document.querySelectorAll('.progress-tab')[2].classList.add('active'); $('#progressWater').classList.add('active'); }
+  else { document.querySelectorAll('.progress-tab')[3].classList.add('active'); $('#progressMeasures').classList.add('active'); }
   renderProgress();
 }
 
-function renderProgress(){ renderCaloriesProgress(); renderWeightProgress(); renderWaterProgress(); }
+function renderProgress(){ renderCaloriesProgress(); renderWeightProgress(); renderWaterProgress(); renderMeasuresProgress(); }
 
 /* --- Calorias --- */
 function renderCaloriesProgress(){
@@ -1129,7 +1348,11 @@ function renderWeightProgress(){
     if(p){ $('#weightGoalDiff').textContent = `${goalDiff>0?'+':''}${goalDiff.toFixed(1)}`; $('#weightGoalDiff').style.color = Math.abs(goalDiff) < 1 ? 'var(--green)' : 'var(--accent)'; }
   } else { $('#weightCurrent').textContent = p ? p.weight : '--'; $('#weightChange').textContent = '--'; $('#weightGoalDiff').textContent = '--'; }
   
-  setTimeout(() => drawWeightChart(weights, p), 100);
+  // IMC na página de evolução
+  const latestWeight = weights.length > 0 ? weights[weights.length - 1].value : (p ? p.weight : null);
+  renderIMCCard('progressImcContent', latestWeight, p ? p.height : null, latestWeight ? `Último registo: ${latestWeight} kg` : '');
+  
+  setTimeout(() => { drawWeightChart(weights, p); drawIMCChart(weights, p); }, 100);
   renderWeightHistory(weights);
 }
 
@@ -1169,6 +1392,55 @@ function drawWeightChart(weights, profile){
   for(let i = 0; i <= 5; i++){ const v = min + (i/5)*(max-min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 8, y + 3); ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke(); }
 }
 
+/* --- Gráfico IMC --- */
+function drawIMCChart(weights, profile){
+  const canvas = $('#chartIMC'); if(!canvas || !canvas.parentElement.offsetWidth) return;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, W = canvas.parentElement.offsetWidth, H = 260;
+  canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+  
+  if(!profile || weights.length < 2){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2); return; }
+  
+  const heightM = profile.height / 100;
+  const imcData = weights.map(w => ({ date: w.date, imc: w.value / (heightM * heightM) }));
+  
+  const pad = 45, vals = imcData.map(d => d.imc);
+  let min = Math.min(...vals, 18.5), max = Math.max(...vals, 25);
+  const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
+  const getY = v => pad + (1 - (v - min)/(max - min)) * (H - pad*2);
+  
+  // Zona saudável (18.5 - 24.9)
+  const y185 = getY(18.5), y249 = getY(24.9);
+  ctx.fillStyle = 'rgba(16,172,132,0.08)';
+  ctx.fillRect(pad, Math.min(y185, y249), W - pad*2, Math.abs(y249 - y185));
+  
+  // Linhas de referência
+  [18.5, 25, 30].forEach(ref => {
+    const ry = getY(ref);
+    if(ry > pad && ry < H - pad){
+      ctx.strokeStyle = ref === 25 ? 'rgba(254,202,87,0.4)' : ref === 30 ? 'rgba(255,71,87,0.4)' : 'rgba(16,172,132,0.4)';
+      ctx.lineWidth = 1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(pad, ry); ctx.lineTo(W-pad, ry); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`IMC ${ref}`, pad + 4, ry - 4);
+    }
+  });
+  
+  const pts = imcData.map((d,i) => ({ x: pad + (i/(imcData.length-1)) * (W - pad*2), y: getY(d.imc), val: d.imc }));
+  
+  const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(165,94,234,0.15)'); grad.addColorStop(1, 'rgba(165,94,234,0)');
+  ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length-1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
+  
+  ctx.beginPath(); pts.forEach((p,i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#a55eea'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  pts.forEach((p,i) => {
+    const cat = getIMCCategory(p.val);
+    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fillStyle = cat.color; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fillStyle = '#0a0a12'; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.val.toFixed(1), p.x, p.y - 12);
+    if(imcData.length <= 10 || i % Math.ceil(imcData.length/8) === 0 || i === imcData.length-1){
+      const d = new Date(imcData[i].date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H - 8);
+    }
+  });
+}
+
 function renderWeightHistory(weights){
   const el = $('#weightHistoryList'); if(!weights.length){ el.innerHTML = '<div class="empty">Nenhum registo.</div>'; return; }
   const sorted = [...weights].reverse();
@@ -1178,7 +1450,10 @@ function renderWeightHistory(weights){
       const diff = w.value - weights[realIdx - 1].value;
       if(diff < 0) diffHtml = `<span class="wh-diff down">${diff.toFixed(1)} kg</span>`; else if(diff > 0) diffHtml = `<span class="wh-diff up">+${diff.toFixed(1)} kg</span>`;
     }
-    return `<div class="weight-history-item"><div><div style="font-weight:700;font-size:1.05rem">${w.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`}</div></div><div style="display:flex;align-items:center;gap:12px">${diffHtml}<div class="wh-value">${w.value} kg</div><button class="wh-del" onclick="deleteWeight(${realIdx})">✕</button></div></div>`;
+    // Calcular IMC para cada entrada
+    const p = getProfile();
+    const imcStr = p ? ` · IMC: ${(w.value / ((p.height/100)**2)).toFixed(1)}` : '';
+    return `<div class="weight-history-item"><div><div style="font-weight:700;font-size:1.05rem">${w.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`}</div><div style="font-size:.75rem;color:var(--muted);margin-top:2px">${imcStr}</div></div><div style="display:flex;align-items:center;gap:12px">${diffHtml}<div class="wh-value">${w.value} kg</div><button class="wh-del" onclick="deleteWeight(${realIdx})">✕</button></div></div>`;
   }).join('');
 }
 
@@ -1244,24 +1519,241 @@ function drawBarChartWater(id, data, goal){
   });
 }
 
+/* ================== MEDIDAS CORPORAIS ================== */
+const MEASURE_FIELDS = [
+  { id: 'measureChest', key: 'chest', label: '🫁 Peito', unit: 'cm' },
+  { id: 'measureArm', key: 'arm', label: '💪 Braço', unit: 'cm' },
+  { id: 'measureWaist', key: 'waist', label: '📐 Cintura', unit: 'cm' },
+  { id: 'measureHip', key: 'hip', label: '🍑 Anca', unit: 'cm' },
+  { id: 'measureThigh', key: 'thigh', label: '🦵 Coxa', unit: 'cm' },
+  { id: 'measureCalf', key: 'calf', label: '🦶 Gémeo', unit: 'cm' }
+];
+
+function saveMeasures(){
+  const entry = { date: todayStr() };
+  let hasValue = false;
+  
+  MEASURE_FIELDS.forEach(f => {
+    const val = parseFloat($(`#${f.id}`).value);
+    if(val && val > 0){ entry[f.key] = val; hasValue = true; }
+  });
+  
+  if(!hasValue) return showToast('Preencha pelo menos uma medida.', true);
+  
+  const measures = getMeasures();
+  const idx = measures.findIndex(m => m.date === entry.date);
+  if(idx >= 0){
+    // Merge com existente (manter valores anteriores se não preenchidos agora)
+    MEASURE_FIELDS.forEach(f => {
+      if(entry[f.key]) measures[idx][f.key] = entry[f.key];
+    });
+  } else {
+    measures.push(entry);
+  }
+  measures.sort((a,b) => a.date.localeCompare(b.date));
+  setState('ct_measures', measures);
+  
+  // Limpar inputs
+  MEASURE_FIELDS.forEach(f => $(`#${f.id}`).value = '');
+  showToast('Medidas registadas com sucesso!');
+  renderMeasuresProgress();
+}
+
+function deleteMeasure(idx){
+  const measures = getMeasures();
+  if(idx < 0 || idx >= measures.length) return;
+  measures.splice(idx, 1);
+  setState('ct_measures', measures);
+  renderMeasuresProgress();
+}
+
+function renderMeasuresProgress(){
+  const measures = getMeasures(), today = todayStr();
+  
+  $('#measureDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'long', day:'2-digit', month:'long' });
+  
+  const todayEntry = measures.find(m => m.date === today);
+  if(todayEntry){
+    const parts = MEASURE_FIELDS.filter(f => todayEntry[f.key]).map(f => `${f.label}: ${todayEntry[f.key]} cm`).join(' · ');
+    $('#measureTodayBadge').innerHTML = `<div style="background:var(--green-dim);color:var(--green);padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;display:inline-flex;align-items:center;gap:6px">✓ Registado hoje: ${parts}</div>`;
+  } else {
+    $('#measureTodayBadge').innerHTML = '';
+  }
+  
+  // Stats grid: mostrar última medida e variação
+  const statsEl = $('#measureStatsGrid');
+  if(measures.length > 0){
+    const latest = measures[measures.length - 1];
+    const prev = measures.length > 1 ? measures[measures.length - 2] : null;
+    
+    let statsHtml = '';
+    MEASURE_FIELDS.forEach(f => {
+      if(latest[f.key]){
+        let diffHtml = '--';
+        let diffColor = 'var(--muted)';
+        if(prev && prev[f.key]){
+          const diff = latest[f.key] - prev[f.key];
+          diffHtml = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
+          diffColor = diff <= 0 ? 'var(--green)' : 'var(--accent)';
+        }
+        statsHtml += `
+          <div class="cal-stat-item" style="padding:14px 8px">
+            <div class="cal-stat-value" style="color:var(--text);font-size:1.2rem">${latest[f.key]}</div>
+            <div class="cal-stat-label">${f.label}</div>
+            <div style="font-size:.75rem;font-weight:800;color:${diffColor};margin-top:4px">${diffHtml}</div>
+          </div>`;
+      }
+    });
+    statsEl.innerHTML = statsHtml;
+    statsEl.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  } else {
+    statsEl.innerHTML = '';
+  }
+  
+  // Gráfico cintura
+  setTimeout(() => drawMeasureChart('chartMeasureWaist', measures, 'waist', '#a55eea'), 100);
+  
+  // Comparação geral
+  renderMeasureComparison(measures);
+  
+  // Histórico
+  renderMeasureHistory(measures);
+}
+
+function renderMeasureComparison(measures){
+  const el = $('#measureComparisonContent');
+  if(measures.length < 2){ el.innerHTML = '<div class="empty">Registe pelo menos 2 medições para ver a comparação</div>'; return; }
+  
+  const first = measures[0], latest = measures[measures.length - 1];
+  const firstDate = new Date(first.date + 'T12:00:00').toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
+  const latestDate = new Date(latest.date + 'T12:00:00').toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
+  
+  let html = `<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:.85rem;font-weight:700"><span style="color:var(--muted)">Primeira medição: ${firstDate}</span><span style="color:var(--purple)">Última: ${latestDate}</span></div>`;
+  
+  MEASURE_FIELDS.forEach(f => {
+    if(first[f.key] && latest[f.key]){
+      const diff = latest[f.key] - first[f.key];
+      const diffStr = `${diff > 0 ? '+' : ''}${diff.toFixed(1)} cm`;
+      const color = diff <= 0 ? 'var(--green)' : 'var(--accent)';
+      const maxVal = Math.max(first[f.key], latest[f.key]);
+      const pctFirst = (first[f.key] / maxVal) * 100;
+      const pctLatest = (latest[f.key] / maxVal) * 100;
+      
+      html += `
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:700;font-size:.9rem">${f.label}</span>
+            <span style="font-weight:800;color:${color};font-size:.9rem">${diffStr}</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+            <span style="font-size:.7rem;color:var(--muted);width:50px">${firstDate}</span>
+            <div class="water-bar-bg" style="flex:1"><div class="water-bar-fill" style="background:rgba(165,94,234,0.3);width:${pctFirst}%"></div></div>
+            <span style="font-size:.8rem;font-weight:700;width:50px;text-align:right">${first[f.key]}</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:.7rem;color:var(--muted);width:50px">${latestDate}</span>
+            <div class="water-bar-bg" style="flex:1"><div class="water-bar-fill" style="background:var(--purple);width:${pctLatest}%"></div></div>
+            <span style="font-size:.8rem;font-weight:700;width:50px;text-align:right">${latest[f.key]}</span>
+          </div>
+        </div>`;
+    }
+  });
+  
+  el.innerHTML = html;
+}
+
+function drawMeasureChart(id, measures, key, color){
+  const canvas = $(`#${id}`); if(!canvas || !canvas.parentElement.offsetWidth) return;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, W = canvas.parentElement.offsetWidth, H = 260;
+  canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+  
+  const filtered = measures.filter(m => m[key]);
+  if(filtered.length < 2){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 medições para ver o gráfico', W/2, H/2); return; }
+  
+  const pad = 45, vals = filtered.map(m => m[key]);
+  let min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
+  const getY = v => pad + (1 - (v - min)/(max - min)) * (H - pad*2);
+  
+  const pts = filtered.map((m,i) => ({ x: pad + (i/(filtered.length-1)) * (W - pad*2), y: getY(m[key]), val: m[key] }));
+  
+  const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, color + '22'); grad.addColorStop(1, color + '00');
+  ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length-1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
+  
+  ctx.beginPath(); pts.forEach((p,i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  pts.forEach((p,i) => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fillStyle = '#0a0a12'; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${p.val}`, p.x, p.y - 12);
+    if(filtered.length <= 10 || i % Math.ceil(filtered.length/8) === 0 || i === filtered.length-1){
+      const d = new Date(filtered[i].date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H - 8);
+    }
+  });
+  
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'right';
+  for(let i = 0; i <= 5; i++){ const v = min + (i/5)*(max-min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 8, y + 3); }
+}
+
+function renderMeasureHistory(measures){
+  const el = $('#measureHistoryList');
+  if(!measures.length){ el.innerHTML = '<div class="empty">Nenhum registo de medidas</div>'; return; }
+  
+  const sorted = [...measures].reverse();
+  el.innerHTML = sorted.map((m, displayIdx) => {
+    const realIdx = measures.length - 1 - displayIdx;
+    const d = new Date(m.date + 'T12:00:00');
+    const dateStr = m.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`;
+    
+    const chips = MEASURE_FIELDS.filter(f => m[f.key]).map(f => {
+      let diffHtml = '';
+      if(realIdx > 0){
+        const prev = measures[realIdx - 1];
+        if(prev[f.key]){
+          const diff = m[f.key] - prev[f.key];
+          if(diff !== 0){
+            const diffColor = diff < 0 ? 'var(--green)' : 'var(--accent)';
+            diffHtml = ` <span style="color:${diffColor};font-size:.7rem">(${diff > 0 ? '+' : ''}${diff.toFixed(1)})</span>`;
+          }
+        }
+      }
+      return `<div class="measure-chip"><span>${f.label.split(' ')[0]} </span>${m[f.key]} cm${diffHtml}</div>`;
+    }).join('');
+    
+    return `
+      <div class="measure-history-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700;font-size:1.05rem">${dateStr}</div>
+          <button class="wh-del" onclick="deleteMeasure(${realIdx})">✕</button>
+        </div>
+        <div class="measure-chips">${chips}</div>
+      </div>`;
+  }).join('');
+}
+
 /* ================== PROFILE ================== */
 function renderProfile(){
   const p = getProfile(); if (!p) return;
+  const latestWeight = getWeights().length > 0 ? getWeights()[getWeights().length - 1].value : p.weight;
+  const imc = calcIMC(latestWeight, p.height);
+  const imcStr = imc ? `${imc.toFixed(1)} (${getIMCCategory(imc).label})` : '--';
+  
   $('#profileInfo').innerHTML = `
     <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.05)">
       <div style="width:60px;height:60px;border-radius:30px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:1.8rem">👤</div>
       <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">${currentUser?.email || ''}</div><div style="color:var(--green);font-size:.85rem;font-weight:700;margin-top:2px">Conta Ativa</div></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Idade / Altura</span><b style="color:var(--text)">${p.age} anos / ${p.height} cm</b></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Peso Atual</span><b style="color:var(--text)">${p.weight} kg</b></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Peso Atual</span><b style="color:var(--text)">${latestWeight} kg</b></div>
     <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Objetivo</span><b style="color:var(--text)">${p.goal} kg</b></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">IMC</span><b style="color:${imc ? getIMCCategory(imc).color : 'var(--text)'}">${imcStr}</b></div>
     <div style="margin-top:24px;background:var(--green-dim);padding:16px;border-radius:16px;border:1px solid rgba(16,172,132,0.2)">
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--green);font-weight:800">Meta Calórica Diária</span><b style="font-size:1.3rem;color:var(--green)">${p.kcalGoal} kcal</b></div>
     </div>`;
 }
 async function resetApp(){
   if (!confirm('Vai apagar TODOS os seus dados. Tem a certeza?')) return;
-  STATE = { ct_profile:null, ct_meals:{}, ct_recipes:[], ct_weights:[], ct_water:{} };
+  STATE = { ct_profile:null, ct_meals:{}, ct_recipes:[], ct_weights:[], ct_water:{}, ct_measures:[] };
   await docRef().set(STATE, { merge:false }); navigate('setup');
 }
 </script>
