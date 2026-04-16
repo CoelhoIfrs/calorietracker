@@ -314,7 +314,6 @@
       <div><label>Atividade</label><select id="activity"><option value="1.2">Sedentário</option><option value="1.375">Leve</option><option value="1.55" selected>Moderado</option><option value="1.725">Intenso</option><option value="1.9">Atleta</option></select></div>
     </div>
     <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button> 
-    <!-- REMOVIDOS OS 3 BOTOES REPETIDOS AQUI -->
     <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button>
   </div>
 </div>
@@ -420,7 +419,7 @@
     <!-- TAB: SEARCH -->
     <div id="tabSearch">
       <div class="search-header">
-        <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: pão, frango, maçã..." enterkeyhint="search"></div>
+        <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: arroz, feijão, pão, maçã..." enterkeyhint="search"></div>
         <button class="btn-recent" onclick="showRecent()" title="Ver histórico recente">🕒</button>
       </div>
       <div id="searchResults" class="results" style="background:transparent;padding:0"></div>
@@ -431,7 +430,6 @@
       <input id="recipeName" type="text" placeholder="Nome da receita (ex: Salada Atum)" class="mb">
       <div style="display:flex;gap:10px;align-items:center">
         <input id="ingName" type="text" placeholder="Adicionar ingrediente" style="flex:2">
-        <button class="btn btn-primary btn-sm" onclick="searchIngredient()" style="padding:14px;border-radius:14px">🔍</button>
       </div>
       <div id="ingResults" class="results mt" style="background:transparent;padding:0"></div>
       <div id="ingredientList" style="margin-top:16px"></div>
@@ -445,7 +443,7 @@
     <div id="tabManual" class="hidden">
       <div class="manual-entry">
         <label>Nome do Alimento</label>
-        <input id="manualName" type="text" placeholder="Ex: Fatias de Bolo" class="mb">
+        <input id="manualName" type="text" placeholder="Ex: Tapioca com Queijo" class="mb">
         <div class="manual-grid">
           <div><label>Calorias</label><input id="manualKcal" type="number" placeholder="0"></div>
           <div><label>Quantidade (g)</label><input id="manualGrams" type="number" placeholder="100"></div>
@@ -453,7 +451,7 @@
           <div><label>Carbos (g)</label><input id="manualCarbs" type="number" placeholder="0"></div>
           <div><label>Gordura (g)</label><input id="manualFat" type="number" placeholder="0"></div>
         </div>
-        <button class="btn btn-primary mt" style="margin-top:20px" onclick="addManualFood()">Adicionar ao Diário</button>
+        <button class="btn btn-primary mt" style="margin-top:20px" onclick="addManualFood()">Adicionar e Guardar Salva</button>
       </div>
     </div>
 
@@ -549,7 +547,7 @@
     <div class="card"><div class="section-title">Últimos 7 dias (Água)</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
   </div>
 
-  <!-- ===== MEASURES SECTION (NOVO) ===== -->
+  <!-- ===== MEASURES SECTION ===== -->
   <div id="progressMeasures" class="progress-section">
     <div class="measure-input-card">
       <div style="display:flex;align-items:center;gap:12px">
@@ -568,8 +566,7 @@
       <div id="measureTodayBadge" style="margin-top:12px"></div>
     </div>
 
-    <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr" id="measureStatsGrid">
-    </div>
+    <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr" id="measureStatsGrid"></div>
 
     <div class="card">
       <div class="section-title">Evolução da Cintura</div>
@@ -623,20 +620,42 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore(); // Faltava esta linha!
-/* REMOVIDO: auth.setPersistence(...) aqui fora que causava bugs/lentidao */
+const db = firebase.firestore(); 
 
-/* BASE LOCAL (FALLBACK MULTILINGUE) */
+/* BASE LOCAL FOCADA NO BRASIL (RESPOSTA INSTANTÂNEA) */
 const LOCAL_FOODS = {
-  'frango grelhado / pollo asado / grilled chicken': { kcal:165, protein:31, carbs:0, fat:3.6 },
-  'arroz branco / arroz blanco / white rice': { kcal:130, protein:2.7, carbs:28, fat:0.3 },
-  'ovo cozido / huevo cocido / boiled egg': { kcal:155, protein:13, carbs:1.1, fat:11 },
-  'ovo / huevo / egg': { kcal:155, protein:13, carbs:1.1, fat:11 },
-  'banana / platano': { kcal:89, protein:1.1, carbs:23, fat:0.3 },
-  'pão / pan / bread': { kcal:265, protein:9, carbs:49, fat:3.2 },
-  'leite / leche / milk': { kcal:42, protein:3.4, carbs:5, fat:1 },
-  'maçã / manzana / apple': { kcal:52, protein:0.3, carbs:14, fat:0.2 },
-  'batata / papa / potato': { kcal:77, protein:2, carbs:17, fat:0.1 }
+  'frango grelhado / peito de frango': { kcal:165, protein:31, carbs:0, fat:3.6 },
+  'arroz branco / arroz agulhinha': { kcal:130, protein:2.7, carbs:28, fat:0.3 },
+  'arroz integral': { kcal:111, protein:2.6, carbs:23, fat:0.9 },
+  'feijão carioca / feijão marrom': { kcal:76, protein:4.8, carbs:13.6, fat:0.5 },
+  'feijão preto': { kcal:77, protein:4.5, carbs:14, fat:0.5 },
+  'ovo cozido / ovo frito': { kcal:155, protein:13, carbs:1.1, fat:11 },
+  'banana / banana prata': { kcal:89, protein:1.1, carbs:23, fat:0.3 },
+  'pão francês / pão de sal': { kcal:289, protein:8, carbs:58, fat:3 },
+  'pão de forma integral': { kcal:252, protein:12, carbs:42, fat:4 },
+  'tapioca': { kcal:336, protein:0.2, carbs:83, fat:0 },
+  'pão de queijo': { kcal:350, protein:6, carbs:38, fat:19 },
+  'cuscuz de milho': { kcal:112, protein:2.2, carbs:23, fat:1 },
+  'leite integral': { kcal:62, protein:3.2, carbs:4.8, fat:3.2 },
+  'leite desnatado': { kcal:34, protein:3.4, carbs:5, fat:0.1 },
+  'maçã': { kcal:52, protein:0.3, carbs:14, fat:0.2 },
+  'mamão': { kcal:43, protein:0.5, carbs:11, fat:0.1 },
+  'batata doce': { kcal:86, protein:1.6, carbs:20, fat:0.1 },
+  'batata inglesa': { kcal:77, protein:2, carbs:17, fat:0.1 },
+  'mandioca / aipim / macaxeira': { kcal:160, protein:1.4, carbs:38, fat:0.3 },
+  'farofa / farinha de mandioca': { kcal:397, protein:1.2, carbs:80, fat:7 },
+  'carne moída / patinho': { kcal:219, protein:27, carbs:0, fat:11 },
+  'picanha sem gordura': { kcal:185, protein:30, carbs:0, fat:6 },
+  'picanha com gordura': { kcal:280, protein:20, carbs:0, fat:22 },
+  'linguiça toscana': { kcal:310, protein:14, carbs:1, fat:28 },
+  'alface / salada': { kcal:15, protein:1.4, carbs:2.9, fat:0.2 },
+  'tomate': { kcal:18, protein:0.9, carbs:3.9, fat:0.2 },
+  'cenoura': { kcal:21, protein:0.9, carbs:5, fat:0.2 },
+  'crepioca': { kcal:200, protein:8, carbs:25, fat:7 },
+  'whey protein': { kcal:380, protein:78, carbs:9, fat:4 },
+  'aveia': { kcal:389, protein:16, carbs:66, fat:6 },
+  'macarrão cozido': { kcal:158, protein:5.8, carbs:31, fat:0.9 },
+  'café sem açúcar': { kcal:2, protein:0.1, carbs:0, fat:0 }
 };
 
 /* ================== ESTADO GERAL ================== */
@@ -689,7 +708,7 @@ function safe(v){
 }
 function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-  async function loadCloudState(){
+async function loadCloudState(){
   try {
     const snap = await docRef().get();
     if (snap.exists){
@@ -700,7 +719,7 @@ function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
       STATE.ct_weights = d.ct_weights || []; 
       STATE.ct_water = d.ct_water || {}; 
       STATE.ct_measures = d.ct_measures || [];
-      return true; // Sucesso
+      return true;
     }
   } catch (error) {
     console.error("Erro na leitura da cloud:", error);
@@ -721,18 +740,14 @@ async function saveProfile(){
       const btn = document.querySelector('#setup .btn-primary');
       const textoOriginal = btn.textContent;
       btn.textContent = 'A gravar na nuvem... ⏳'; 
-      
-      // Obriga a esperar pela confirmação da base de dados
       await docRef().set(STATE, { merge: true }); 
-      
       btn.textContent = textoOriginal;
     } catch(e) {
       console.error(e);
       alert("ERRO FIREBASE: O perfil não foi guardado! Verifique as regras de segurança da base de dados.");
-      return; // Trava aqui, não deixa avançar se não gravou!
+      return; 
     }
   }
-  
   showToast('Perfil atualizado com sucesso!'); 
   navigate('home');
 }
@@ -750,12 +765,9 @@ auth.onAuthStateChanged(async (user) => {
   STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
   currentUser = user; 
   
-  // Espera que os dados venham da cloud
   await loadCloudState(); 
-  
   $('#authMsg').textContent = ''; 
   
-  // Garante que o perfil existe e tem dados válidos (ex: idade)
   if(STATE.ct_profile && STATE.ct_profile.age) {
       navigate('home');
   } else {
@@ -763,9 +775,7 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
-
 /* ========== PESO CONTEXTUAL POR DIA ========== */
-/* Retorna o peso para uma data específica: o registo desse dia, ou o mais recente anterior */
 function getWeightForDate(dateStr){
   const weights = getWeights();
   const exact = weights.find(w => w.date === dateStr);
@@ -776,7 +786,6 @@ function getWeightForDate(dateStr){
   return p ? p.weight : null;
 }
 
-/* Retorna o peso do dia anterior à data fornecida */
 function getWeightForPreviousDay(dateStr){
   const weights = getWeights();
   const before = weights.filter(w => w.date < dateStr).sort((a,b) => b.date.localeCompare(a.date));
@@ -810,16 +819,13 @@ function getIMCScalePosition(imc){
 function renderIMCCard(containerId, weightKg, heightCm, dateLabel){
   const el = document.getElementById(containerId);
   if(!el) return;
-  
   const imc = calcIMC(weightKg, heightCm);
   if(!imc){
     el.innerHTML = '<div class="empty" style="padding:20px 0">Registe o peso para ver o IMC</div>';
     return;
   }
-  
   const cat = getIMCCategory(imc);
   const pos = getIMCScalePosition(imc);
-  
   const heightM = heightCm / 100;
   const idealMin = (18.5 * heightM * heightM).toFixed(1);
   const idealMax = (24.9 * heightM * heightM).toFixed(1);
@@ -834,28 +840,15 @@ function renderIMCCard(containerId, weightKg, heightCm, dateLabel){
     </div>
     <div style="position:relative;margin:8px 0 4px">
       <div class="imc-scale">
-        <div style="background:#ff4757"></div>
-        <div style="background:#ffa502"></div>
-        <div style="background:#feca57"></div>
-        <div style="background:#10ac84;flex:2"></div>
-        <div style="background:#feca57"></div>
-        <div style="background:#ffa502"></div>
-        <div style="background:#ff4757"></div>
+        <div style="background:#ff4757"></div><div style="background:#ffa502"></div><div style="background:#feca57"></div>
+        <div style="background:#10ac84;flex:2"></div><div style="background:#feca57"></div><div style="background:#ffa502"></div><div style="background:#ff4757"></div>
       </div>
       <div style="position:absolute;top:-4px;left:${pos}%;transform:translateX(-50%);width:18px;height:18px;background:${cat.color};border-radius:50%;border:3px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:left .6s ease"></div>
     </div>
-    <div class="imc-scale-labels">
-      <span>16</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40</span>
-    </div>
+    <div class="imc-scale-labels"><span>16</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40</span></div>
     <div class="imc-details-grid">
-      <div class="imc-detail-item">
-        <div class="imc-detail-value" style="color:var(--green)">${idealMin} - ${idealMax}</div>
-        <div class="imc-detail-label">Peso Ideal (kg)</div>
-      </div>
-      <div class="imc-detail-item">
-        <div class="imc-detail-value" style="color:${cat.color}">${weightKg.toFixed(1)}</div>
-        <div class="imc-detail-label">Peso Usado (kg)</div>
-      </div>
+      <div class="imc-detail-item"><div class="imc-detail-value" style="color:var(--green)">${idealMin} - ${idealMax}</div><div class="imc-detail-label">Peso Ideal (kg)</div></div>
+      <div class="imc-detail-item"><div class="imc-detail-value" style="color:${cat.color}">${weightKg.toFixed(1)}</div><div class="imc-detail-label">Peso Usado (kg)</div></div>
     </div>
   `;
 }
@@ -890,7 +883,6 @@ async function signOutUser(){
   $('#authMsg').textContent = ''; 
 }
 
-
 /* ================== API DE ALIMENTOS MULTILINGUE ================== */
 async function offSearchByText(query){
   const url = `${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`;
@@ -921,32 +913,6 @@ function calcGoal(p){
   let tdee = bmr * p.activity;
   if (p.goal < p.weight) tdee -= 500; else if (p.goal > p.weight) tdee += 350;
   return Math.round(tdee);
-}
-async function saveProfile(){
-  const p = { sex:$('#sex').value, age:+$('#age').value, height:+$('#height').value, weight:+$('#weight').value, goal:+$('#goal').value, activity:+$('#activity').value };
-  if ([p.age,p.height,p.weight,p.goal].some(v=>!v||v<=0)) return showToast('Preencha os campos com valores válidos.', true);
-  
-  p.kcalGoal = calcGoal(p); 
-  STATE.ct_profile = p; // Guarda na memória
-  
-  // Força a gravação IMEDIATA na nuvem e espera que termine
-  if(currentUser){
-    try {
-      const btn = document.querySelector('#setup .btn-primary');
-      const textoOriginal = btn.textContent;
-      btn.textContent = 'A guardar...'; // Dá feedback ao utilizador
-      
-      await docRef().set(STATE, { merge: true }); // Espera que o Firebase confirme
-      
-      btn.textContent = textoOriginal;
-    } catch(e) {
-      console.error(e);
-      return showToast('Erro ao ligar à base de dados.', true);
-    }
-  }
-  
-  showToast('Perfil atualizado!'); 
-  navigate('home');
 }
 
 function navigate(page){
@@ -1002,10 +968,8 @@ function renderHome(){
   $('#pctC').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.c*4 / totalMacroKcal)*100)}%` : '0%';
   $('#pctG').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.g*9 / totalMacroKcal)*100)}%` : '0%';
 
-  // === IMC DIÁRIO ===
   renderIMCHome();
 
-  // === ÁGUA COM COMPARATIVA ===
   const currentWater = viewingWater();
   const waterGoal = getWaterGoal();
   const waterRemaining = Math.max(0, waterGoal - currentWater);
@@ -1023,10 +987,8 @@ function renderHome(){
   }
   $('#waterGoalLabel').textContent = `Meta: ${waterGoal} ml`;
 
-  // === PESO NA HOME ===
   renderWeightHome();
 
-  // === REFEIÇÕES ===
   const meals = viewingMeals();
   if(!meals.length){ $('#mealList').innerHTML='<div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares hoje</div>'; return; }
   $('#mealList').innerHTML = meals.map((ml,i)=>`
@@ -1036,19 +998,12 @@ function renderHome(){
   `).join('');
 }
 
-/* === RENDER IMC NA HOME === */
 function renderIMCHome(){
   const p = getProfile();
   const viewDate = getViewingDateStr();
   const todayFmt = todayStr();
   
-  // Data label
-  if(viewDate === todayFmt){
-    $('#imcDateLabel').textContent = 'Hoje';
-  } else {
-    $('#imcDateLabel').textContent = viewingDate.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
-  }
-  
+  $('#imcDateLabel').textContent = viewDate === todayFmt ? 'Hoje' : viewingDate.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' });
   const dayWeight = getWeightForDate(viewDate);
   const heightCm = p ? p.height : null;
   
@@ -1058,48 +1013,32 @@ function renderIMCHome(){
     const exact = weights.find(w => w.date === viewDate);
     dateInfo = exact ? `Peso registado: ${dayWeight} kg` : `Peso estimado: ${dayWeight} kg (último registo)`;
   }
-  
   renderIMCCard('imcContent', dayWeight, heightCm, dateInfo);
 }
 
-/* === RENDER WEIGHT NA HOME (CONTEXTUAL POR DIA) === */
 function renderWeightHome(){
   const weights = getWeights(), p = getProfile();
   const viewDate = getViewingDateStr();
   const todayFmt = todayStr();
   
-  // Data label
-  if(viewDate === todayFmt){
-    $('#weightHomeDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' });
-  } else {
-    $('#weightHomeDateLabel').textContent = viewingDate.toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' });
-  }
+  $('#weightHomeDateLabel').textContent = viewDate === todayFmt ? new Date().toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' }) : viewingDate.toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' });
 
-  // Verificar se já tem peso registado para o dia em visualização
   const dayEntry = weights.find(w => w.date === viewDate);
-  if(dayEntry){
-    $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:var(--green-dim);color:var(--green)">✓ Registado: ${dayEntry.value} kg</div>`;
-  } else {
-    $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">Sem registo para este dia</div>`;
-  }
+  $('#weightHomeBadge').innerHTML = dayEntry ? `<div class="weight-home-badge" style="background:var(--green-dim);color:var(--green)">✓ Registado: ${dayEntry.value} kg</div>` : `<div class="weight-home-badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">Sem registo para este dia</div>`;
 
-  // Peso do dia (contextual)
   const dayWeight = getWeightForDate(viewDate);
   $('#whStatCurrent').textContent = dayWeight ? `${dayWeight}` : '--';
 
-  // vs Dia anterior (relativo ao dia em visualização)
   const prevWeight = getWeightForPreviousDay(viewDate);
   if(dayWeight && prevWeight){
     const diff = dayWeight - prevWeight;
-    const diffStr = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
-    $('#whStatVsYesterday').textContent = diffStr;
+    $('#whStatVsYesterday').textContent = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
     $('#whStatVsYesterday').style.color = diff <= 0 ? 'var(--green)' : 'var(--accent)';
   } else {
     $('#whStatVsYesterday').textContent = '--';
     $('#whStatVsYesterday').style.color = 'var(--muted)';
   }
 
-  // vs Meta (quanto falta)
   if(p && dayWeight){
     const goalDiff = dayWeight - p.goal;
     if(Math.abs(goalDiff) < 0.1){
@@ -1118,7 +1057,6 @@ function renderWeightHome(){
   }
 }
 
-/* === GUARDAR PESO A PARTIR DA HOME === */
 function saveWeightFromHome(){
   const val = parseFloat($('#weightHomeInput').value);
   if(!val || val < 20 || val > 400) return showToast('Insira um peso válido (20-400 kg).', true);
@@ -1142,15 +1080,32 @@ function saveWeightFromHome(){
 function logWater(amt){ const w = getWater(), d = getViewingDateStr(); w[d] = Math.max(0, (w[d]||0) + amt); setState('ct_water', w); renderHome(); }
 function delMeal(i){ const all = getMeals(); all[getViewingDateStr()].splice(i,1); setState('ct_meals', all); renderHome(); }
 
-/* ================== SEARCH & MODAL ================== */
+/* ================== SEARCH (INSTANT LOCAL + CLOUD) ================== */
 let searchTimer;
 $('#foodSearch').addEventListener('input', e => {
-  clearTimeout(searchTimer); const q = e.target.value.trim(); if(q.length<2) return;
-  searchTimer = setTimeout(async () => {
-    $('#searchResults').innerHTML='<div class="empty"><div class="loader"></div></div>';
-    try{ _searchItems = await offSearchByText(q); if(!_searchItems.length) _searchItems = localSearch(q); renderSearchResults(); }
-    catch{ _searchItems = localSearch(q); renderSearchResults(); }
-  }, 800);
+  clearTimeout(searchTimer); 
+  const q = e.target.value.trim(); 
+  if(q.length < 2) { $('#searchResults').innerHTML = ''; return; }
+  
+  // 1. Busca Local Instantânea
+  _searchItems = localSearch(q);
+  renderSearchResults(); 
+
+  // 2. Busca na Internet (só se encontrar pouco/nada localmente)
+  if(_searchItems.length < 3) {
+      $('#searchResults').innerHTML += '<div style="text-align:center;padding:10px;font-size:0.8rem;color:var(--muted)">A procurar na internet...</div>';
+      searchTimer = setTimeout(async () => {
+        try{ 
+            const cloudItems = await offSearchByText(q); 
+            if(cloudItems.length > 0) {
+                _searchItems = [..._searchItems, ...cloudItems]; 
+                renderSearchResults(); 
+            } else if(_searchItems.length === 0) {
+                $('#searchResults').innerHTML = '<div class="empty">Nada encontrado</div>';
+            }
+        } catch{ if(_searchItems.length === 0) renderSearchResults(); }
+      }, 500);
+  }
 });
 
 function renderSearchResults(){
@@ -1216,11 +1171,32 @@ function saveMeal(meal){
   $('#mealListContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/* ================== MANUAL FOOD -> TO SAVED ================== */
 function addManualFood(){
   const name = $('#manualName').value.trim();
   if(!name){ showToast('Digite um nome válido', true); return; }
-  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, grams: +$('#manualGrams').value||100, isRecipe:false });
-  showToast('Adicionado com sucesso!');
+  
+  const kcal = +$('#manualKcal').value||0;
+  const protein = +$('#manualProtein').value||0;
+  const carbs = +$('#manualCarbs').value||0;
+  const fat = +$('#manualFat').value||0;
+  const grams = +$('#manualGrams').value||100;
+  
+  // 1. Adiciona ao diário
+  saveMeal({ name: cap(name), kcal: kcal, protein: protein, carbs: carbs, fat: fat, grams: grams, isRecipe: false });
+  
+  // 2. Guarda como "Receita Salva" para uso futuro
+  const recipes = getSavedRecipes();
+  recipes.push({ 
+    id: Date.now(), 
+    name: "✏️ " + cap(name) + ` (${grams}g)`, 
+    kcal: kcal, protein: protein, carbs: carbs, fat: fat, 
+    ingredients: [{ name: cap(name), kcal: kcal, protein: protein, carbs: carbs, fat: fat, grams: grams }], 
+    createdAt: todayStr() 
+  });
+  setState('ct_recipes', recipes);
+  
+  showToast('Adicionado e Guardado nas Salvas!');
   ['manualName','manualKcal','manualGrams','manualProtein','manualCarbs','manualFat'].forEach(id => $(`#${id}`).value = '');
 }
 
@@ -1240,20 +1216,42 @@ function showRecent(){
   else renderSearchResults();
 }
 
-/* ================== TAB RECEITAS E EDIÇÃO ================== */
-$('#ingName').addEventListener('keydown', e => { if (e.key === 'Enter') searchIngredient(); });
-async function searchIngredient(){
-  const name = $('#ingName').value.trim(); if (!name) return showToast('Digite o ingrediente.', true);
-  const el = $('#ingResults'); el.innerHTML = '<div class="empty"><div class="loader"></div></div>';
-  try{
-    _ingredientItems = await offSearchByText(name); if(!_ingredientItems.length) _ingredientItems = localSearch(name);
-    if (!_ingredientItems.length){ el.innerHTML = '<div class="empty">Não encontrado 😕</div>'; return; }
-    el.innerHTML = _ingredientItems.map((it,idx)=>`
+/* ================== TAB RECEITAS E EDIÇÃO (INSTANT LOCAL) ================== */
+$('#ingName').addEventListener('input', e => { 
+    clearTimeout(searchTimer); 
+    const q = e.target.value.trim(); 
+    if(q.length < 2) { $('#ingResults').innerHTML = ''; return; }
+    
+    _ingredientItems = localSearch(q);
+    renderIngredientResults();
+    
+    if(_ingredientItems.length < 3) {
+        $('#ingResults').innerHTML += '<div style="text-align:center;padding:10px;font-size:0.8rem;color:var(--muted)">A procurar na internet...</div>';
+        searchTimer = setTimeout(async () => {
+            try {
+                const cloudItems = await offSearchByText(q);
+                if(cloudItems.length > 0){
+                    _ingredientItems = [..._ingredientItems, ...cloudItems];
+                    renderIngredientResults();
+                } else if (_ingredientItems.length === 0) {
+                    $('#ingResults').innerHTML = '<div class="empty">Não encontrado 😕</div>';
+                }
+            } catch {
+                if(_ingredientItems.length === 0) $('#ingResults').innerHTML = '<div class="empty">Erro na busca.</div>';
+            }
+        }, 500);
+    }
+});
+
+// A função original via botão de Enter/Lupa agora apenas redireciona para a mesma busca
+async function searchIngredient(){ /* Lógica transferida para o evento 'input' acima para ser automática */ }
+
+function renderIngredientResults(){
+    $('#ingResults').innerHTML = _ingredientItems.map((it,idx)=>`
       <div class="result-item" onclick="openPortionModal(${idx}, 'ingredient')">
         <div style="flex:1"><div style="font-weight:600">${cap(it.name)}</div><div style="font-size:.75rem;color:var(--muted)">por 100g · P:${it.protein100}g</div></div>
         <div style="font-weight:700;color:var(--accent)">${Math.round(it.kcal100)} kcal</div>
       </div>`).join('');
-  }catch{ el.innerHTML = '<div class="empty">Erro na busca.</div>'; }
 }
 
 function removeIngredient(i){ recipeIngredients.splice(i,1); renderIngredients(); }
@@ -1315,30 +1313,34 @@ function cancelEditRecipe() {
 /* ================== TAB RECEITAS SALVAS ================== */
 function renderSavedRecipes(){
   const recipes = getSavedRecipes(), el = $('#savedRecipeList');
-  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada. Crie uma na aba "Receita".</div>'; return; }
-  el.innerHTML = recipes.map((r,i)=>`
+  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada. Crie uma na aba "Receita" ou adicione Manualmente.</div>'; return; }
+  
+  // Mostrar primeiro as mais recentes
+  const sortedRecipes = [...recipes].reverse();
+  
+  el.innerHTML = sortedRecipes.map((r)=>`
     <div class="result-item" style="flex-direction:column;align-items:flex-start;gap:12px;padding:16px">
       <div style="display:flex;justify-content:space-between;width:100%">
-        <div style="font-weight:800;font-size:1.1rem;color:var(--text)">🧑‍🍳 ${r.name}</div>
+        <div style="font-weight:800;font-size:1.1rem;color:var(--text)">${r.name.includes('✏️') ? '' : '🧑‍🍳'} ${r.name}</div>
         <div style="font-weight:800;color:var(--accent);font-size:1.1rem">${r.kcal} kcal</div>
       </div>
       <div style="font-size:.85rem;color:var(--muted);font-weight:600">${r.ingredients?.length||0} ingredientes · P:${Math.round(r.protein)}g C:${Math.round(r.carbs)}g</div>
       <div style="display:flex;gap:8px;width:100%;margin-top:4px">
-        <button class="btn btn-green btn-sm" style="flex:2;padding:10px" onclick="useSavedRecipe(${i})">🍽️ Consumir</button>
-        <button class="btn btn-outline btn-sm" style="flex:1;padding:10px" onclick="editRecipe(${i})">✏️ Editar</button>
-        <button class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.1);color:var(--muted);padding:10px" onclick="delRecipe(${i})">✕</button>
+        <button class="btn btn-green btn-sm" style="flex:2;padding:10px" onclick="useSavedRecipe(${r.id})">🍽️ Consumir</button>
+        ${!r.name.includes('✏️') ? `<button class="btn btn-outline btn-sm" style="flex:1;padding:10px" onclick="editRecipe(${r.id})">✏️ Editar</button>` : ''}
+        <button class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.1);color:var(--muted);padding:10px" onclick="delRecipe(${r.id})">✕</button>
       </div>
     </div>`).join('');
 }
 
-function useSavedRecipe(i){ 
-  const r = getSavedRecipes()[i]; if (!r) return; 
-  saveMeal({ name:r.name, kcal:r.kcal, protein:r.protein, carbs:r.carbs, fat:r.fat, isRecipe:true, ingredients:(r.ingredients?.length||0) }); 
-  showToast('Receita adicionada ao diário!'); 
+function useSavedRecipe(id){ 
+  const r = getSavedRecipes().find(x => x.id === id); if (!r) return; 
+  saveMeal({ name:r.name.replace('✏️ ', ''), kcal:r.kcal, protein:r.protein, carbs:r.carbs, fat:r.fat, isRecipe:true, ingredients:(r.ingredients?.length||0) }); 
+  showToast('Adicionado ao diário!'); 
 }
 
-function editRecipe(i) {
-  const r = getSavedRecipes()[i]; if (!r) return;
+function editRecipe(id) {
+  const r = getSavedRecipes().find(x => x.id === id); if (!r) return;
   _editingRecipeId = r.id;
   recipeIngredients = JSON.parse(JSON.stringify(r.ingredients || []));
   $('#recipeName').value = r.name;
@@ -1347,9 +1349,15 @@ function editRecipe(i) {
   showToast('A editar receita...');
 }
 
-function delRecipe(i){ 
-  if (!confirm('Tem a certeza que quer apagar esta receita?')) return; 
-  const recipes = getSavedRecipes(); recipes.splice(i,1); setState('ct_recipes', recipes); renderSavedRecipes(); 
+function delRecipe(id){ 
+  if (!confirm('Tem a certeza que quer apagar?')) return; 
+  const recipes = getSavedRecipes(); 
+  const idx = recipes.findIndex(x => x.id === id);
+  if(idx > -1) {
+      recipes.splice(idx,1); 
+      setState('ct_recipes', recipes); 
+      renderSavedRecipes(); 
+  }
 }
 
 /* ================== EVOLUÇÃO (PROGRESSO) ================== */
@@ -1442,7 +1450,6 @@ function renderWeightProgress(){
     if(p){ $('#weightGoalDiff').textContent = `${goalDiff>0?'+':''}${goalDiff.toFixed(1)}`; $('#weightGoalDiff').style.color = Math.abs(goalDiff) < 1 ? 'var(--green)' : 'var(--accent)'; }
   } else { $('#weightCurrent').textContent = p ? p.weight : '--'; $('#weightChange').textContent = '--'; $('#weightGoalDiff').textContent = '--'; }
   
-  // IMC na página de evolução
   const latestWeight = weights.length > 0 ? weights[weights.length - 1].value : (p ? p.weight : null);
   renderIMCCard('progressImcContent', latestWeight, p ? p.height : null, latestWeight ? `Último registo: ${latestWeight} kg` : '');
   
@@ -1544,7 +1551,6 @@ function renderWeightHistory(weights){
       const diff = w.value - weights[realIdx - 1].value;
       if(diff < 0) diffHtml = `<span class="wh-diff down">${diff.toFixed(1)} kg</span>`; else if(diff > 0) diffHtml = `<span class="wh-diff up">+${diff.toFixed(1)} kg</span>`;
     }
-    // Calcular IMC para cada entrada
     const p = getProfile();
     const imcStr = p ? ` · IMC: ${(w.value / ((p.height/100)**2)).toFixed(1)}` : '';
     return `<div class="weight-history-item"><div><div style="font-weight:700;font-size:1.05rem">${w.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`}</div><div style="font-size:.75rem;color:var(--muted);margin-top:2px">${imcStr}</div></div><div style="display:flex;align-items:center;gap:12px">${diffHtml}<div class="wh-value">${w.value} kg</div><button class="wh-del" onclick="deleteWeight(${realIdx})">✕</button></div></div>`;
@@ -1637,7 +1643,6 @@ function saveMeasures(){
   const measures = getMeasures();
   const idx = measures.findIndex(m => m.date === entry.date);
   if(idx >= 0){
-    // Merge com existente (manter valores anteriores se não preenchidos agora)
     MEASURE_FIELDS.forEach(f => {
       if(entry[f.key]) measures[idx][f.key] = entry[f.key];
     });
@@ -1647,7 +1652,6 @@ function saveMeasures(){
   measures.sort((a,b) => a.date.localeCompare(b.date));
   setState('ct_measures', measures);
   
-  // Limpar inputs
   MEASURE_FIELDS.forEach(f => $(`#${f.id}`).value = '');
   showToast('Medidas registadas com sucesso!');
   renderMeasuresProgress();
@@ -1674,7 +1678,6 @@ function renderMeasuresProgress(){
     $('#measureTodayBadge').innerHTML = '';
   }
   
-  // Stats grid: mostrar última medida e variação
   const statsEl = $('#measureStatsGrid');
   if(measures.length > 0){
     const latest = measures[measures.length - 1];
@@ -1704,13 +1707,8 @@ function renderMeasuresProgress(){
     statsEl.innerHTML = '';
   }
   
-  // Gráfico cintura
   setTimeout(() => drawMeasureChart('chartMeasureWaist', measures, 'waist', '#a55eea'), 100);
-  
-  // Comparação geral
   renderMeasureComparison(measures);
-  
-  // Histórico
   renderMeasureHistory(measures);
 }
 
