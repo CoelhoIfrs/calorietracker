@@ -52,10 +52,9 @@
     .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
     .btn-sm{width:auto;padding:10px 20px;font-size:.9rem;border-radius:12px}
     
-    /* TABS SCROLL */
-    .tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02);overflow-x:auto;scrollbar-width:none}
-    .tabs::-webkit-scrollbar{display:none}
-    .tab{flex:1;min-width:75px;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease;white-space:nowrap}
+    /* TABS */
+    .tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02)}
+    .tab{flex:1;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease;white-space:nowrap}
     .tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     
     /* NAVEGAÇÃO DE DATA */
@@ -100,32 +99,38 @@
     .meal-meta{font-size:.8rem;color:var(--muted);font-weight:500}
     .meal-kcal{font-weight:800;color:var(--accent);font-size:1.2rem;white-space:nowrap;text-align:right}
     .meal-del{background:rgba(255,255,255,0.05);border:none;color:var(--muted);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;margin-left:8px}
+    .meal-del:active{background:var(--accent);color:#fff;transform:scale(0.9)}
 
     /* BUSCA E RESULTADOS */
     .search-header{display:flex;gap:10px;margin-bottom:14px}
     .search-wrap{position:relative;flex:1}
     .search-wrap input{padding-left:44px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05)}
     .search-wrap::before{content:'🔍';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;opacity:0.7}
-    .btn-recent{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);color:var(--text);border-radius:14px;padding:0 16px;cursor:pointer;font-size:1.2rem}
+    .btn-recent{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);color:var(--text);border-radius:14px;padding:0 16px;cursor:pointer;font-size:1.2rem;transition:background .2s}
+    .btn-recent:active{background:var(--card)}
     
     .results{max-height:350px;overflow-y:auto;border-radius:16px;background:rgba(0,0,0,0.15);padding:4px}
-    .result-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border-radius:12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02)}
-    .result-item:active{background:var(--card-hover)}
-    
+    .result-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border-radius:12px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,0.02)}
+    .result-item:hover, .result-item:active{background:var(--card-hover)}
+    .result-item:last-child{border-bottom:none}
+
+    /* INGREDIENT ROW */
     .ingredient-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-    .ing-name{flex:1;font-weight:600}
+    .ingredient-row:last-child{border:none}
+    .ing-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
     .ing-detail{color:var(--text);font-size:.8rem;background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:8px;font-weight:700}
-    .ing-kcal{font-weight:800;color:var(--accent);text-align:right}
+    .ing-kcal{font-weight:800;color:var(--accent);min-width:65px;text-align:right}
 
     /* NAV INFERIOR */
     nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;justify-content:space-around;padding:12px 0 calc(var(--safe-bottom) + 12px);border-top:1px solid rgba(255,255,255,0.05);z-index:100}
-    .nav-btn{background:none;border:none;color:var(--muted);font-size:.7rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px 20px}
-    .nav-btn.active{color:var(--accent)}.nav-btn span{font-size:1.6rem}
-    
+    .nav-btn{background:none;border:none;color:var(--muted);font-size:.7rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px 20px;transition:color .2s}
+    .nav-btn.active{color:var(--accent)}.nav-btn span{font-size:1.6rem;transition:transform .2s}
+    .nav-btn.active span{transform:scale(1.15)}
+
     .page{display:none}.page.active{display:block;animation:fadeIn .3s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     
-    .tag{display:inline-block;padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800}
+    .tag{display:inline-block;padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;letter-spacing:0.3px}
     .tag-ok{background:var(--green-dim);color:var(--green)}.tag-warn{background:var(--yellow-dim);color:var(--yellow)}.tag-over{background:var(--accent-dim);color:var(--accent)}
     .empty{text-align:center;color:var(--muted);padding:50px 0;font-size:1rem;display:flex;flex-direction:column;align-items:center;gap:12px;font-weight:500}
     .loader{display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
@@ -144,13 +149,14 @@
     .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s cubic-bezier(0.16, 1, 0.3, 1)}
     .modal-overlay.show .modal-box{transform:translateY(0)}
     .modal-drag-handle{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;margin:0 auto 20px}
+    .modal-box h3{margin-bottom:20px;font-size:1.3rem;font-weight:800;text-align:center}
     
     .portion-presets{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
-    .portion-btn{flex:1;min-width:60px;padding:12px 0;border-radius:14px;border:1px solid rgba(255,255,255,0.05);background:var(--card);color:var(--text);font-size:.95rem;font-weight:700;cursor:pointer}
+    .portion-btn{flex:1;min-width:60px;padding:12px 0;border-radius:14px;border:1px solid rgba(255,255,255,0.05);background:var(--card);color:var(--text);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
     .portion-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
-    .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;border:1px solid rgba(255,255,255,0.02)}
+    .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;font-size:.95rem;border:1px solid rgba(255,255,255,0.02)}
 
-    /* PROGRESSO */
+    /* PÁGINA DE EVOLUÇÃO (PROGRESSO) */
     .progress-tabs{display:flex;gap:8px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:6px;border-radius:16px}
     .progress-tab{flex:1;padding:12px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
     .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
@@ -185,11 +191,16 @@
     .water-insight-box{background:linear-gradient(135deg, var(--card), rgba(72,219,251,0.05));border-radius:20px;padding:20px;margin-bottom:16px;border:1px solid rgba(72,219,251,0.15)}
     .water-bar-bg{width:100%;height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:hidden}
     .water-bar-fill{height:100%;border-radius:5px}
+
+    .manual-entry{background:#111;border-radius:12px;padding:15px;margin-top:10px}
+    .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    
+    .auth-box{max-width:400px;margin:0 auto}
   </style>
 </head>
 <body>
 
-<!-- TOAST NOTIFICATION -->
+<!-- TOAST -->
 <div id="toast" class="toast">✓ Sucesso!</div>
 
 <!-- MODAL DE PORÇÃO (BOTTOM SHEET) -->
@@ -298,10 +309,9 @@
   <div class="card" style="margin-top:20px">
     <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     
-    <!-- TABS MENU -->
+    <!-- TABS MENU (Sem Barcode) -->
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
-      <button class="tab" data-tab="barcode" onclick="switchTab('barcode')">📷 Código</button>
       <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
       <button class="tab" data-tab="manual" onclick="switchTab('manual')">✏️ Manual</button>
       <button class="tab" data-tab="saved" onclick="switchTab('saved')">📋 Salvas</button>
@@ -314,14 +324,6 @@
         <button class="btn-recent" onclick="showRecent()" title="Ver histórico recente">🕒</button>
       </div>
       <div id="searchResults" class="results" style="background:transparent;padding:0"></div>
-    </div>
-
-    <!-- TAB: BARCODE -->
-    <div id="tabBarcode" class="hidden">
-      <label>Código de barras da embalagem</label>
-      <input id="barcodeInput" type="text" placeholder="Ex: 5601234567890" inputmode="numeric" enterkeyhint="search">
-      <button class="btn btn-blue mt" onclick="searchBarcode()">🔍 Procurar Produto</button>
-      <div id="barcodeResults" class="results mt" style="background:transparent;padding:0"></div>
     </div>
 
     <!-- TAB: RECIPE BUILDER -->
@@ -374,6 +376,7 @@
 <div id="progress" class="page">
   <h1 style="margin-bottom:12px">📈 <span>Evolução</span></h1>
 
+  <!-- Sub-tabs -->
   <div class="progress-tabs">
     <button class="progress-tab active" onclick="switchProgressTab('calories')">🔥 Calorias</button>
     <button class="progress-tab" onclick="switchProgressTab('weight')">⚖️ Peso</button>
@@ -402,6 +405,7 @@
 
   <!-- ===== WEIGHT SECTION ===== -->
   <div id="progressWeight" class="progress-section">
+    <!-- Input Card -->
     <div class="weight-input-card">
       <div style="display:flex;align-items:center;gap:12px">
         <span style="font-size:2rem">⚖️</span>
@@ -414,18 +418,21 @@
       <div id="weightTodayBadge"></div>
     </div>
     
+    <!-- Summary -->
     <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr">
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightCurrent" style="color:var(--text);font-size:1.3rem">--</div><div class="cal-stat-label">Atual</div></div>
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightChange" style="color:var(--green);font-size:1.3rem">--</div><div class="cal-stat-label">Variação</div></div>
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightGoalDiff" style="color:var(--accent);font-size:1.3rem">--</div><div class="cal-stat-label">Falta</div></div>
     </div>
     
+    <!-- Charts & History -->
     <div class="card"><div class="section-title">Evolução do Peso</div><div class="chart-container chart-container-tall"><canvas id="chartWeight"></canvas></div></div>
     <div class="card"><div class="section-title">Histórico de Pesagens</div><div id="weightHistoryList"><div class="empty">Nenhum registo de peso</div></div></div>
   </div>
 
   <!-- ===== WATER SECTION ===== -->
   <div id="progressWater" class="progress-section">
+    <!-- Dicas / Insights de Água -->
     <div id="waterInsights"></div>
 
     <div class="cal-stats-grid">
@@ -435,6 +442,7 @@
       <div class="cal-stat-item"><div class="cal-stat-icon">🌊</div><div class="cal-stat-value" id="statWaterTotal" style="color:var(--blue)">0</div><div class="cal-stat-label">Semana (L)</div></div>
     </div>
 
+    <!-- Comparação Água x Calorias -->
     <div class="card">
       <div class="section-title">Balanço: Água vs Calorias</div>
       <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;font-weight:500">Verifique se nos dias em que consome mais calorias tem bebido pouca água. Muitas vezes o cérebro confunde sede com fome.</p>
@@ -472,7 +480,6 @@
 <script>
 /* ================== API & FIREBASE ================== */
 const OFF_SEARCH_URL = 'https://world.openfoodfacts.org/cgi/search.pl';
-const OFF_PRODUCT_URL = 'https://world.openfoodfacts.org/api/v2/product/';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuAYnCTVMt3FrxDXr12C5rrVwGaRJk_vs",
@@ -540,8 +547,6 @@ function queueSave(){
   saveTimer = setTimeout(async () => { if (currentUser) await docRef().set(STATE, { merge: true }); }, 500);
 }
 function setState(key, val){ STATE[key] = val; queueSave(); }
-
-// FUNÇÃO SAFE RECONSTRUÍDA PARA NÃO IGNORAR DADOS DA API
 function safe(v){ 
   const parsed = parseFloat(v);
   return (!isNaN(parsed) && parsed > 0) ? parsed : 0; 
@@ -577,30 +582,16 @@ auth.onAuthStateChanged(async (user) => {
   currentUser = user; await loadCloudState(); getProfile() ? navigate('home') : navigate('setup');
 });
 
-/* ================== API DE ALIMENTOS MULTILINGUE ================== */
+/* ================== API DE ALIMENTOS ================== */
 async function offSearchByText(query){
-  // Pede traduções pt, es e en para garantir compatibilidade
   const url = `${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`;
   const res = await fetch(url); const data = await res.json();
   return (data.products || []).map(normalizeOFFProduct).filter(p => p.kcal100 > 0);
 }
-async function offSearchByBarcode(code){
-  const res = await fetch(`${OFF_PRODUCT_URL}${code}.json?fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`);
-  const data = await res.json();
-  return data.status === 1 ? normalizeOFFProduct(data.product) : null;
-}
 function normalizeOFFProduct(p){
   const n = p.nutriments || {};
-  // Prioridade de idioma: Português > Espanhol > Inglês > Oficial do produto
   const name = p.product_name_pt || p.product_name_es || p.product_name_en || p.product_name || 'Sem nome';
-  return { 
-    name: name, 
-    brand: p.brands || '', 
-    kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), 
-    protein100: safe(n.proteins_100g), 
-    carbs100: safe(n.carbohydrates_100g), 
-    fat100: safe(n.fat_100g) 
-  };
+  return { name: name, brand: p.brands || '', kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), protein100: safe(n.proteins_100g), carbs100: safe(n.carbohydrates_100g), fat100: safe(n.fat_100g) };
 }
 function localSearch(q){
   q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); 
@@ -613,13 +604,7 @@ function localSearch(q){
 }
 function calcPortion(item, grams){
   const f = grams / 100; 
-  return { 
-    kcal: Math.round(item.kcal100*f), 
-    protein: Math.round(item.protein100*f*10)/10, 
-    carbs: Math.round(item.carbs100*f*10)/10, 
-    fat: Math.round(item.fat100*f*10)/10, 
-    grams 
-  };
+  return { kcal: Math.round(item.kcal100*f), protein: Math.round(item.protein100*f*10)/10, carbs: Math.round(item.carbs100*f*10)/10, fat: Math.round(item.fat100*f*10)/10, grams };
 }
 
 /* ================== NAVEGAÇÃO & SETUP ================== */
@@ -645,8 +630,8 @@ document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', (
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add('active');
-  ['tabSearch','tabBarcode','tabRecipe','tabManual','tabSaved'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-  const m = { search:'tabSearch', barcode:'tabBarcode', recipe:'tabRecipe', manual:'tabManual', saved:'tabSaved' };
+  ['tabSearch','tabRecipe','tabManual','tabSaved'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+  const m = { search:'tabSearch', recipe:'tabRecipe', manual:'tabManual', saved:'tabSaved' };
   document.getElementById(m[tab])?.classList.remove('hidden');
   if (tab === 'saved') renderSavedRecipes();
 }
@@ -693,7 +678,7 @@ function renderHome(){
 function logWater(amt){ const w = getWater(), d = getViewingDateStr(); w[d] = Math.max(0, (w[d]||0) + amt); setState('ct_water', w); $('#waterCount').textContent = w[d]; }
 function delMeal(i){ const all = getMeals(); all[getViewingDateStr()].splice(i,1); setState('ct_meals', all); renderHome(); }
 
-/* ================== SEARCH, BARCODE & MODAL ================== */
+/* ================== SEARCH & MODAL ================== */
 let searchTimer;
 $('#foodSearch').addEventListener('input', e => {
   clearTimeout(searchTimer); const q = e.target.value.trim(); if(q.length<2) return;
@@ -714,12 +699,11 @@ function renderSearchResults(){
   `).join('');
 }
 
-/* Logic Modal Bottom Sheet - CORRIGIDO BUG DE REFERÊNCIA */
 function openPortionModal(idx, ctx){
-  clearTimeout(searchTimer); // Bloqueia overwrite da pesquisa
+  clearTimeout(searchTimer); 
   const rawItem = ctx === 'search' ? _searchItems[idx] : _ingredientItems[idx];
   if(!rawItem) return;
-  _selectedItem = JSON.parse(JSON.stringify(rawItem)); // Clona o item
+  _selectedItem = JSON.parse(JSON.stringify(rawItem));
   _portionContext = ctx;
   
   $('#portionTitle').textContent = cap(_selectedItem.name); $('#portionGrams').value = 100;
@@ -750,7 +734,7 @@ function updatePortionPreview(){
 function confirmPortion(){
   if(!_selectedItem) return;
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
-  if(isNaN(p.kcal)) { showToast('Erro no cálculo das calorias', true); return; }
+  if(isNaN(p.kcal)) { showToast('Erro no cálculo', true); return; }
   
   if(_portionContext === 'search'){
     saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); 
@@ -762,26 +746,12 @@ function confirmPortion(){
   closePortionModal();
 }
 
-function saveMeal(meal){
-  const all = getMeals(), d = getViewingDateStr(); if(!all[d]) all[d] = [];
-  all[d].push(meal); setState('ct_meals', all); renderHome();
-}
-
 function addManualFood(){
   const name = $('#manualName').value.trim();
   if(!name){ showToast('Digite um nome válido', true); return; }
-  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, grams: +$('#manualGrams').value||100, isRecipe:false });
+  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, isRecipe:false });
   showToast('Adicionado com sucesso!');
   ['manualName','manualKcal','manualGrams','manualProtein','manualCarbs','manualFat'].forEach(id => $(`#${id}`).value = '');
-}
-
-async function searchBarcode(){
-  const code = $('#barcodeInput').value.trim(); if(!code) return;
-  $('#barcodeResults').innerHTML='<div class="empty"><div class="loader"></div></div>';
-  try{
-    const item = await offSearchByBarcode(code);
-    if(item){ _searchItems=[item]; renderSearchResults(); } else { $('#barcodeResults').innerHTML='<div class="empty">Produto não encontrado</div>'; }
-  }catch{ $('#barcodeResults').innerHTML='<div class="empty">Erro na pesquisa</div>'; }
 }
 
 function showRecent(){
@@ -800,7 +770,7 @@ function showRecent(){
   else renderSearchResults();
 }
 
-/* ================== TAB RECEITAS E SALVAS ================== */
+/* ================== TAB RECEITAS ================== */
 $('#ingName').addEventListener('keydown', e => { if (e.key === 'Enter') searchIngredient(); });
 async function searchIngredient(){
   const name = $('#ingName').value.trim(); if (!name) return showToast('Digite o ingrediente.', true);
@@ -841,7 +811,7 @@ function saveRecipe(alsoLog){
 
 function renderSavedRecipes(){
   const recipes = getSavedRecipes(), el = $('#savedRecipeList');
-  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada. Crie uma na aba "Receita".</div>'; return; }
+  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada.</div>'; return; }
   el.innerHTML = recipes.map((r,i)=>`
     <div class="result-item" onclick="useSavedRecipe(${i})">
       <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🧑‍🍳 ${r.name}</div><div style="font-size:.8rem;color:var(--muted);margin-top:4px;font-weight:600">${r.ingredients.length} itens · P:${Math.round(r.protein)}g C:${Math.round(r.carbs)}g</div></div>
@@ -851,8 +821,7 @@ function renderSavedRecipes(){
 function useSavedRecipe(i){ const r = getSavedRecipes()[i]; if (!r) return; saveMeal({ name:r.name, kcal:r.kcal, protein:r.protein, carbs:r.carbs, fat:r.fat, isRecipe:true, ingredients:r.ingredients.length }); showToast('Receita adicionada ao diário!'); }
 function delRecipe(i){ if (!confirm('Apagar receita guardada?')) return; const recipes = getSavedRecipes(); recipes.splice(i,1); setState('ct_recipes', recipes); renderSavedRecipes(); }
 
-
-/* ================== EVOLUÇÃO (GRÁFICOS CORRIGIDOS) ================== */
+/* ================== EVOLUÇÃO (PROGRESSO) ================== */
 function switchProgressTab(tab){
   document.querySelectorAll('.progress-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.progress-section').forEach(s=>s.classList.remove('active'));
@@ -883,7 +852,6 @@ function renderCaloriesProgress(){
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${vals.filter(v=>v<=goal).length}/7`;
   
-  // Atraso para o render de Canvas
   setTimeout(() => { drawBarChartCal('chartCal7', last7, goal); drawLineChartCal('chartCal14', last14, goal); }, 100);
 }
 
@@ -1033,7 +1001,7 @@ function renderWaterProgress(){
   $('#waterInsights').innerHTML = `
     <div class="water-insight-box">
       <div class="water-insight-title">O seu mínimo ideal: ${waterGoal} ml/dia</div>
-      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Baseado no seu peso (${weight} kg) × 35ml. Essencial para o metabolismo e hidratação.</p>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Baseado no seu peso (${weight} kg) × 35ml. Essencial para o metabolismo.</p>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(72,219,251,0.15)">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:.9rem;font-weight:600;color:var(--text)">A sua média:</span><span style="font-weight:800;font-size:1.1rem;color:${avg >= waterGoal ? 'var(--green)' : 'var(--accent)'}">${avg} ml</span></div>
         <div style="display:flex;justify-content:space-between"><span style="font-size:.9rem;font-weight:600;color:var(--text)">Estado:</span><span style="font-weight:800;font-size:.9rem;background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:8px;color:var(--text)">${avg >= waterGoal ? '✅ Excelente' : (avg >= waterGoal*0.7 ? '⚠️ Quase lá' : '🚨 Beber mais')}</span></div>
