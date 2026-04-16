@@ -688,15 +688,47 @@ function safe(v){
 }
 function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-async function loadCloudState(){
-  const snap = await docRef().get();
-  if (snap.exists){
-    const d = snap.data();
-    STATE.ct_profile = d.ct_profile || null; STATE.ct_meals = d.ct_meals || {};
-    STATE.ct_recipes = d.ct_recipes || []; STATE.ct_weights = d.ct_weights || []; 
-    STATE.ct_water = d.ct_water || {}; STATE.ct_measures = d.ct_measures || [];
+  async function loadCloudState(){
+  try {
+    const snap = await docRef().get();
+    if (snap.exists){
+      const d = snap.data();
+      STATE.ct_profile = d.ct_profile || null; STATE.ct_meals = d.ct_meals || {};
+      STATE.ct_recipes = d.ct_recipes || []; STATE.ct_weights = d.ct_weights || []; 
+      STATE.ct_water = d.ct_water || {}; STATE.ct_measures = d.ct_measures || [];
+      return true; // Sucesso ao carregar
+    }
+  } catch (error) {
+    console.error("Erro na leitura da cloud:", error);
   }
+  return false; // Falha ou documento não existe (conta nova)
 }
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user){ 
+    currentUser = null; 
+    STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
+    setNavVisible(false); 
+    showOnly('auth'); 
+    return; 
+  }
+  
+  $('#authMsg').textContent = 'A carregar dados...';
+  STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
+  currentUser = user; 
+  
+  // Esperar obrigatoriamente pelos dados da cloud antes de decidir para onde ir
+  await loadCloudState(); 
+  
+  $('#authMsg').textContent = ''; 
+  // Verifica o STATE.ct_profile (agora garantido de ter sido lido, se existir na BD)
+  if(STATE.ct_profile) {
+      navigate('home');
+  } else {
+      navigate('setup');
+  }
+});
+  
 
 /* ========== PESO CONTEXTUAL POR DIA ========== */
 /* Retorna o peso para uma data específica: o registo desse dia, ou o mais recente anterior */
@@ -824,29 +856,6 @@ async function signOutUser(){
   $('#authMsg').textContent = ''; 
 }
 
-auth.onAuthStateChanged(async (user) => {
-  if (!user){ 
-    currentUser = null; 
-    STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
-    setNavVisible(false); 
-    showOnly('auth'); 
-    return; 
-  }
-  
-  $('#authMsg').textContent = 'A carregar dados...';
-  STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
-  currentUser = user; 
-  
-  try {
-    await loadCloudState(); 
-  } catch (error) {
-    console.error("Aviso: Dados não encontrados ou erro temporário. A iniciar com estado vazio.", error);
-    // Removemos o auth.signOut() aqui! Se a leitura falhar, simplesmente avança como um perfil novo.
-  }
-  
-  $('#authMsg').textContent = ''; 
-  getProfile() ? navigate('home') : navigate('setup');
-});
 
 /* ================== API DE ALIMENTOS MULTILINGUE ================== */
 async function offSearchByText(query){
