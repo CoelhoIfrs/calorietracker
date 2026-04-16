@@ -888,11 +888,33 @@ function calcGoal(p){
   if (p.goal < p.weight) tdee -= 500; else if (p.goal > p.weight) tdee += 350;
   return Math.round(tdee);
 }
-function saveProfile(){
+async function saveProfile(){
   const p = { sex:$('#sex').value, age:+$('#age').value, height:+$('#height').value, weight:+$('#weight').value, goal:+$('#goal').value, activity:+$('#activity').value };
   if ([p.age,p.height,p.weight,p.goal].some(v=>!v||v<=0)) return showToast('Preencha os campos com valores válidos.', true);
-  p.kcalGoal = calcGoal(p); setState('ct_profile', p); showToast('Perfil atualizado!'); navigate('home');
+  
+  p.kcalGoal = calcGoal(p); 
+  STATE.ct_profile = p; // Guarda na memória
+  
+  // Força a gravação IMEDIATA na nuvem e espera que termine
+  if(currentUser){
+    try {
+      const btn = document.querySelector('#setup .btn-primary');
+      const textoOriginal = btn.textContent;
+      btn.textContent = 'A guardar...'; // Dá feedback ao utilizador
+      
+      await docRef().set(STATE, { merge: true }); // Espera que o Firebase confirme
+      
+      btn.textContent = textoOriginal;
+    } catch(e) {
+      console.error(e);
+      return showToast('Erro ao ligar à base de dados.', true);
+    }
+  }
+  
+  showToast('Perfil atualizado!'); 
+  navigate('home');
 }
+
 function navigate(page){
   showOnly(page); setNavVisible(['home','progress','profile'].includes(page));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
