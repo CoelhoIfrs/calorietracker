@@ -260,18 +260,29 @@
     <div class="modal-drag-handle"></div>
     <h3 id="portionTitle">Ajustar porção</h3>
     
-    <div style="margin:20px 0">
-      <label>Quantidade (gramas / ml)</label>
-      <!-- ID alterado para focar automaticamente sem conflitos -->
-      <input id="portionGrams" type="number" value="100" min="1" placeholder="Ex: 150" inputmode="numeric">
+    <div style="display:flex;gap:10px;margin:20px 0">
+      <div style="flex:1">
+        <label>Quantidade</label>
+        <input id="portionAmt" type="number" value="100" min="0.1" step="0.1" inputmode="decimal">
+      </div>
+      <div style="flex:1.5">
+        <label>Medida</label>
+        <select id="portionUnit">
+          <option value="1">Gramas / ml (g)</option>
+          <option value="15">Colher de Sopa (~15g)</option>
+          <option value="5">Colher de Chá (~5g)</option>
+          <option value="30">Escumadeira / Fatia (~30g)</option>
+          <option value="150">Xícara / Copo (~150g)</option>
+          <option value="100">Unidade Média (~100g)</option>
+        </select>
+      </div>
     </div>
     
     <div class="portion-presets">
-      <button class="portion-btn" onclick="setPortionGrams(25)">25g</button>
-      <button class="portion-btn" onclick="setPortionGrams(50)">50g</button>
-      <button class="portion-btn active" onclick="setPortionGrams(100)">100g</button>
-      <button class="portion-btn" onclick="setPortionGrams(150)">150g</button>
-      <button class="portion-btn" onclick="setPortionGrams(200)">200g</button>
+      <button class="portion-btn active" onclick="setPreset(100, 1)">100g</button>
+      <button class="portion-btn" onclick="setPreset(1, 15)">1 C. Sopa</button>
+      <button class="portion-btn" onclick="setPreset(1, 30)">1 Escumad.</button>
+      <button class="portion-btn" onclick="setPreset(1, 150)">1 Xícara</button>
     </div>
     
     <div id="portionPreview" class="portion-preview-box"></div>
@@ -282,7 +293,7 @@
     </div>
   </div>
 </div>
-
+  
 <!-- AUTHENTICATION -->
 <div id="auth" class="page active">
   <h1>🔥 <span>Calorie</span>Tracker</h1>
@@ -1105,48 +1116,91 @@ function openPortionModal(idx, ctx){
   _portionContext = ctx;
   
   $('#portionTitle').textContent = cap(_selectedItem.name); 
-  $('#portionGrams').value = 100;
+  $('#portionAmt').value = 100;
+  $('#portionUnit').value = "1"; // Volta para Gramas por defeito
   
-  // UX: Auto-selecionar o input para edição rápida em telemóveis
-  setTimeout(() => $('#portionGrams').select(), 100);
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.portion-btn')[0].classList.add('active'); // Foca nos 100g
+  
+  setTimeout(() => $('#portionAmt').select(), 100); // Seleciona número auto para reescrever
   
   updatePortionPreview(); 
   $('#portionModal').classList.add('show');
 }
 
 function closePortionModal(){ $('#portionModal').classList.remove('show'); }
-function setPortionGrams(g){ 
-  $('#portionGrams').value = g; 
+
+// Botões rápidos (Ex: 1 C. Sopa)
+function setPreset(amt, unitVal, btnElement){ 
+  $('#portionAmt').value = amt; 
+  $('#portionUnit').value = unitVal;
   document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if(event && event.target) event.target.classList.add('active');
   updatePortionPreview(); 
 }
-$('#portionGrams').addEventListener('input', () => {
+
+$('#portionAmt').addEventListener('input', () => {
   document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
   updatePortionPreview();
 });
+
+// UX inteligente: se trocar de "Gramas" para "Colher", muda o número de 100 para 1 auto
+$('#portionUnit').addEventListener('change', () => {
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  if($('#portionAmt').value == "100" && $('#portionUnit').value != "1") $('#portionAmt').value = "1";
+  else if ($('#portionAmt').value == "1" && $('#portionUnit').value == "1") $('#portionAmt').value = "100";
+  updatePortionPreview();
+});
+
+// Calcula as gramas totais invisíveis por trás do ecrã
+function getCalculatedGrams() {
+  const amt = parseFloat($('#portionAmt').value) || 0;
+  const mult = parseFloat($('#portionUnit').value) || 1;
+  return amt * mult;
+}
+
 function updatePortionPreview(){
   if(!_selectedItem) return;
-  const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
+  const totalGrams = getCalculatedGrams();
+  const p = calcPortion(_selectedItem, totalGrams);
+  
+  // Formata os números para no máximo 1 casa decimal (evita "13.333333g")
+  const pKcal = Math.round(p.kcal);
+  const pProt = Number(p.protein).toFixed(1).replace(/\.0$/, '');
+  const pCarb = Number(p.carbs).toFixed(1).replace(/\.0$/, '');
+  const pFat = Number(p.fat).toFixed(1).replace(/\.0$/, '');
+
   $('#portionPreview').innerHTML = `
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:1.1rem;font-weight:800"><span style="color:var(--text)">Energia</span><span style="color:var(--accent)">${p.kcal} kcal</span></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Proteína</span><span style="color:var(--text);font-weight:700">${p.protein}g</span></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Carboidratos</span><span style="color:var(--text);font-weight:700">${p.carbs}g</span></div>
-    <div style="display:flex;justify-content:space-between;color:var(--muted)"><span>Gordura</span><span style="color:var(--text);font-weight:700">${p.fat}g</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:1.1rem;font-weight:800"><span style="color:var(--text)">Energia <span style="font-size:0.75rem;color:var(--muted);font-weight:600">(${totalGrams}g)</span></span><span style="color:var(--accent)">${pKcal} kcal</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Proteína</span><span style="color:var(--text);font-weight:700">${pProt}g</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Carboidratos</span><span style="color:var(--text);font-weight:700">${pCarb}g</span></div>
+    <div style="display:flex;justify-content:space-between;color:var(--muted)"><span>Gordura</span><span style="color:var(--text);font-weight:700">${pFat}g</span></div>
   `;
 }
+
 function confirmPortion(){
   if(!_selectedItem) return;
-  const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
-  if(isNaN(p.kcal)) { showToast('Erro no cálculo das calorias', true); return; }
+  const totalGrams = getCalculatedGrams();
+  const p = calcPortion(_selectedItem, totalGrams);
+  if(isNaN(p.kcal)) { showToast('Erro no cálculo', true); return; }
+  
+  let displayName = cap(_selectedItem.name);
+  const unitSelect = $('#portionUnit');
+  const unitText = unitSelect.options[unitSelect.selectedIndex].text.split(' ')[0]; // Ex: "Colher"
+  const amt = parseFloat($('#portionAmt').value);
+
+  // Se não forem gramas, junta a medida ao nome para aparecer bonito no Diário!
+  if(unitSelect.value != "1") {
+      displayName += ` (${amt} ${unitText})`;
+  }
   
   if(_portionContext === 'search'){
-    saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); 
+    saveMeal({ name: displayName, kcal: Math.round(p.kcal), protein: p.protein, carbs: p.carbs, fat: p.fat, grams: totalGrams }); 
     showToast('Refeição Adicionada!'); 
     $('#foodSearch').value=''; 
     $('#searchResults').innerHTML='';
   } else {
-    recipeIngredients.push({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams });
+    recipeIngredients.push({ name: displayName, kcal: Math.round(p.kcal), protein: p.protein, carbs: p.carbs, fat: p.fat, grams: totalGrams });
     $('#ingName').value=''; 
     $('#ingResults').innerHTML='';
     renderIngredients();
