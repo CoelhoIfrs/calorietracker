@@ -313,7 +313,9 @@
       <div><label>Peso Objetivo (kg)</label><input id="goal" type="number" placeholder="Ex: 70"></div>
       <div><label>Atividade</label><select id="activity"><option value="1.2">Sedentário</option><option value="1.375">Leve</option><option value="1.55" selected>Moderado</option><option value="1.725">Intenso</option><option value="1.9">Atleta</option></select></div>
     </div>
-    <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button>
+    <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button> 
+    <!-- REMOVIDOS OS 3 BOTOES REPETIDOS AQUI -->
+    <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button>
   </div>
 </div>
 
@@ -621,7 +623,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+/* REMOVIDO: auth.setPersistence(...) aqui fora que causava bugs/lentidao */
 
 /* BASE LOCAL (FALLBACK MULTILINGUE) */
 const LOCAL_FOODS = {
@@ -700,13 +702,10 @@ async function loadCloudState(){
 /* Retorna o peso para uma data específica: o registo desse dia, ou o mais recente anterior */
 function getWeightForDate(dateStr){
   const weights = getWeights();
-  // Procurar registo exato do dia
   const exact = weights.find(w => w.date === dateStr);
   if(exact) return exact.value;
-  // Procurar o registo mais recente antes dessa data
   const before = weights.filter(w => w.date <= dateStr).sort((a,b) => b.date.localeCompare(a.date));
   if(before.length > 0) return before[0].value;
-  // Fallback: peso do perfil
   const p = getProfile();
   return p ? p.weight : null;
 }
@@ -738,7 +737,6 @@ function getIMCCategory(imc){
 }
 
 function getIMCScalePosition(imc){
-  // Escala visual de 15 a 40+
   const min = 15, max = 42;
   return Math.max(0, Math.min(100, ((imc - min) / (max - min)) * 100));
 }
@@ -756,7 +754,6 @@ function renderIMCCard(containerId, weightKg, heightCm, dateLabel){
   const cat = getIMCCategory(imc);
   const pos = getIMCScalePosition(imc);
   
-  // Peso ideal range (IMC 18.5-24.9)
   const heightM = heightCm / 100;
   const idealMin = (18.5 * heightM * heightM).toFixed(1);
   const idealMax = (24.9 * heightM * heightM).toFixed(1);
@@ -797,20 +794,37 @@ function renderIMCCard(containerId, weightKg, heightCm, dateLabel){
   `;
 }
 
-/* ================== AUTENTICAÇÃO ================== */
+/* ================== AUTENTICAÇÃO OTIMIZADA ================== */
 async function signUp(){
   const email = $('#authEmail').value.trim(), pass = $('#authPass').value.trim();
   if(!email || pass.length < 6) return $('#authMsg').textContent = 'Email ou senha inválidos (mínimo 6 caracteres).';
-  try{ $('#authMsg').textContent = 'A iniciar...'; await auth.createUserWithEmailAndPassword(email, pass); }
+  try{ 
+    $('#authMsg').textContent = 'A iniciar...'; 
+    // Correção: Definir persistência ANTES do login (com await para não haver race condition)
+    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    await auth.createUserWithEmailAndPassword(email, pass); 
+  }
   catch(e){ $('#authMsg').textContent = 'Erro: ' + e.message; }
 }
+
 async function signIn(){
   const email = $('#authEmail').value.trim(), pass = $('#authPass').value.trim();
   if(!email || !pass) return $('#authMsg').textContent = 'Preencha todos os dados.';
-  try{ $('#authMsg').textContent = 'A entrar...'; await auth.signInWithEmailAndPassword(email, pass); }
+  try{ 
+    $('#authMsg').textContent = 'A entrar...'; 
+    // Correção: Definir persistência ANTES do login
+    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    await auth.signInWithEmailAndPassword(email, pass); 
+  }
   catch(e){ $('#authMsg').textContent = 'Erro: Credenciais incorretas.'; }
 }
-async function signOutUser(){    await auth.signOut();    $('#authEmail').value = '';   $('#authPass').value = '';   $('#authMsg').textContent = ''; }
+
+async function signOutUser(){    
+  await auth.signOut();    
+  $('#authEmail').value = '';   
+  $('#authPass').value = '';   
+  $('#authMsg').textContent = ''; 
+}
 
 auth.onAuthStateChanged(async (user) => {
   if (!user){ 
@@ -820,10 +834,22 @@ auth.onAuthStateChanged(async (user) => {
     showOnly('auth'); 
     return; 
   }
-  STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
-  currentUser = user; 
-  await loadCloudState(); 
-  getProfile() ? navigate('home') : navigate('setup');
+  
+  try {
+    $('#authMsg').textContent = 'A carregar dados...'; // Feedback ao utilizador
+    STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
+    currentUser = user; 
+    
+    // Correção: Se o Firebase estiver lento, protegemos isto com Try-Catch
+    await loadCloudState(); 
+    
+    $('#authMsg').textContent = ''; // Limpar mensagem
+    getProfile() ? navigate('home') : navigate('setup');
+  } catch (error) {
+    console.error("Erro ao carregar dados do Firebase:", error);
+    $('#authMsg').textContent = 'Problema de ligação. Tente novamente.';
+    auth.signOut(); // Desloga por segurança se não conseguir carregar
+  }
 });
 
 /* ================== API DE ALIMENTOS MULTILINGUE ================== */
@@ -967,7 +993,6 @@ function renderIMCHome(){
   
   let dateInfo = '';
   if(dayWeight){
-    // Verificar se é registo exato ou estimado
     const weights = getWeights();
     const exact = weights.find(w => w.date === viewDate);
     dateInfo = exact ? `Peso registado: ${dayWeight} kg` : `Peso estimado: ${dayWeight} kg (último registo)`;
@@ -997,7 +1022,7 @@ function renderWeightHome(){
     $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">Sem registo para este dia</div>`;
   }
 
-  // Peso do dia (contextual) — usa o peso desse dia ou o mais recente anterior
+  // Peso do dia (contextual)
   const dayWeight = getWeightForDate(viewDate);
   $('#whStatCurrent').textContent = dayWeight ? `${dayWeight}` : '--';
 
@@ -1032,7 +1057,7 @@ function renderWeightHome(){
   }
 }
 
-/* === GUARDAR PESO A PARTIR DA HOME (para o dia em visualização) === */
+/* === GUARDAR PESO A PARTIR DA HOME === */
 function saveWeightFromHome(){
   const val = parseFloat($('#weightHomeInput').value);
   if(!val || val < 20 || val > 400) return showToast('Insira um peso válido (20-400 kg).', true);
@@ -1043,7 +1068,6 @@ function saveWeightFromHome(){
   w.sort((a,b) => a.date.localeCompare(b.date));
   setState('ct_weights', w);
   
-  // Atualizar peso no perfil apenas se for o dia de hoje
   if(targetDate === todayStr()){
     const p = getProfile();
     if(p){ p.weight = val; p.kcalGoal = calcGoal(p); setState('ct_profile', p); }
