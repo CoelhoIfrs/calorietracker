@@ -1855,6 +1855,358 @@ async function resetApp() {
   await docRef().set(STATE, { merge: false });
   navigate('setup');
 }
+  <script>
+/* =========================
+   PATCH: EVOLUÇÃO COM DROPDOWN + PERÍODO
+   Cole no final do <script> atual
+========================= */
+
+let currentProgressTab = 'calories';
+let progressRangeDays = 7;
+
+// Garante CSS mínimo das secções da evolução
+(function injectProgressCss(){
+  const css = `
+    .progress-section{display:none}
+    .progress-section.active{display:block}
+    .progress-controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .progress-controls .ctrl{flex:1;min-width:160px}
+    .progress-controls label{margin-bottom:6px}
+  `;
+  const st = document.createElement('style');
+  st.innerHTML = css;
+  document.head.appendChild(st);
+})();
+
+function getProgressMap(){
+  return {
+    calories: 'progressCalories',
+    weight: 'progressWeight',
+    water: 'progressWater',
+    measures: 'progressMeasures'
+  };
+}
+
+function setActiveProgressSection(tab){
+  document.querySelectorAll('.progress-section').forEach(s => s.classList.remove('active'));
+  const id = getProgressMap()[tab];
+  if (id) document.getElementById(id)?.classList.add('active');
+}
+
+function buildProgressControls(){
+  const progressPage = document.getElementById('progress');
+  if (!progressPage) return;
+
+  // remove tabs antigas (botões)
+  const oldTabs = progressPage.querySelector('.progress-tabs');
+  if (oldTabs) oldTabs.remove();
+
+  // evita duplicar
+  if (document.getElementById('progressCategorySelect')) return;
+
+  const controls = document.createElement('div');
+  controls.className = 'progress-controls';
+  controls.innerHTML = `
+    <div class="ctrl">
+      <label>Categoria</label>
+      <select id="progressCategorySelect" onchange="onProgressCategoryChange()">
+        <option value="calories">🔥 Calorias</option>
+        <option value="weight">⚖️ Peso & IMC & TMB</option>
+        <option value="water">💧 Água</option>
+        <option value="measures">📏 Medidas</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Comparar por</label>
+      <select id="progressRangeSelect" onchange="onProgressRangeChange()">
+        <option value="7">Semana (7 dias)</option>
+        <option value="30">Mês (30 dias)</option>
+        <option value="90">Trimestre (90 dias)</option>
+      </select>
+    </div>
+  `;
+  const h1 = progressPage.querySelector('h1');
+  if (h1) h1.insertAdjacentElement('afterend', controls);
+
+  // estado inicial
+  document.getElementById('progressCategorySelect').value = currentProgressTab;
+  document.getElementById('progressRangeSelect').value = String(progressRangeDays);
+}
+
+function onProgressCategoryChange(){
+  const v = document.getElementById('progressCategorySelect')?.value || 'calories';
+  switchProgressTab(v);
+}
+
+function onProgressRangeChange(){
+  progressRangeDays = parseInt(document.getElementById('progressRangeSelect')?.value || '7', 10);
+  renderProgress();
+}
+
+function switchProgressTab(tab){
+  currentProgressTab = tab;
+  const sel = document.getElementById('progressCategorySelect');
+  if (sel) sel.value = tab;
+  setActiveProgressSection(tab);
+  renderProgress();
+}
+
+function renderProgress(){
+  setActiveProgressSection(currentProgressTab);
+  if (currentProgressTab === 'calories') renderCaloriesProgress();
+  else if (currentProgressTab === 'weight') renderWeightProgress();
+  else if (currentProgressTab === 'water') renderWaterProgress();
+  else if (currentProgressTab === 'measures') renderMeasuresProgress();
+}
+
+function getRangeDataFromMeals(days){
+  const meals = getMeals();
+  const out = [];
+  for (let i = days - 1; i >= 0; i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    const val = (meals[key] || []).reduce((s,m)=>s+(m.kcal||0),0);
+    out.push({
+      date:key,
+      label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),
+      weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3),
+      value:val
+    });
+  }
+  return out;
+}
+
+function getRangeDataFromWater(days){
+  const w = getWater();
+  const out = [];
+  for (let i = days - 1; i >= 0; i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    out.push({
+      date:key,
+      label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),
+      weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3),
+      value:w[key] || 0
+    });
+  }
+  return out;
+}
+
+function getRangeDataFromWeights(days){
+  const all = getWeights();
+  if (!all.length) return [];
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  return all.filter(w => w.date >= cutoffStr);
+}
+
+function getRangeDataFromMeasures(days){
+  const all = getMeasures();
+  if (!all.length) return [];
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  return all.filter(m => m.date >= cutoffStr);
+}
+
+/* -------- Calorias (sobrescreve) -------- */
+function renderCaloriesProgress(){
+  const goal = getProfile()?.kcalGoal || 2000;
+  const data = getRangeDataFromMeals(progressRangeDays);
+
+  const vals = data.map(d=>d.value).filter(v=>v>0);
+  $('#statAvg').textContent = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  $('#statBest').textContent = vals.length ? Math.min(...vals) : 0;
+  $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
+  $('#statDays').textContent = `${data.filter(d=>d.value<=goal).length}/${progressRangeDays}`;
+
+  setTimeout(() => {
+    drawBarChartCal('chartCal7', data, goal);
+    drawLineChartCal('chartCal14', data, goal);
+  }, 100);
+}
+
+/* -------- Peso/IMC/TMB -------- */
+function renderWeightProgress(){
+  const p = getProfile();
+  const fullWeights = getWeights();
+  let rangeWeights = getRangeDataFromWeights(progressRangeDays);
+
+  // se tiver poucos pontos no período, usa todo o histórico para não quebrar gráfico
+  if (rangeWeights.length < 2) rangeWeights = fullWeights;
+
+  setTimeout(() => {
+    drawWeightChart(rangeWeights, p);
+    drawIMCChart(rangeWeights, p);
+    drawTMBChart(rangeWeights, p); // novo
+  }, 100);
+
+  const list = $('#weightHistoryList');
+  if (!list) return;
+  if (!rangeWeights.length){
+    list.innerHTML = '<div class="empty">Nenhum registo de peso</div>';
+    return;
+  }
+  const sorted = [...rangeWeights].reverse();
+  list.innerHTML = sorted.map(w => {
+    const d = new Date(w.date + 'T12:00:00');
+    return `
+      <div class="meal-item">
+        <div class="meal-info">
+          <div class="meal-name">${w.value} kg</div>
+          <div class="meal-meta">${d.toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'})}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// novo gráfico TMB
+function drawTMBChart(weights, profile){
+  const old = document.getElementById('chartTMB');
+  if (!old){
+    const container = document.querySelector('#progressWeight');
+    if (!container) return;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Evolução da TMB</div>
+      <div class="chart-container chart-container-tall"><canvas id="chartTMB"></canvas></div>
+    `;
+    // inserir antes do histórico
+    const historyCard = container.querySelector('#weightHistoryList')?.closest('.card');
+    if (historyCard) container.insertBefore(card, historyCard);
+    else container.appendChild(card);
+  }
+
+  const canvas = document.getElementById('chartTMB');
+  if (!canvas || !canvas.parentElement?.offsetWidth) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth, H = 260;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+
+  if(!profile || weights.length < 2){
+    ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2);
+    return;
+  }
+
+  const tmb = weights.map(w => {
+    const bmr = profile.sex === 'M'
+      ? (10*w.value + 6.25*profile.height - 5*profile.age + 5)
+      : (10*w.value + 6.25*profile.height - 5*profile.age - 161);
+    return { date:w.date, value: Math.round(bmr) };
+  });
+
+  const pad=45;
+  let min=Math.min(...tmb.map(x=>x.value)), max=Math.max(...tmb.map(x=>x.value));
+  const range=(max-min)||1; min -= range*0.15; max += range*0.15;
+  const getY=v=> pad + (1-(v-min)/(max-min))*(H-pad*2);
+
+  const pts=tmb.map((d,i)=>({
+    x: pad + (i/(tmb.length-1))*(W-pad*2),
+    y: getY(d.value),
+    v: d.value,
+    date: d.date
+  }));
+
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(255,71,87,0.15)');
+  grad.addColorStop(1,'rgba(255,71,87,0)');
+  ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H-pad);
+  ctx.fillStyle=grad; ctx.fill();
+
+  ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle='#ff4757'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
+
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle='#ff4757'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(p.v, p.x, p.y-10);
+    if (tmb.length <= 10 || i % Math.ceil(tmb.length/8)===0 || i===tmb.length-1){
+      const d = new Date(p.date + 'T12:00:00');
+      ctx.fillStyle='#8395a7'; ctx.font='600 8px sans-serif';
+      ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H-8);
+    }
+  });
+}
+
+/* -------- Água (sobrescreve) -------- */
+function renderWaterProgress(){
+  const p = getProfile();
+  const weight = p ? p.weight : 70;
+  const waterGoal = Math.round(weight * 35);
+  const data = getRangeDataFromWater(progressRangeDays);
+
+  const vals = data.map(d=>d.value).filter(v=>v>0);
+  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  $('#statWaterAvg').textContent = avg;
+  $('#statWaterDays').textContent = `${data.filter(d=>d.value >= waterGoal).length}/${progressRangeDays}`;
+
+  setTimeout(()=> drawBarChartWater('chartWater7', data, waterGoal), 100);
+}
+
+/* -------- Medidas (sobrescreve com filtro do período) -------- */
+function renderMeasuresProgress(){
+  const measures = getRangeDataFromMeasures(progressRangeDays);
+  const today = todayStr();
+
+  $('#measureDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'long', day:'2-digit', month:'long' });
+  const todayEntry = (getMeasures() || []).find(m => m.date === today);
+
+  if(todayEntry){
+    const parts = MEASURE_FIELDS
+      .filter(f => todayEntry[f.key])
+      .map(f => `${f.label}: ${todayEntry[f.key]} cm`)
+      .join(' · ');
+    $('#measureTodayBadge').innerHTML = `<div style="background:var(--green-dim);color:var(--green);padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;display:inline-flex;align-items:center;gap:6px">✓ Registado hoje: ${parts}</div>`;
+  } else {
+    $('#measureTodayBadge').innerHTML = '';
+  }
+
+  const statsEl = $('#measureStatsGrid');
+  if(measures.length > 0){
+    const latest = measures[measures.length - 1];
+    const prev = measures.length > 1 ? measures[measures.length - 2] : null;
+    let statsHtml = '';
+    MEASURE_FIELDS.forEach(f => {
+      if(latest[f.key]){
+        let diffHtml = '--', diffColor = 'var(--muted)';
+        if(prev && prev[f.key]){
+          const diff = latest[f.key] - prev[f.key];
+          diffHtml = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
+          diffColor = diff <= 0 ? 'var(--green)' : 'var(--accent)';
+        }
+        statsHtml += `<div class="cal-stat-item" style="padding:14px 8px"><div class="cal-stat-value" style="color:var(--text);font-size:1.2rem">${latest[f.key]}</div><div class="cal-stat-label">${f.label}</div><div style="font-size:.75rem;font-weight:800;color:${diffColor};margin-top:4px">${diffHtml}</div></div>`;
+      }
+    });
+    statsEl.innerHTML = statsHtml;
+    statsEl.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  } else {
+    statsEl.innerHTML = '';
+  }
+
+  setTimeout(() => drawMeasureChart('chartMeasureWaist', measures, 'waist', '#a55eea'), 100);
+  renderMeasureComparison(measures);
+  renderMeasureHistory(measures);
+}
+
+/* Inicializa quando abrir a página */
+document.addEventListener('DOMContentLoaded', () => {
+  buildProgressControls();
+  setActiveProgressSection(currentProgressTab);
+});
+</script>
+
 </script>
 </body>
 </html>
