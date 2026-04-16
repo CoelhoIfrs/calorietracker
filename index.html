@@ -121,7 +121,6 @@
     .imc-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
     .imc-detail-item{background:rgba(0,0,0,0.2);border-radius:14px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
 
-    /* CORREÇÃO DO TMB E IMC */
     .imc-detail-value { font-size:1.25rem; font-weight:800; }
     .imc-detail-label { font-size:0.75rem; color:var(--muted); margin-top:4px; font-weight:700; }
     .imc-scale-labels { display:flex; justify-content:space-between; font-size:0.65rem; color:var(--muted); font-weight:700; margin-top:4px; padding:0 4px; }
@@ -149,19 +148,19 @@
     .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;font-size:.95rem;border:1px solid rgba(255,255,255,0.02)}
     
     .chart-container{position:relative;width:100%;height:220px;display:block} .chart-container-tall{height:260px}
-    .progress-tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:4px;border-radius:16px;overflow-x:auto;scrollbar-width:none}
-    .progress-tabs::-webkit-scrollbar{display:none}
-    .progress-tab{flex:1;min-width:60px;padding:12px 6px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;text-align:center}
-    .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+    
     .cal-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
     .cal-stat-item{background:var(--card);border-radius:20px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.02)}
     .cal-stat-label{font-size:.75rem;color:var(--muted);font-weight:600}
     .cal-stat-value{font-size:1.2rem;font-weight:800}
     .measure-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 
-    /* PROGRESS SECTIONS */
+    /* PROGRESS CONTROLS (Adicionado do Patch) */
     .progress-section{display:none}
     .progress-section.active{display:block;animation:fadeIn .3s ease}
+    .progress-controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .progress-controls .ctrl{flex:1;min-width:160px}
+    .progress-controls label{margin-bottom:6px; font-weight: 600; font-size: 0.8rem; color: var(--muted); display: block;}
 
     /* WEIGHT HISTORY */
     .weight-history-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
@@ -409,36 +408,50 @@
 <div id="progress" class="page">
   <h1 style="margin-bottom:12px">📈 <span style="color:var(--accent)">Evolução</span></h1>
 
-  <div class="progress-tabs">
-    <button class="progress-tab active" onclick="switchProgressTab('calories')">🔥 Calorias</button>
-    <button class="progress-tab" onclick="switchProgressTab('weight')">⚖️ Peso</button>
-    <button class="progress-tab" onclick="switchProgressTab('water')">💧 Água</button>
-    <button class="progress-tab" onclick="switchProgressTab('measures')">📏 Medidas</button>
+  <div class="progress-controls">
+    <div class="ctrl">
+      <label>Categoria</label>
+      <select id="progressCategorySelect" onchange="onProgressCategoryChange()">
+        <option value="calories">🔥 Calorias</option>
+        <option value="weight">⚖️ Peso, IMC e TMB</option>
+        <option value="water">💧 Água</option>
+        <option value="measures">📏 Medidas</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>Período</label>
+      <select id="progressRangeSelect" onchange="onProgressRangeChange()">
+        <option value="7">Semana (7 dias)</option>
+        <option value="30">Mês (30 dias)</option>
+        <option value="90">Trimestre (90 dias)</option>
+      </select>
+    </div>
   </div>
 
   <div id="progressCalories" class="progress-section active">
     <div class="cal-stats-grid">
-      <div class="cal-stat-item"><div style="font-size:1.8rem">📊</div><div id="statAvg" style="font-size:1.6rem;font-weight:800;color:var(--text)">0</div><div style="font-size:.75rem;color:var(--muted)">Média 7d (kcal)</div></div>
+      <div class="cal-stat-item"><div style="font-size:1.8rem">📊</div><div id="statAvg" style="font-size:1.6rem;font-weight:800;color:var(--text)">0</div><div style="font-size:.75rem;color:var(--muted)">Média (kcal)</div></div>
       <div class="cal-stat-item"><div style="font-size:1.8rem">🏆</div><div id="statBest" style="font-size:1.6rem;font-weight:800;color:var(--green)">0</div><div style="font-size:.75rem;color:var(--muted)">Melhor dia</div></div>
       <div class="cal-stat-item"><div style="font-size:1.8rem">⚠️</div><div id="statWorst" style="font-size:1.6rem;font-weight:800;color:var(--yellow)">0</div><div style="font-size:.75rem;color:var(--muted)">Pior dia</div></div>
       <div class="cal-stat-item"><div style="font-size:1.8rem">🎯</div><div id="statDays" style="font-size:1.6rem;font-weight:800;color:var(--blue)">0</div><div style="font-size:.75rem;color:var(--muted)">Dias na meta</div></div>
     </div>
-    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Últimos 7 dias</div><div class="chart-container"><canvas id="chartCal7"></canvas></div></div>
-    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Tendência 14 dias</div><div class="chart-container chart-container-tall"><canvas id="chartCal14"></canvas></div></div>
+    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Análise de Calorias</div><div class="chart-container"><canvas id="chartCal7"></canvas></div></div>
+    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Tendência Diária</div><div class="chart-container chart-container-tall"><canvas id="chartCal14"></canvas></div></div>
   </div>
 
   <div id="progressWeight" class="progress-section">
     <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Evolução do Peso</div><div class="chart-container chart-container-tall"><canvas id="chartWeight"></canvas></div></div>
     <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Evolução do IMC</div><div class="chart-container chart-container-tall"><canvas id="chartIMC"></canvas></div></div>
+    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Evolução da TMB</div><div class="chart-container chart-container-tall"><canvas id="chartTMB"></canvas></div></div>
     <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Histórico de Pesagens</div><div id="weightHistoryList"><div class="empty">Nenhum registo de peso</div></div></div>
   </div>
 
   <div id="progressWater" class="progress-section">
     <div class="cal-stats-grid">
-      <div class="cal-stat-item"><div style="font-size:1.8rem">📊</div><div id="statWaterAvg" style="font-size:1.6rem;font-weight:800">0</div><div style="font-size:.75rem;color:var(--muted)">Média 7d (ml)</div></div>
+      <div class="cal-stat-item"><div style="font-size:1.8rem">📊</div><div id="statWaterAvg" style="font-size:1.6rem;font-weight:800">0</div><div style="font-size:.75rem;color:var(--muted)">Média diária (ml)</div></div>
       <div class="cal-stat-item"><div style="font-size:1.8rem">🎯</div><div id="statWaterDays" style="font-size:1.6rem;font-weight:800;color:var(--green)">0</div><div style="font-size:.75rem;color:var(--muted)">Dias na Meta</div></div>
     </div>
-    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Últimos 7 dias (Água)</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
+    <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Análise de Hidratação</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
   </div>
 
   <div id="progressMeasures" class="progress-section">
@@ -566,7 +579,10 @@ let STATE = {
 };
 
 let currentHomeCardMode = 'tmb';
+
+// VARIÁVEIS DE ESTADO DA EVOLUÇÃO
 let currentProgressTab = 'calories';
+let progressRangeDays = 7;
 
 /* ── GETTERS ── */
 const getProfile = () => STATE.ct_profile;
@@ -881,7 +897,11 @@ function navigate(page) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.nav-btn[data-page="${page}"]`)?.classList.add('active');
   if (page === 'home') { autoSelectMealType(); renderHome(); }
-  if (page === 'progress') renderProgress();
+  if (page === 'progress') {
+    document.getElementById('progressCategorySelect').value = currentProgressTab;
+    document.getElementById('progressRangeSelect').value = String(progressRangeDays);
+    renderProgress(); 
+  }
   if (page === 'profile') renderProfile();
 }
 document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => navigate(b.dataset.page)));
@@ -1376,67 +1396,115 @@ function delRecipe(id) {
 }
 
 /* ── PROGRESS / EVOLUÇÃO ── */
+function onProgressCategoryChange(){
+  switchProgressTab(document.getElementById('progressCategorySelect').value);
+}
+
+function onProgressRangeChange(){
+  progressRangeDays = parseInt(document.getElementById('progressRangeSelect').value, 10);
+  renderProgress();
+}
+
 function switchProgressTab(tab) {
   currentProgressTab = tab;
-  document.querySelectorAll('.progress-tab').forEach(t => t.classList.remove('active'));
+  
+  // Sincroniza a interface
+  const sel = document.getElementById('progressCategorySelect');
+  if(sel) sel.value = tab;
+  
   document.querySelectorAll('.progress-section').forEach(s => s.classList.remove('active'));
-  const tabIdx = { calories: 0, weight: 1, water: 2, measures: 3 };
-  document.querySelectorAll('.progress-tab')[tabIdx[tab]]?.classList.add('active');
-  document.getElementById({
-    calories: 'progressCalories', weight: 'progressWeight',
-    water: 'progressWater', measures: 'progressMeasures'
-  }[tab])?.classList.add('active');
+  const idMap = { calories: 'progressCalories', weight: 'progressWeight', water: 'progressWater', measures: 'progressMeasures' };
+  if (idMap[tab]) document.getElementById(idMap[tab]).classList.add('active');
+  
   renderProgress();
 }
 
 function renderProgress() {
-  switch (currentProgressTab) {
-    case 'calories': renderCaloriesProgress(); break;
-    case 'weight': renderWeightProgress(); break;
-    case 'water': renderWaterProgress(); break;
-    case 'measures': renderMeasuresProgress(); break;
+  if (currentProgressTab === 'calories') renderCaloriesProgress();
+  else if (currentProgressTab === 'weight') renderWeightProgress();
+  else if (currentProgressTab === 'water') renderWaterProgress();
+  else if (currentProgressTab === 'measures') renderMeasuresProgress();
+}
+
+/* Utilitários de Filtro de Tempo (7, 30, 90 dias) */
+function getRangeDataFromMeals(days){
+  const meals = getMeals(), out = [];
+  for (let i = days - 1; i >= 0; i--){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    const val = (meals[key] || []).reduce((s,m)=>s+(m.kcal||0),0);
+    out.push({ date:key, label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3), value:val });
   }
+  return out;
+}
+
+function getRangeDataFromWater(days){
+  const w = getWater(), out = [];
+  for (let i = days - 1; i >= 0; i--){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    out.push({ date:key, label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3), value:w[key] || 0 });
+  }
+  return out;
+}
+
+function getRangeDataFromWeights(days){
+  const all = getWeights(); if (!all.length) return [];
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  return all.filter(w => w.date >= cutoffStr);
+}
+
+function getRangeDataFromMeasures(days){
+  const all = getMeasures(); if (!all.length) return [];
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  return all.filter(m => m.date >= cutoffStr);
 }
 
 function renderCaloriesProgress() {
-  const meals = getMeals(), goal = getProfile()?.kcalGoal || 2000;
-  const last7 = [], last14 = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    const val = (meals[key] || []).reduce((s, m) => s + (m.kcal || 0), 0);
-    const obj = { label: d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), weekday: d.toLocaleDateString('pt-PT', { weekday: 'short' }).slice(0, 3), value: val, date: key };
-    last14.push(obj);
-    if (i < 7) last7.push(obj);
-  }
-  const vals = last7.map(d => d.value).filter(v => v > 0);
-  $('#statAvg').textContent = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+  const goal = getProfile()?.kcalGoal || 2000;
+  const data = getRangeDataFromMeals(progressRangeDays);
+
+  const vals = data.map(d=>d.value).filter(v=>v>0);
+  $('#statAvg').textContent = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   $('#statBest').textContent = vals.length ? Math.min(...vals) : 0;
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
-  $('#statDays').textContent = `${vals.filter(v => v <= goal).length}/7`;
-  setTimeout(() => { drawBarChartCal('chartCal7', last7, goal); drawLineChartCal('chartCal14', last14, goal); }, 100);
+  $('#statDays').textContent = `${data.filter(d=>d.value<=goal && d.value > 0).length}/${progressRangeDays}`;
+
+  // Se forem 7 dias, mostra ambos (barras e linha). Se for mais, só linha.
+  if(progressRangeDays <= 7) {
+      $('#chartCal7').parentElement.style.display = 'block';
+      setTimeout(() => drawBarChartCal('chartCal7', data, goal), 100);
+  } else {
+      $('#chartCal7').parentElement.style.display = 'none';
+  }
+  setTimeout(() => drawLineChartCal('chartCal14', data, goal), 100);
 }
 
 function renderWeightProgress() {
-  const weights = getWeights(), profile = getProfile();
-  setTimeout(() => {
-    drawWeightChart(weights, profile);
-    drawIMCChart(weights, profile);
-  }, 100);
-  renderWeightHistory(weights);
-}
+  const p = getProfile();
+  const allWeights = getWeights();
+  let rangeWeights = getRangeDataFromWeights(progressRangeDays);
+  if (rangeWeights.length < 2) rangeWeights = allWeights;
 
-function renderWeightHistory(weights) {
-  const el = $('#weightHistoryList');
-  if (!weights || !weights.length) { el.innerHTML = '<div class="empty">Nenhum registo de peso</div>'; return; }
-  const sorted = [...weights].reverse();
-  el.innerHTML = sorted.map((w, displayIdx) => {
-    const realIdx = weights.length - 1 - displayIdx;
+  setTimeout(() => {
+    drawWeightChart(rangeWeights, p);
+    drawIMCChart(rangeWeights, p);
+    drawTMBChart(rangeWeights, p);
+  }, 100);
+
+  const list = $('#weightHistoryList');
+  if (!rangeWeights.length){ list.innerHTML = '<div class="empty">Nenhum registo de peso</div>'; return; }
+  
+  const sorted = [...rangeWeights].reverse();
+  list.innerHTML = sorted.map((w) => {
+    const realIdx = allWeights.indexOf(w);
     const d = new Date(w.date + 'T12:00:00');
     const dateStr = w.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday: 'short' })}, ${d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' })}`;
     let diffHtml = '';
     if (realIdx > 0) {
-      const prev = weights[realIdx - 1];
+      const prev = allWeights[realIdx - 1];
       const diff = w.value - prev.value;
       if (diff !== 0) {
         const diffColor = diff < 0 ? 'var(--green)' : 'var(--accent)';
@@ -1507,10 +1575,13 @@ function drawLineChartCal(id, data, goal) {
   ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   ctx.strokeStyle = '#48dbfb'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  const step = Math.max(1, Math.floor(data.length / 10)); // Impede etiquetas sobrepostas em meses/trimestres
+  
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = data[i].value <= goal ? '#10ac84' : '#ff4757'; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
-    if (i % 2 === 0 || i === data.length - 1) { ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(data[i].label, p.x, H - 8); }
+    if (i % step === 0 || i === data.length - 1) { ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(data[i].label, p.x, H - 8); }
   });
 }
 
@@ -1540,12 +1611,14 @@ function drawWeightChart(weights, profile) {
   ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  const step = Math.max(1, Math.floor(weights.length / 8));
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = '#ff4757'; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(`${p.val}`, p.x, p.y - 12);
-    if (weights.length <= 10 || i % Math.ceil(weights.length / 8) === 0 || i === weights.length - 1) {
+    if (i % step === 0 || i === weights.length - 1) {
       const d = new Date(weights[i].date + 'T12:00:00');
       ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif';
       ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8);
@@ -1593,13 +1666,15 @@ function drawIMCChart(weights, profile) {
   ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   ctx.strokeStyle = '#a55eea'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  const step = Math.max(1, Math.floor(imcData.length / 8));
   pts.forEach((p, i) => {
     const cat = getIMCCategory(p.val);
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = cat.color; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(p.val.toFixed(1), p.x, p.y - 12);
-    if (imcData.length <= 10 || i % Math.ceil(imcData.length / 8) === 0 || i === imcData.length - 1) {
+    if (i % step === 0 || i === imcData.length - 1) {
       const d = new Date(imcData[i].date + 'T12:00:00');
       ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif';
       ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8);
@@ -1607,19 +1682,59 @@ function drawIMCChart(weights, profile) {
   });
 }
 
-/* ── ÁGUA PROGRESS ── */
-function renderWaterProgress() {
-  const w = getWater(), p = getProfile(), weight = p ? p.weight : 70, waterGoal = Math.round(weight * 35), last7 = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    last7.push({ date: key, label: d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), weekday: d.toLocaleDateString('pt-PT', { weekday: 'short' }).slice(0, 3), value: w[key] || 0 });
+function drawTMBChart(weights, profile) {
+  const canvas = document.getElementById('chartTMB');
+  if (!canvas || !canvas.parentElement?.offsetWidth) return;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, W = canvas.parentElement.offsetWidth, H = 260;
+  canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+
+  if(!profile || weights.length < 2){
+    ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2); return;
   }
-  const vals = last7.map(d => d.value).filter(v => v > 0);
-  const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+
+  const tmb = weights.map(w => {
+    const bmr = profile.sex === 'M' ? (10*w.value + 6.25*profile.height - 5*profile.age + 5) : (10*w.value + 6.25*profile.height - 5*profile.age - 161);
+    return { date:w.date, value: Math.round(bmr) };
+  });
+
+  const pad=45; let min=Math.min(...tmb.map(x=>x.value)), max=Math.max(...tmb.map(x=>x.value));
+  const range=(max-min)||1; min -= range*0.15; max += range*0.15;
+  const getY=v=> pad + (1-(v-min)/(max-min))*(H-pad*2);
+
+  const pts=tmb.map((d,i)=>({ x: pad + (i/(tmb.length-1))*(W-pad*2), y: getY(d.value), v: d.value, date: d.date }));
+
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(255,71,87,0.15)'); grad.addColorStop(1,'rgba(255,71,87,0)');
+  ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-pad);
+  ctx.fillStyle=grad; ctx.fill();
+
+  ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle='#ff4757'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
+
+  const step = Math.max(1, Math.floor(tmb.length / 8));
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle='#ff4757'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(p.v, p.x, p.y-10);
+    if (i % step === 0 || i === tmb.length - 1) {
+      const d = new Date(p.date + 'T12:00:00');
+      ctx.fillStyle='#8395a7'; ctx.font='600 8px sans-serif';
+      ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H-8);
+    }
+  });
+}
+
+function renderWaterProgress() {
+  const w = getWater(), p = getProfile(), weight = p ? p.weight : 70, waterGoal = Math.round(weight * 35);
+  const data = getRangeDataFromWater(progressRangeDays);
+  const vals = data.map(d=>d.value).filter(v=>v>0);
+  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  
   $('#statWaterAvg').textContent = avg;
-  $('#statWaterDays').textContent = `${last7.filter(d => d.value >= waterGoal).length}/7`;
-  setTimeout(() => drawBarChartWater('chartWater7', last7, waterGoal), 100);
+  $('#statWaterDays').textContent = `${data.filter(d=>d.value >= waterGoal).length}/${progressRangeDays}`;
+  setTimeout(()=> drawBarChartWater('chartWater7', data, waterGoal), 100);
 }
 
 function drawBarChartWater(id, data, goal) {
@@ -1634,6 +1749,8 @@ function drawBarChartWater(id, data, goal) {
   ctx.beginPath(); ctx.moveTo(pad, goalY); ctx.lineTo(W - pad, goalY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(72,219,251,0.8)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'right';
   ctx.fillText(`Meta ${goal}ml`, W - pad, goalY - 6);
+  
+  const step = Math.max(1, Math.floor(data.length / 14));
   data.forEach((d, i) => {
     const x = pad + i * gap + (gap - barW) / 2, h = (d.value / max) * (H - pad * 2), y = H - pad - h;
     const color = d.value === 0 ? 'rgba(255,255,255,0.05)' : (d.value >= goal ? '#48dbfb' : 'rgba(72,219,251,0.4)');
@@ -1643,66 +1760,35 @@ function drawBarChartWater(id, data, goal) {
       ctx.fillStyle = grad; ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(x, y, barW, Math.max(h, 2), [6, 6, 0, 0]); else ctx.rect(x, y, barW, Math.max(h, 2));
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(d.value, x + barW / 2, y - 6);
+      if (progressRangeDays <= 14) {
+          ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText(d.value, x + barW / 2, y - 6);
+      }
     }
-    ctx.fillStyle = '#8395a7'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(d.weekday, x + barW / 2, H - 8);
+    if (i % step === 0 || i === data.length - 1) {
+      ctx.fillStyle = '#8395a7'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(progressRangeDays > 14 ? d.label : d.weekday, x + barW / 2, H - 8);
+    }
   });
-}
-
-/* ── MEDIDAS ── */
-const MEASURE_FIELDS = [
-  { id: 'measureChest', key: 'chest', label: '🫁 Peito', unit: 'cm' },
-  { id: 'measureArm', key: 'arm', label: '💪 Braço', unit: 'cm' },
-  { id: 'measureWaist', key: 'waist', label: '📐 Cintura', unit: 'cm' },
-  { id: 'measureHip', key: 'hip', label: '🍑 Anca', unit: 'cm' },
-  { id: 'measureThigh', key: 'thigh', label: '🦵 Coxa', unit: 'cm' },
-  { id: 'measureCalf', key: 'calf', label: '🦶 Gémeo', unit: 'cm' }
-];
-
-function saveMeasures() {
-  const entry = { date: todayStr() };
-  let hasValue = false;
-  MEASURE_FIELDS.forEach(f => {
-    const val = parseFloat($(`#${f.id}`).value);
-    if (val && val > 0) { entry[f.key] = val; hasValue = true; }
-  });
-  if (!hasValue) return showToast('Preencha pelo menos uma medida.', true);
-  const measures = getMeasures();
-  const idx = measures.findIndex(m => m.date === entry.date);
-  if (idx >= 0) { MEASURE_FIELDS.forEach(f => { if (entry[f.key]) measures[idx][f.key] = entry[f.key]; }); }
-  else { measures.push(entry); }
-  measures.sort((a, b) => a.date.localeCompare(b.date));
-  setState('ct_measures', measures);
-  MEASURE_FIELDS.forEach(f => $(`#${f.id}`).value = '');
-  showToast('Medidas registadas com sucesso!');
-  renderMeasuresProgress();
-}
-
-function deleteMeasure(idx) {
-  const measures = getMeasures();
-  if (idx < 0 || idx >= measures.length) return;
-  if (!confirm('Apagar este registo de medidas?')) return;
-  measures.splice(idx, 1);
-  setState('ct_measures', measures);
-  renderMeasuresProgress();
 }
 
 function renderMeasuresProgress() {
-  const measures = getMeasures(), today = todayStr();
+  const allMeasures = getMeasures(), today = todayStr();
+  let measuresRange = getRangeDataFromMeasures(progressRangeDays);
+  if (measuresRange.length < 2) measuresRange = allMeasures;
+
   $('#measureDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
 
-  const todayEntry = measures.find(m => m.date === today);
+  const todayEntry = allMeasures.find(m => m.date === today);
   if (todayEntry) {
     const parts = MEASURE_FIELDS.filter(f => todayEntry[f.key]).map(f => `${f.label}: ${todayEntry[f.key]} cm`).join(' · ');
     $('#measureTodayBadge').innerHTML = `<div style="background:var(--green-dim);color:var(--green);padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;display:inline-flex;align-items:center;gap:6px">✓ Registado hoje: ${parts}</div>`;
   } else { $('#measureTodayBadge').innerHTML = ''; }
 
   const statsEl = $('#measureStatsGrid');
-  if (measures.length > 0) {
-    const latest = measures[measures.length - 1];
-    const prev = measures.length > 1 ? measures[measures.length - 2] : null;
+  if (measuresRange.length > 0) {
+    const latest = measuresRange[measuresRange.length - 1];
+    const prev = measuresRange.length > 1 ? measuresRange[measuresRange.length - 2] : null;
     let statsHtml = '';
     MEASURE_FIELDS.forEach(f => {
       if (latest[f.key]) {
@@ -1719,9 +1805,9 @@ function renderMeasuresProgress() {
     statsEl.style.gridTemplateColumns = 'repeat(3, 1fr)';
   } else { statsEl.innerHTML = ''; }
 
-  setTimeout(() => drawMeasureChart('chartMeasureWaist', measures, 'waist', '#a55eea'), 100);
-  renderMeasureComparison(measures);
-  renderMeasureHistory(measures);
+  setTimeout(() => drawMeasureChart('chartMeasureWaist', measuresRange, 'waist', '#a55eea'), 100);
+  renderMeasureComparison(measuresRange);
+  renderMeasureHistory(measuresRange, allMeasures);
 }
 
 function renderMeasureComparison(measures) {
@@ -1730,7 +1816,7 @@ function renderMeasureComparison(measures) {
   const first = measures[0], latest = measures[measures.length - 1];
   const firstDate = new Date(first.date + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
   const latestDate = new Date(latest.date + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
-  let html = `<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:.85rem;font-weight:700"><span style="color:var(--muted)">Primeira medição: ${firstDate}</span><span style="color:var(--purple)">Última: ${latestDate}</span></div>`;
+  let html = `<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:.85rem;font-weight:700"><span style="color:var(--muted)">Primeira medição do período: ${firstDate}</span><span style="color:var(--purple)">Última: ${latestDate}</span></div>`;
   MEASURE_FIELDS.forEach(f => {
     if (first[f.key] && latest[f.key]) {
       const diff = latest[f.key] - first[f.key];
@@ -1757,20 +1843,22 @@ function drawMeasureChart(id, measures, key, color) {
   let min = Math.min(...vals), max = Math.max(...vals);
   const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
   const getY = v => pad + (1 - (v - min) / (max - min)) * (H - pad * 2);
-  const pts = filtered.map((m, i) => ({ x: pad + (i / (filtered.length - 1)) * (W - pad * 2), y: getY(m[key]), val: m[key] }));
+  const pts = filtered.map((m, i) => ({ x: pad + (i / (filtered.length - 1)) * (W - pad * 2), y: getY(m[key]), val: m[key], date: m.date }));
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, color + '22'); grad.addColorStop(1, color + '00');
   ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad);
   ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  const step = Math.max(1, Math.floor(filtered.length / 8));
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(`${p.val}`, p.x, p.y - 12);
-    if (filtered.length <= 10 || i % Math.ceil(filtered.length / 8) === 0 || i === filtered.length - 1) {
-      const d = new Date(filtered[i].date + 'T12:00:00');
+    if (i % step === 0 || i === filtered.length - 1) {
+      const d = new Date(p.date + 'T12:00:00');
       ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif';
       ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8);
     }
@@ -1782,18 +1870,18 @@ function drawMeasureChart(id, measures, key, color) {
   }
 }
 
-function renderMeasureHistory(measures) {
+function renderMeasureHistory(measuresRange, allMeasures) {
   const el = $('#measureHistoryList');
-  if (!measures.length) { el.innerHTML = '<div class="empty">Nenhum registo de medidas</div>'; return; }
-  const sorted = [...measures].reverse();
-  el.innerHTML = sorted.map((m, displayIdx) => {
-    const realIdx = measures.length - 1 - displayIdx;
+  if (!measuresRange || !measuresRange.length) { el.innerHTML = '<div class="empty">Nenhum registo de medidas</div>'; return; }
+  const sorted = [...measuresRange].reverse();
+  el.innerHTML = sorted.map((m) => {
+    const realIdx = allMeasures.indexOf(m);
     const d = new Date(m.date + 'T12:00:00');
     const dateStr = m.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday: 'short' })}, ${d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' })}`;
     const chips = MEASURE_FIELDS.filter(f => m[f.key]).map(f => {
       let diffHtml = '';
       if (realIdx > 0) {
-        const prev = measures[realIdx - 1];
+        const prev = allMeasures[realIdx - 1];
         if (prev[f.key]) {
           const diff = m[f.key] - prev[f.key];
           if (diff !== 0) {
@@ -1821,13 +1909,8 @@ function renderProfile() {
   const minProtein = Math.round(latestWeight * (proteinFactors[p.activity] || 1.5));
   const actMap = { "1.2": "Sedentário", "1.375": "Leve", "1.55": "Moderado", "1.725": "Intenso", "1.9": "Atleta" };
 
-  // Preencher campos do setup com valores atuais
-  $('#sex').value = p.sex;
-  $('#age').value = p.age;
-  $('#height').value = p.height;
-  $('#weight').value = latestWeight;
-  $('#goal').value = p.goal;
-  $('#activity').value = p.activity;
+  $('#sex').value = p.sex; $('#age').value = p.age; $('#height').value = p.height;
+  $('#weight').value = latestWeight; $('#goal').value = p.goal; $('#activity').value = p.activity;
 
   $('#profileInfo').innerHTML = `
     <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.05)">
@@ -1856,354 +1939,12 @@ async function resetApp() {
   navigate('setup');
 }
 
-/* =========================
-   PATCH: EVOLUÇÃO COM DROPDOWN + PERÍODO
-   Cole no final do script atual
-========================= */
-
-let progressRangeDays = 7;
-
-// Garante CSS mínimo das secções da evolução
-(function injectProgressCss(){
-  const css = `
-    .progress-section{display:none}
-    .progress-section.active{display:block}
-    .progress-controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-    .progress-controls .ctrl{flex:1;min-width:160px}
-    .progress-controls label{margin-bottom:6px}
-  `;
-  const st = document.createElement('style');
-  st.innerHTML = css;
-  document.head.appendChild(st);
-})();
-
-function getProgressMap(){
-  return {
-    calories: 'progressCalories',
-    weight: 'progressWeight',
-    water: 'progressWater',
-    measures: 'progressMeasures'
-  };
-}
-
-function setActiveProgressSection(tab){
-  document.querySelectorAll('.progress-section').forEach(s => s.classList.remove('active'));
-  const id = getProgressMap()[tab];
-  if (id) document.getElementById(id)?.classList.add('active');
-}
-
-function buildProgressControls(){
-  const progressPage = document.getElementById('progress');
-  if (!progressPage) return;
-
-  // remove tabs antigas (botões)
-  const oldTabs = progressPage.querySelector('.progress-tabs');
-  if (oldTabs) oldTabs.remove();
-
-  // evita duplicar
-  if (document.getElementById('progressCategorySelect')) return;
-
-  const controls = document.createElement('div');
-  controls.className = 'progress-controls';
-  controls.innerHTML = `
-    <div class="ctrl">
-      <label>Categoria</label>
-      <select id="progressCategorySelect" onchange="onProgressCategoryChange()">
-        <option value="calories">🔥 Calorias</option>
-        <option value="weight">⚖️ Peso & IMC & TMB</option>
-        <option value="water">💧 Água</option>
-        <option value="measures">📏 Medidas</option>
-      </select>
-    </div>
-    <div class="ctrl">
-      <label>Comparar por</label>
-      <select id="progressRangeSelect" onchange="onProgressRangeChange()">
-        <option value="7">Semana (7 dias)</option>
-        <option value="30">Mês (30 dias)</option>
-        <option value="90">Trimestre (90 dias)</option>
-      </select>
-    </div>
-  `;
-  const h1 = progressPage.querySelector('h1');
-  if (h1) h1.insertAdjacentElement('afterend', controls);
-
-  // estado inicial
-  document.getElementById('progressCategorySelect').value = currentProgressTab;
-  document.getElementById('progressRangeSelect').value = String(progressRangeDays);
-}
-
-function onProgressCategoryChange(){
-  const v = document.getElementById('progressCategorySelect')?.value || 'calories';
-  switchProgressTab(v);
-}
-
-function onProgressRangeChange(){
-  progressRangeDays = parseInt(document.getElementById('progressRangeSelect')?.value || '7', 10);
-  renderProgress();
-}
-
-function switchProgressTab(tab){
-  currentProgressTab = tab;
-  const sel = document.getElementById('progressCategorySelect');
-  if (sel) sel.value = tab;
-  setActiveProgressSection(tab);
-  renderProgress();
-}
-
-function renderProgress(){
-  setActiveProgressSection(currentProgressTab);
-  if (currentProgressTab === 'calories') renderCaloriesProgress();
-  else if (currentProgressTab === 'weight') renderWeightProgress();
-  else if (currentProgressTab === 'water') renderWaterProgress();
-  else if (currentProgressTab === 'measures') renderMeasuresProgress();
-}
-
-function getRangeDataFromMeals(days){
-  const meals = getMeals();
-  const out = [];
-  for (let i = days - 1; i >= 0; i--){
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0,10);
-    const val = (meals[key] || []).reduce((s,m)=>s+(m.kcal||0),0);
-    out.push({
-      date:key,
-      label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),
-      weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3),
-      value:val
-    });
-  }
-  return out;
-}
-
-function getRangeDataFromWater(days){
-  const w = getWater();
-  const out = [];
-  for (let i = days - 1; i >= 0; i--){
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0,10);
-    out.push({
-      date:key,
-      label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),
-      weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3),
-      value:w[key] || 0
-    });
-  }
-  return out;
-}
-
-function getRangeDataFromWeights(days){
-  const all = getWeights();
-  if (!all.length) return [];
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - (days - 1));
-  const cutoffStr = cutoff.toISOString().slice(0,10);
-  return all.filter(w => w.date >= cutoffStr);
-}
-
-function getRangeDataFromMeasures(days){
-  const all = getMeasures();
-  if (!all.length) return [];
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - (days - 1));
-  const cutoffStr = cutoff.toISOString().slice(0,10);
-  return all.filter(m => m.date >= cutoffStr);
-}
-
-/* -------- Calorias (sobrescreve) -------- */
-function renderCaloriesProgress(){
-  const goal = getProfile()?.kcalGoal || 2000;
-  const data = getRangeDataFromMeals(progressRangeDays);
-
-  const vals = data.map(d=>d.value).filter(v=>v>0);
-  $('#statAvg').textContent = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-  $('#statBest').textContent = vals.length ? Math.min(...vals) : 0;
-  $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
-  $('#statDays').textContent = `${data.filter(d=>d.value<=goal).length}/${progressRangeDays}`;
-
-  setTimeout(() => {
-    drawBarChartCal('chartCal7', data, goal);
-    drawLineChartCal('chartCal14', data, goal);
-  }, 100);
-}
-
-/* -------- Peso/IMC/TMB -------- */
-function renderWeightProgress(){
-  const p = getProfile();
-  const fullWeights = getWeights();
-  let rangeWeights = getRangeDataFromWeights(progressRangeDays);
-
-  // se tiver poucos pontos no período, usa todo o histórico para não quebrar gráfico
-  if (rangeWeights.length < 2) rangeWeights = fullWeights;
-
-  setTimeout(() => {
-    drawWeightChart(rangeWeights, p);
-    drawIMCChart(rangeWeights, p);
-    drawTMBChart(rangeWeights, p); // novo
-  }, 100);
-
-  const list = $('#weightHistoryList');
-  if (!list) return;
-  if (!rangeWeights.length){
-    list.innerHTML = '<div class="empty">Nenhum registo de peso</div>';
-    return;
-  }
-  const sorted = [...rangeWeights].reverse();
-  list.innerHTML = sorted.map(w => {
-    const d = new Date(w.date + 'T12:00:00');
-    return `
-      <div class="meal-item">
-        <div class="meal-info">
-          <div class="meal-name">${w.value} kg</div>
-          <div class="meal-meta">${d.toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'})}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// novo gráfico TMB
-function drawTMBChart(weights, profile){
-  const old = document.getElementById('chartTMB');
-  if (!old){
-    const container = document.querySelector('#progressWeight');
-    if (!container) return;
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Evolução da TMB</div>
-      <div class="chart-container chart-container-tall"><canvas id="chartTMB"></canvas></div>
-    `;
-    // inserir antes do histórico
-    const historyCard = container.querySelector('#weightHistoryList')?.closest('.card');
-    if (historyCard) container.insertBefore(card, historyCard);
-    else container.appendChild(card);
-  }
-
-  const canvas = document.getElementById('chartTMB');
-  if (!canvas || !canvas.parentElement?.offsetWidth) return;
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const W = canvas.parentElement.offsetWidth, H = 260;
-  canvas.width = W*dpr; canvas.height = H*dpr;
-  canvas.style.width = W+'px'; canvas.style.height = H+'px';
-  ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-
-  if(!profile || weights.length < 2){
-    ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2);
-    return;
-  }
-
-  const tmb = weights.map(w => {
-    const bmr = profile.sex === 'M'
-      ? (10*w.value + 6.25*profile.height - 5*profile.age + 5)
-      : (10*w.value + 6.25*profile.height - 5*profile.age - 161);
-    return { date:w.date, value: Math.round(bmr) };
-  });
-
-  const pad=45;
-  let min=Math.min(...tmb.map(x=>x.value)), max=Math.max(...tmb.map(x=>x.value));
-  const range=(max-min)||1; min -= range*0.15; max += range*0.15;
-  const getY=v=> pad + (1-(v-min)/(max-min))*(H-pad*2);
-
-  const pts=tmb.map((d,i)=>({
-    x: pad + (i/(tmb.length-1))*(W-pad*2),
-    y: getY(d.value),
-    v: d.value,
-    date: d.date
-  }));
-
-  const grad=ctx.createLinearGradient(0,0,0,H);
-  grad.addColorStop(0,'rgba(255,71,87,0.15)');
-  grad.addColorStop(1,'rgba(255,71,87,0)');
-  ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad);
-  pts.forEach(p=>ctx.lineTo(p.x,p.y));
-  ctx.lineTo(pts[pts.length-1].x,H-pad);
-  ctx.fillStyle=grad; ctx.fill();
-
-  ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
-  ctx.strokeStyle='#ff4757'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
-
-  pts.forEach((p,i)=>{
-    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle='#ff4757'; ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
-    ctx.fillText(p.v, p.x, p.y-10);
-    if (tmb.length <= 10 || i % Math.ceil(tmb.length/8)===0 || i===tmb.length-1){
-      const d = new Date(p.date + 'T12:00:00');
-      ctx.fillStyle='#8395a7'; ctx.font='600 8px sans-serif';
-      ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H-8);
-    }
-  });
-}
-
-/* -------- Água (sobrescreve) -------- */
-function renderWaterProgress(){
-  const p = getProfile();
-  const weight = p ? p.weight : 70;
-  const waterGoal = Math.round(weight * 35);
-  const data = getRangeDataFromWater(progressRangeDays);
-
-  const vals = data.map(d=>d.value).filter(v=>v>0);
-  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-  $('#statWaterAvg').textContent = avg;
-  $('#statWaterDays').textContent = `${data.filter(d=>d.value >= waterGoal).length}/${progressRangeDays}`;
-
-  setTimeout(()=> drawBarChartWater('chartWater7', data, waterGoal), 100);
-}
-
-/* -------- Medidas (sobrescreve com filtro do período) -------- */
-function renderMeasuresProgress(){
-  const measures = getRangeDataFromMeasures(progressRangeDays);
-  const today = todayStr();
-
-  $('#measureDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'long', day:'2-digit', month:'long' });
-  const todayEntry = (getMeasures() || []).find(m => m.date === today);
-
-  if(todayEntry){
-    const parts = MEASURE_FIELDS
-      .filter(f => todayEntry[f.key])
-      .map(f => `${f.label}: ${todayEntry[f.key]} cm`)
-      .join(' · ');
-    $('#measureTodayBadge').innerHTML = `<div style="background:var(--green-dim);color:var(--green);padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;display:inline-flex;align-items:center;gap:6px">✓ Registado hoje: ${parts}</div>`;
-  } else {
-    $('#measureTodayBadge').innerHTML = '';
-  }
-
-  const statsEl = $('#measureStatsGrid');
-  if(measures.length > 0){
-    const latest = measures[measures.length - 1];
-    const prev = measures.length > 1 ? measures[measures.length - 2] : null;
-    let statsHtml = '';
-    MEASURE_FIELDS.forEach(f => {
-      if(latest[f.key]){
-        let diffHtml = '--', diffColor = 'var(--muted)';
-        if(prev && prev[f.key]){
-          const diff = latest[f.key] - prev[f.key];
-          diffHtml = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
-          diffColor = diff <= 0 ? 'var(--green)' : 'var(--accent)';
-        }
-        statsHtml += `<div class="cal-stat-item" style="padding:14px 8px"><div class="cal-stat-value" style="color:var(--text);font-size:1.2rem">${latest[f.key]}</div><div class="cal-stat-label">${f.label}</div><div style="font-size:.75rem;font-weight:800;color:${diffColor};margin-top:4px">${diffHtml}</div></div>`;
-      }
-    });
-    statsEl.innerHTML = statsHtml;
-    statsEl.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  } else {
-    statsEl.innerHTML = '';
-  }
-
-  setTimeout(() => drawMeasureChart('chartMeasureWaist', measures, 'waist', '#a55eea'), 100);
-  renderMeasureComparison(measures);
-  renderMeasureHistory(measures);
-}
-
-/* Inicializa quando abrir a página */
+/* Inicializa com a tab de Evolução correta */
 document.addEventListener('DOMContentLoaded', () => {
-  buildProgressControls();
-  setActiveProgressSection(currentProgressTab);
+  const sel = document.getElementById('progressCategorySelect');
+  if(sel) sel.value = currentProgressTab;
 });
+
 </script>
 </body>
 </html>
