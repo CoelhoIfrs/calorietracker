@@ -31,18 +31,19 @@
     body{background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 90px);overflow-x:hidden}
     h1{font-size:1.8rem;text-align:center;padding:10px 0;font-weight:800;letter-spacing:-0.5px} h1 span{color:var(--accent)}
     
-    /* CARTÕES */
+    /* CARTÕES (CARDS) */
     .card{background:var(--card);border:1px solid rgba(255,255,255,0.03);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15);animation:fadeUp .4s cubic-bezier(0.16, 1, 0.3, 1)}
     @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}}
     
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.2px}
     
-    /* INPUTS & BOTOES */
+    /* INPUTS & SELECTS */
     input,select{width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:14px;background:rgba(255,255,255,0.03);color:var(--text);font-size:1rem;outline:none;transition:all .2s;font-weight:500}
     input:focus,select:focus{border-color:var(--accent);background:rgba(255,255,255,0.06);box-shadow:0 0 0 4px var(--accent-dim)}
     input::placeholder{color:#576574}
     
+    /* BOTÕES */
     .btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:transform .2s,opacity .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:8px}
     .btn:active{transform:scale(.96);opacity:.9}
     .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 20px var(--accent-dim)}
@@ -51,13 +52,13 @@
     .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
     .btn-sm{width:auto;padding:10px 20px;font-size:.9rem;border-radius:12px}
     
-    /* TABS SCROLLABLES */
+    /* TABS SCROLL */
     .tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02);overflow-x:auto;scrollbar-width:none}
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex:1;min-width:75px;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease;white-space:nowrap}
     .tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     
-    /* NAV DATA */
+    /* NAVEGAÇÃO DE DATA */
     .date-nav-wrapper{display:flex;justify-content:center;margin-bottom:16px}
     .date-nav{display:inline-flex;align-items:center;background:rgba(255,255,255,0.05);border-radius:30px;padding:6px 8px;border:1px solid rgba(255,255,255,0.05)}
     .date-btn{background:var(--card);border:none;color:var(--text);width:32px;height:32px;border-radius:16px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
@@ -149,7 +150,7 @@
     .portion-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
     .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;border:1px solid rgba(255,255,255,0.02)}
 
-    /* PÁGINA DE EVOLUÇÃO (PROGRESSO) */
+    /* PROGRESSO */
     .progress-tabs{display:flex;gap:8px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:6px;border-radius:16px}
     .progress-tab{flex:1;padding:12px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
     .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
@@ -165,7 +166,6 @@
     .section-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px}
     .section-title::after{content:'';flex:1;height:2px;background:rgba(255,255,255,0.05);border-radius:2px}
 
-    /* CORREÇÃO DO BUG DO CANVAS */
     .chart-container{position:relative;width:100%;height:220px;display:block}
     .chart-container canvas{width:100%!important;height:100%!important;display:block}
     .chart-container-tall{height:260px}
@@ -189,10 +189,10 @@
 </head>
 <body>
 
-<!-- TOAST -->
+<!-- TOAST NOTIFICATION -->
 <div id="toast" class="toast">✓ Sucesso!</div>
 
-<!-- MODAL DE PORÇÃO -->
+<!-- MODAL DE PORÇÃO (BOTTOM SHEET) -->
 <div id="portionModal" class="modal-overlay" onclick="if(event.target===this)closePortionModal()">
   <div class="modal-box">
     <div class="modal-drag-handle"></div>
@@ -220,7 +220,7 @@
   </div>
 </div>
 
-<!-- AUTH -->
+<!-- AUTHENTICATION -->
 <div id="auth" class="page active">
   <h1>🔥 <span>Calorie</span>Tracker</h1>
   <div class="auth-box">
@@ -257,7 +257,7 @@
   </div>
 </div>
 
-<!-- HOME / DIÁRIO -->
+<!-- HOME / DIARY -->
 <div id="home" class="page">
   <div class="date-nav-wrapper">
     <div class="date-nav">
@@ -294,9 +294,11 @@
     </div>
   </div>
 
+  <!-- ADD MEALS & TABS -->
   <div class="card" style="margin-top:20px">
     <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     
+    <!-- TABS MENU -->
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
       <button class="tab" data-tab="barcode" onclick="switchTab('barcode')">📷 Código</button>
@@ -333,7 +335,9 @@
       <div id="ingredientList" style="margin-top:16px"></div>
       <div id="recipeTotal" class="hidden">
         <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total Receita</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
-        <div style="display:flex;gap:12px;margin-top:20px"><button class="btn btn-green" onclick="saveRecipe(true)">✅ Guardar & Registar</button></div>
+        <div style="display:flex;gap:12px;margin-top:20px">
+          <button class="btn btn-green" onclick="saveRecipe(true)">✅ Guardar & Registar</button>
+        </div>
       </div>
     </div>
 
@@ -359,13 +363,14 @@
     </div>
   </div>
 
+  <!-- MEALS LIST -->
   <div class="card">
     <label style="font-size:1.15rem;margin-bottom:8px;color:var(--text);font-weight:800">Diário de Hoje</label>
     <div id="mealList"><div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares</div></div>
   </div>
 </div>
 
-<!-- ============ EVOLUÇÃO (PROGRESS) ============ -->
+<!-- ============ PROGRESS / STATISTICS ============ -->
 <div id="progress" class="page">
   <h1 style="margin-bottom:12px">📈 <span>Evolução</span></h1>
 
@@ -422,18 +427,24 @@
   <!-- ===== WATER SECTION ===== -->
   <div id="progressWater" class="progress-section">
     <div id="waterInsights"></div>
+
     <div class="cal-stats-grid">
       <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statWaterAvg" style="color:var(--text)">0</div><div class="cal-stat-label">Média 7d (ml)</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">🏆</div><div class="cal-stat-value" id="statWaterBest" style="color:var(--blue)">0</div><div class="cal-stat-label">Melhor dia (ml)</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">🎯</div><div class="cal-stat-value" id="statWaterDays" style="color:var(--green)">0</div><div class="cal-stat-label">Dias na Meta</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">🌊</div><div class="cal-stat-value" id="statWaterTotal" style="color:var(--blue)">0</div><div class="cal-stat-label">Semana (L)</div></div>
     </div>
+
     <div class="card">
       <div class="section-title">Balanço: Água vs Calorias</div>
       <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;font-weight:500">Verifique se nos dias em que consome mais calorias tem bebido pouca água. Muitas vezes o cérebro confunde sede com fome.</p>
       <div id="waterComparison"></div>
     </div>
-    <div class="card"><div class="section-title">Últimos 7 dias (Água)</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
+
+    <div class="card">
+      <div class="section-title">Últimos 7 dias (Água)</div>
+      <div class="chart-container"><canvas id="chartWater7"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -446,7 +457,7 @@
   <button class="btn btn-outline mt" style="border-color:rgba(255,71,87,0.3);color:var(--accent)" onclick="resetApp()">🗑️ Apagar Todos os Dados</button>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAVIGATION -->
 <nav id="mainNav" style="display:none">
   <button class="nav-btn active" data-page="home"><span>🏠</span>Diário</button>
   <button class="nav-btn" data-page="progress"><span>📈</span>Evolução</button>
@@ -475,15 +486,17 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-/* BASE LOCAL (FALLBACK) */
+/* BASE LOCAL (FALLBACK MULTILINGUE) */
 const LOCAL_FOODS = {
-  'frango grelhado': { kcal:165, protein:31, carbs:0, fat:3.6 },
-  'arroz branco': { kcal:130, protein:2.7, carbs:28, fat:0.3 },
-  'ovo cozido': { kcal:155, protein:13, carbs:1.1, fat:11 },
-  'ovo': { kcal:155, protein:13, carbs:1.1, fat:11 },
-  'banana': { kcal:89, protein:1.1, carbs:23, fat:0.3 },
-  'pão': { kcal:265, protein:9, carbs:49, fat:3.2 },
-  'leite': { kcal:42, protein:3.4, carbs:5, fat:1 }
+  'frango grelhado / pollo asado / grilled chicken': { kcal:165, protein:31, carbs:0, fat:3.6 },
+  'arroz branco / arroz blanco / white rice': { kcal:130, protein:2.7, carbs:28, fat:0.3 },
+  'ovo cozido / huevo cocido / boiled egg': { kcal:155, protein:13, carbs:1.1, fat:11 },
+  'ovo / huevo / egg': { kcal:155, protein:13, carbs:1.1, fat:11 },
+  'banana / platano': { kcal:89, protein:1.1, carbs:23, fat:0.3 },
+  'pão / pan / bread': { kcal:265, protein:9, carbs:49, fat:3.2 },
+  'leite / leche / milk': { kcal:42, protein:3.4, carbs:5, fat:1 },
+  'maçã / manzana / apple': { kcal:52, protein:0.3, carbs:14, fat:0.2 },
+  'batata / papa / potato': { kcal:77, protein:2, carbs:17, fat:0.1 }
 };
 
 /* ================== ESTADO GERAL ================== */
@@ -527,7 +540,12 @@ function queueSave(){
   saveTimer = setTimeout(async () => { if (currentUser) await docRef().set(STATE, { merge: true }); }, 500);
 }
 function setState(key, val){ STATE[key] = val; queueSave(); }
-function safe(v){ return (typeof v === 'number' && !isNaN(v)) ? v : 0; }
+
+// FUNÇÃO SAFE RECONSTRUÍDA PARA NÃO IGNORAR DADOS DA API
+function safe(v){ 
+  const parsed = parseFloat(v);
+  return (!isNaN(parsed) && parsed > 0) ? parsed : 0; 
+}
 function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
 async function loadCloudState(){
@@ -559,28 +577,49 @@ auth.onAuthStateChanged(async (user) => {
   currentUser = user; await loadCloudState(); getProfile() ? navigate('home') : navigate('setup');
 });
 
-/* ================== API DE ALIMENTOS ================== */
+/* ================== API DE ALIMENTOS MULTILINGUE ================== */
 async function offSearchByText(query){
-  const res = await fetch(`${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=15&fields=product_name,brands,nutriments`); 
-  const data = await res.json();
+  // Pede traduções pt, es e en para garantir compatibilidade
+  const url = `${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`;
+  const res = await fetch(url); const data = await res.json();
   return (data.products || []).map(normalizeOFFProduct).filter(p => p.kcal100 > 0);
 }
 async function offSearchByBarcode(code){
-  const res = await fetch(`${OFF_PRODUCT_URL}${code}.json?fields=product_name,brands,nutriments`);
+  const res = await fetch(`${OFF_PRODUCT_URL}${code}.json?fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`);
   const data = await res.json();
   return data.status === 1 ? normalizeOFFProduct(data.product) : null;
 }
 function normalizeOFFProduct(p){
   const n = p.nutriments || {};
-  return { name: p.product_name || 'Sem nome', brand: p.brands || '', kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), protein100: safe(n.proteins_100g), carbs100: safe(n.carbohydrates_100g), fat100: safe(n.fat_100g) };
+  // Prioridade de idioma: Português > Espanhol > Inglês > Oficial do produto
+  const name = p.product_name_pt || p.product_name_es || p.product_name_en || p.product_name || 'Sem nome';
+  return { 
+    name: name, 
+    brand: p.brands || '', 
+    kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), 
+    protein100: safe(n.proteins_100g), 
+    carbs100: safe(n.carbohydrates_100g), 
+    fat100: safe(n.fat_100g) 
+  };
 }
 function localSearch(q){
-  q = q.toLowerCase(); const res = [];
-  for(const [k, v] of Object.entries(LOCAL_FOODS)){ if(k.includes(q)) res.push({ name: cap(k), brand:'Base Local', kcal100:v.kcal, protein100:v.protein, carbs100:v.carbs, fat100:v.fat }); } 
+  q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); 
+  const res = [];
+  for(const [k, v] of Object.entries(LOCAL_FOODS)){ 
+    const normK = k.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(normK.includes(q)) res.push({ name: cap(k.split(' / ')[0]), brand:'Base Local', kcal100:v.kcal, protein100:v.protein, carbs100:v.carbs, fat100:v.fat }); 
+  } 
   return res;
 }
 function calcPortion(item, grams){
-  const f = grams / 100; return { kcal: Math.round(item.kcal100*f), protein: Math.round(item.protein100*f*10)/10, carbs: Math.round(item.carbs100*f*10)/10, fat: Math.round(item.fat100*f*10)/10, grams };
+  const f = grams / 100; 
+  return { 
+    kcal: Math.round(item.kcal100*f), 
+    protein: Math.round(item.protein100*f*10)/10, 
+    carbs: Math.round(item.carbs100*f*10)/10, 
+    fat: Math.round(item.fat100*f*10)/10, 
+    grams 
+  };
 }
 
 /* ================== NAVEGAÇÃO & SETUP ================== */
@@ -675,21 +714,31 @@ function renderSearchResults(){
   `).join('');
 }
 
+/* Logic Modal Bottom Sheet - CORRIGIDO BUG DE REFERÊNCIA */
 function openPortionModal(idx, ctx){
-  _selectedItem = ctx === 'search' ? _searchItems[idx] : _ingredientItems[idx]; _portionContext = ctx;
-  if(!_selectedItem) return;
+  clearTimeout(searchTimer); // Bloqueia overwrite da pesquisa
+  const rawItem = ctx === 'search' ? _searchItems[idx] : _ingredientItems[idx];
+  if(!rawItem) return;
+  _selectedItem = JSON.parse(JSON.stringify(rawItem)); // Clona o item
+  _portionContext = ctx;
+  
   $('#portionTitle').textContent = cap(_selectedItem.name); $('#portionGrams').value = 100;
-  updatePortionPreview(); $('#portionModal').classList.add('show');
+  updatePortionPreview(); 
+  $('#portionModal').classList.add('show');
 }
 function closePortionModal(){ $('#portionModal').classList.remove('show'); }
 function setPortionGrams(g){ 
-  $('#portionGrams').value = g; document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active'); updatePortionPreview(); 
+  $('#portionGrams').value = g; 
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updatePortionPreview(); 
 }
 $('#portionGrams').addEventListener('input', () => {
-  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active')); updatePortionPreview();
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  updatePortionPreview();
 });
 function updatePortionPreview(){
+  if(!_selectedItem) return;
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
   $('#portionPreview').innerHTML = `
     <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:1.1rem;font-weight:800"><span style="color:var(--text)">Energia</span><span style="color:var(--accent)">${p.kcal} kcal</span></div>
@@ -699,7 +748,10 @@ function updatePortionPreview(){
   `;
 }
 function confirmPortion(){
+  if(!_selectedItem) return;
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
+  if(isNaN(p.kcal)) { showToast('Erro no cálculo das calorias', true); return; }
+  
   if(_portionContext === 'search'){
     saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); 
     showToast('Refeição Adicionada!'); $('#foodSearch').value=''; $('#searchResults').innerHTML='';
@@ -710,9 +762,15 @@ function confirmPortion(){
   closePortionModal();
 }
 
+function saveMeal(meal){
+  const all = getMeals(), d = getViewingDateStr(); if(!all[d]) all[d] = [];
+  all[d].push(meal); setState('ct_meals', all); renderHome();
+}
+
 function addManualFood(){
-  const name = $('#manualName').value.trim(); if(!name){ showToast('Digite um nome válido', true); return; }
-  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, isRecipe:false });
+  const name = $('#manualName').value.trim();
+  if(!name){ showToast('Digite um nome válido', true); return; }
+  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, grams: +$('#manualGrams').value||100, isRecipe:false });
   showToast('Adicionado com sucesso!');
   ['manualName','manualKcal','manualGrams','manualProtein','manualCarbs','manualFat'].forEach(id => $(`#${id}`).value = '');
 }
@@ -727,7 +785,8 @@ async function searchBarcode(){
 }
 
 function showRecent(){
-  const meals = getMeals(), dates = Object.keys(meals).sort().reverse().slice(0, 5); 
+  const meals = getMeals();
+  const dates = Object.keys(meals).sort().reverse().slice(0, 5); 
   const recentItems = []; const added = new Set();
   dates.forEach(d => { meals[d].forEach(m => {
       if(!m.isRecipe && !added.has(m.name)){
@@ -824,7 +883,7 @@ function renderCaloriesProgress(){
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${vals.filter(v=>v<=goal).length}/7`;
   
-  // Atraso de 100ms para garantir que a Aba está visível e tem Width antes de desenhar
+  // Atraso para o render de Canvas
   setTimeout(() => { drawBarChartCal('chartCal7', last7, goal); drawLineChartCal('chartCal14', last14, goal); }, 100);
 }
 
