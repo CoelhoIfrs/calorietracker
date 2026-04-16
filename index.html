@@ -313,7 +313,7 @@
       <div><label>Peso Objetivo (kg)</label><input id="goal" type="number" placeholder="Ex: 70"></div>
       <div><label>Atividade</label><select id="activity"><option value="1.2">Sedentário</option><option value="1.375">Leve</option><option value="1.55" selected>Moderado</option><option value="1.725">Intenso</option><option value="1.9">Atleta</option></select></div>
     </div>
-    <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button>
+    <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button> <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button>
   </div>
 </div>
 
@@ -810,11 +810,20 @@ async function signIn(){
   try{ $('#authMsg').textContent = 'A entrar...'; await auth.signInWithEmailAndPassword(email, pass); }
   catch(e){ $('#authMsg').textContent = 'Erro: Credenciais incorretas.'; }
 }
-async function signOutUser(){ await auth.signOut(); }
+async function signOutUser(){    await auth.signOut();    $('#authEmail').value = '';   $('#authPass').value = '';   $('#authMsg').textContent = ''; }
 
 auth.onAuthStateChanged(async (user) => {
-  if (!user){ currentUser = null; setNavVisible(false); showOnly('auth'); return; }
-  currentUser = user; await loadCloudState(); getProfile() ? navigate('home') : navigate('setup');
+  if (!user){ 
+    currentUser = null; 
+    STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
+    setNavVisible(false); 
+    showOnly('auth'); 
+    return; 
+  }
+  STATE = { ct_profile: null, ct_meals: {}, ct_recipes: [], ct_weights: [], ct_water: {}, ct_measures: [] };
+  currentUser = user; 
+  await loadCloudState(); 
+  getProfile() ? navigate('home') : navigate('setup');
 });
 
 /* ================== API DE ALIMENTOS MULTILINGUE ================== */
