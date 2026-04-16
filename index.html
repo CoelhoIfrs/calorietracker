@@ -52,9 +52,10 @@
     .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
     .btn-sm{width:auto;padding:10px 20px;font-size:.9rem;border-radius:12px}
     
-    /* TABS */
-    .tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02)}
-    .tab{flex:1;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease;white-space:nowrap}
+    /* TABS SCROLL */
+    .tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02);overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:1;min-width:75px;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease;white-space:nowrap}
     .tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     
     /* NAVEGAÇÃO DE DATA */
@@ -98,7 +99,7 @@
     .meal-name{font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;color:var(--text)}
     .meal-meta{font-size:.8rem;color:var(--muted);font-weight:500}
     .meal-kcal{font-weight:800;color:var(--accent);font-size:1.2rem;white-space:nowrap;text-align:right}
-    .meal-del{background:rgba(255,255,255,0.05);border:none;color:var(--muted);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;margin-left:8px}
+    .meal-del{background:rgba(255,255,255,0.05);border:none;color:var(--text);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;margin-left:8px}
     .meal-del:active{background:var(--accent);color:#fff;transform:scale(0.9)}
 
     /* BUSCA E RESULTADOS */
@@ -113,13 +114,15 @@
     .result-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border-radius:12px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,0.02)}
     .result-item:hover, .result-item:active{background:var(--card-hover)}
     .result-item:last-child{border-bottom:none}
-
-    /* INGREDIENT ROW */
+    
     .ingredient-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
     .ingredient-row:last-child{border:none}
     .ing-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
     .ing-detail{color:var(--text);font-size:.8rem;background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:8px;font-weight:700}
     .ing-kcal{font-weight:800;color:var(--accent);min-width:65px;text-align:right}
+    .recipe-total{display:flex;justify-content:space-between;align-items:center;padding:15px 0;margin-top:10px;border-top:2px solid var(--accent);font-weight:800;font-size:1.2rem}
+    .wh-del{background:rgba(255,255,255,0.05);border:none;color:var(--text);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;}
+    .wh-del:active{background:var(--accent);color:#fff;transform:scale(0.9)}
 
     /* NAV INFERIOR */
     nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;justify-content:space-around;padding:12px 0 calc(var(--safe-bottom) + 12px);border-top:1px solid rgba(255,255,255,0.05);z-index:100}
@@ -194,7 +197,6 @@
 
     .manual-entry{background:#111;border-radius:12px;padding:15px;margin-top:10px}
     .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    
     .auth-box{max-width:400px;margin:0 auto}
   </style>
 </head>
@@ -309,7 +311,7 @@
   <div class="card" style="margin-top:20px">
     <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     
-    <!-- TABS MENU (Sem Barcode) -->
+    <!-- TABS MENU -->
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
       <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
@@ -330,15 +332,15 @@
     <div id="tabRecipe" class="hidden">
       <input id="recipeName" type="text" placeholder="Nome da receita (ex: Salada Atum)" class="mb">
       <div style="display:flex;gap:10px;align-items:center">
-        <input id="ingName" type="text" placeholder="Ingrediente" style="flex:2">
+        <input id="ingName" type="text" placeholder="Adicionar ingrediente" style="flex:2">
         <button class="btn btn-primary btn-sm" onclick="searchIngredient()" style="padding:14px;border-radius:14px">🔍</button>
       </div>
       <div id="ingResults" class="results mt" style="background:transparent;padding:0"></div>
       <div id="ingredientList" style="margin-top:16px"></div>
       <div id="recipeTotal" class="hidden">
-        <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total Receita</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
-        <div style="display:flex;gap:12px;margin-top:20px">
-          <button class="btn btn-green" onclick="saveRecipe(true)">✅ Guardar & Registar</button>
+        <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
+        <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px">
+          <!-- Botões injetados via JS -->
         </div>
       </div>
     </div>
@@ -376,7 +378,6 @@
 <div id="progress" class="page">
   <h1 style="margin-bottom:12px">📈 <span>Evolução</span></h1>
 
-  <!-- Sub-tabs -->
   <div class="progress-tabs">
     <button class="progress-tab active" onclick="switchProgressTab('calories')">🔥 Calorias</button>
     <button class="progress-tab" onclick="switchProgressTab('weight')">⚖️ Peso</button>
@@ -405,7 +406,6 @@
 
   <!-- ===== WEIGHT SECTION ===== -->
   <div id="progressWeight" class="progress-section">
-    <!-- Input Card -->
     <div class="weight-input-card">
       <div style="display:flex;align-items:center;gap:12px">
         <span style="font-size:2rem">⚖️</span>
@@ -418,23 +418,19 @@
       <div id="weightTodayBadge"></div>
     </div>
     
-    <!-- Summary -->
     <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr">
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightCurrent" style="color:var(--text);font-size:1.3rem">--</div><div class="cal-stat-label">Atual</div></div>
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightChange" style="color:var(--green);font-size:1.3rem">--</div><div class="cal-stat-label">Variação</div></div>
       <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightGoalDiff" style="color:var(--accent);font-size:1.3rem">--</div><div class="cal-stat-label">Falta</div></div>
     </div>
     
-    <!-- Charts & History -->
     <div class="card"><div class="section-title">Evolução do Peso</div><div class="chart-container chart-container-tall"><canvas id="chartWeight"></canvas></div></div>
     <div class="card"><div class="section-title">Histórico de Pesagens</div><div id="weightHistoryList"><div class="empty">Nenhum registo de peso</div></div></div>
   </div>
 
   <!-- ===== WATER SECTION ===== -->
   <div id="progressWater" class="progress-section">
-    <!-- Dicas / Insights de Água -->
     <div id="waterInsights"></div>
-
     <div class="cal-stats-grid">
       <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statWaterAvg" style="color:var(--text)">0</div><div class="cal-stat-label">Média 7d (ml)</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">🏆</div><div class="cal-stat-value" id="statWaterBest" style="color:var(--blue)">0</div><div class="cal-stat-label">Melhor dia (ml)</div></div>
@@ -442,17 +438,12 @@
       <div class="cal-stat-item"><div class="cal-stat-icon">🌊</div><div class="cal-stat-value" id="statWaterTotal" style="color:var(--blue)">0</div><div class="cal-stat-label">Semana (L)</div></div>
     </div>
 
-    <!-- Comparação Água x Calorias -->
     <div class="card">
       <div class="section-title">Balanço: Água vs Calorias</div>
       <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;font-weight:500">Verifique se nos dias em que consome mais calorias tem bebido pouca água. Muitas vezes o cérebro confunde sede com fome.</p>
       <div id="waterComparison"></div>
     </div>
-
-    <div class="card">
-      <div class="section-title">Últimos 7 dias (Água)</div>
-      <div class="chart-container"><canvas id="chartWater7"></canvas></div>
-    </div>
+    <div class="card"><div class="section-title">Últimos 7 dias (Água)</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
   </div>
 </div>
 
@@ -513,6 +504,8 @@ const todayStr = () => new Date().toISOString().slice(0, 10);
 
 let currentUser = null, recipeIngredients = [], _searchItems = [], _ingredientItems = [];
 let _selectedItem = null, _portionContext = 'search', saveTimer = null;
+let _editingRecipeId = null; // Variável para controlar a edição de receitas
+
 let viewingDate = new Date(); 
 const getViewingDateStr = () => viewingDate.toISOString().slice(0, 10);
 
@@ -547,6 +540,7 @@ function queueSave(){
   saveTimer = setTimeout(async () => { if (currentUser) await docRef().set(STATE, { merge: true }); }, 500);
 }
 function setState(key, val){ STATE[key] = val; queueSave(); }
+
 function safe(v){ 
   const parsed = parseFloat(v);
   return (!isNaN(parsed) && parsed > 0) ? parsed : 0; 
@@ -582,7 +576,7 @@ auth.onAuthStateChanged(async (user) => {
   currentUser = user; await loadCloudState(); getProfile() ? navigate('home') : navigate('setup');
 });
 
-/* ================== API DE ALIMENTOS ================== */
+/* ================== API DE ALIMENTOS MULTILINGUE ================== */
 async function offSearchByText(query){
   const url = `${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`;
   const res = await fetch(url); const data = await res.json();
@@ -591,11 +585,14 @@ async function offSearchByText(query){
 function normalizeOFFProduct(p){
   const n = p.nutriments || {};
   const name = p.product_name_pt || p.product_name_es || p.product_name_en || p.product_name || 'Sem nome';
-  return { name: name, brand: p.brands || '', kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), protein100: safe(n.proteins_100g), carbs100: safe(n.carbohydrates_100g), fat100: safe(n.fat_100g) };
+  return { 
+    name: name, brand: p.brands || '', 
+    kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']), 
+    protein100: safe(n.proteins_100g), carbs100: safe(n.carbohydrates_100g), fat100: safe(n.fat_100g) 
+  };
 }
 function localSearch(q){
-  q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); 
-  const res = [];
+  q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); const res = [];
   for(const [k, v] of Object.entries(LOCAL_FOODS)){ 
     const normK = k.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     if(normK.includes(q)) res.push({ name: cap(k.split(' / ')[0]), brand:'Base Local', kcal100:v.kcal, protein100:v.protein, carbs100:v.carbs, fat100:v.fat }); 
@@ -703,7 +700,7 @@ function openPortionModal(idx, ctx){
   clearTimeout(searchTimer); 
   const rawItem = ctx === 'search' ? _searchItems[idx] : _ingredientItems[idx];
   if(!rawItem) return;
-  _selectedItem = JSON.parse(JSON.stringify(rawItem));
+  _selectedItem = JSON.parse(JSON.stringify(rawItem)); // Fix reference issue
   _portionContext = ctx;
   
   $('#portionTitle').textContent = cap(_selectedItem.name); $('#portionGrams').value = 100;
@@ -734,7 +731,7 @@ function updatePortionPreview(){
 function confirmPortion(){
   if(!_selectedItem) return;
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
-  if(isNaN(p.kcal)) { showToast('Erro no cálculo', true); return; }
+  if(isNaN(p.kcal)) { showToast('Erro no cálculo das calorias', true); return; }
   
   if(_portionContext === 'search'){
     saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); 
@@ -749,7 +746,7 @@ function confirmPortion(){
 function addManualFood(){
   const name = $('#manualName').value.trim();
   if(!name){ showToast('Digite um nome válido', true); return; }
-  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, isRecipe:false });
+  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, grams: +$('#manualGrams').value||100, isRecipe:false });
   showToast('Adicionado com sucesso!');
   ['manualName','manualKcal','manualGrams','manualProtein','manualCarbs','manualFat'].forEach(id => $(`#${id}`).value = '');
 }
@@ -770,7 +767,7 @@ function showRecent(){
   else renderSearchResults();
 }
 
-/* ================== TAB RECEITAS ================== */
+/* ================== TAB RECEITAS E EDIÇÃO ================== */
 $('#ingName').addEventListener('keydown', e => { if (e.key === 'Enter') searchIngredient(); });
 async function searchIngredient(){
   const name = $('#ingName').value.trim(); if (!name) return showToast('Digite o ingrediente.', true);
@@ -787,15 +784,30 @@ async function searchIngredient(){
 }
 
 function removeIngredient(i){ recipeIngredients.splice(i,1); renderIngredients(); }
+
 function renderIngredients(){
   const el = $('#ingredientList'), total = $('#recipeTotal');
-  if (!recipeIngredients.length){ el.innerHTML = ''; total.classList.add('hidden'); return; }
+  if (!recipeIngredients.length && !_editingRecipeId){ el.innerHTML = ''; total.classList.add('hidden'); return; }
   total.classList.remove('hidden');
   const sum = recipeIngredients.reduce((o,g)=>({kcal:o.kcal+g.kcal,p:o.p+g.protein,c:o.c+g.carbs,g:o.g+g.fat}), {kcal:0,p:0,c:0,g:0});
   el.innerHTML = recipeIngredients.map((g,i)=>`
-    <div class="ingredient-row"><div class="ing-name">${g.name}</div><div class="ing-detail">${g.grams}g</div><div class="ing-kcal">${g.kcal} kcal</div><button class="wh-del" onclick="removeIngredient(${i})" style="background:transparent;width:24px">✕</button></div>
+    <div class="ingredient-row"><div class="ing-name">${g.name}</div><div class="ing-detail">${g.grams}g</div><div class="ing-kcal">${g.kcal} kcal</div><button class="wh-del" onclick="removeIngredient(${i})" style="background:transparent;width:24px;color:#ff4757">✕</button></div>
   `).join('');
   $('#recipeTotalKcal').textContent = `${sum.kcal} kcal`;
+
+  const btnContainer = $('#recipeButtons');
+  if(_editingRecipeId) {
+     btnContainer.innerHTML = `
+       <button class="btn btn-green" onclick="saveRecipe(true)" style="flex:2;padding:0 10px;font-size:.9rem">💾 Atualizar & Consumir</button>
+       <button class="btn btn-outline" onclick="saveRecipe(false)" style="flex:1;padding:0 10px;font-size:.9rem">Só Atualizar</button>
+       <button class="btn btn-outline" onclick="cancelEditRecipe()" style="border-color:rgba(255,255,255,0.1);color:var(--muted);padding:0 14px" title="Cancelar">✕</button>
+     `;
+  } else {
+     btnContainer.innerHTML = `
+       <button class="btn btn-green" onclick="saveRecipe(true)" style="flex:1">✅ Guardar & Registar</button>
+       <button class="btn btn-outline" onclick="saveRecipe(false)" style="flex:1">💾 Só Guardar</button>
+     `;
+  }
 }
 
 function saveRecipe(alsoLog){
@@ -803,23 +815,65 @@ function saveRecipe(alsoLog){
   const sum = recipeIngredients.reduce((o,g)=>({kcal:o.kcal+g.kcal,p:o.p+g.protein,c:o.c+g.carbs,g:o.g+g.fat}), {kcal:0,p:0,c:0,g:0});
   const name = $('#recipeName').value.trim() || recipeIngredients.map(i=>i.name).join(' + ');
   const recipes = getSavedRecipes();
-  recipes.push({ id: Date.now(), name, kcal:sum.kcal, protein:sum.p, carbs:sum.c, fat:sum.g, ingredients:[...recipeIngredients], createdAt: todayStr() });
+
+  if (_editingRecipeId) {
+    const idx = recipes.findIndex(r => r.id === _editingRecipeId);
+    if (idx >= 0) {
+      recipes[idx].name = name; recipes[idx].kcal = sum.kcal; recipes[idx].protein = sum.p; recipes[idx].carbs = sum.c; recipes[idx].fat = sum.g; recipes[idx].ingredients = [...recipeIngredients];
+    }
+    _editingRecipeId = null;
+    showToast(alsoLog ? 'Receita atualizada e registada no diário!' : 'Receita atualizada com sucesso!');
+  } else {
+    recipes.push({ id: Date.now(), name, kcal:sum.kcal, protein:sum.p, carbs:sum.c, fat:sum.g, ingredients:[...recipeIngredients], createdAt: todayStr() });
+    showToast(alsoLog ? 'Receita guardada e registada!' : 'Receita guardada.');
+  }
+
   setState('ct_recipes', recipes);
   if (alsoLog) saveMeal({ name, kcal:sum.kcal, protein:sum.p, carbs:sum.c, fat:sum.g, isRecipe:true, ingredients:recipeIngredients.length });
-  recipeIngredients = []; $('#recipeName').value = ''; renderIngredients(); showToast(alsoLog ? 'Refeição adicionada!' : 'Receita guardada.');
+  
+  recipeIngredients = []; $('#recipeName').value = ''; renderIngredients();
+  if (!alsoLog) switchTab('saved'); // Volta às salvas se só atualizar
 }
 
+function cancelEditRecipe() {
+  _editingRecipeId = null; recipeIngredients = []; $('#recipeName').value = ''; renderIngredients(); switchTab('saved');
+}
+
+/* ================== TAB RECEITAS SALVAS ================== */
 function renderSavedRecipes(){
   const recipes = getSavedRecipes(), el = $('#savedRecipeList');
-  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada.</div>'; return; }
+  if (!recipes.length){ el.innerHTML = '<div class="empty">Nenhuma receita guardada. Crie uma na aba "Receita".</div>'; return; }
   el.innerHTML = recipes.map((r,i)=>`
     <div class="result-item" onclick="useSavedRecipe(${i})">
       <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🧑‍🍳 ${r.name}</div><div style="font-size:.8rem;color:var(--muted);margin-top:4px;font-weight:600">${r.ingredients.length} itens · P:${Math.round(r.protein)}g C:${Math.round(r.carbs)}g</div></div>
-      <div style="display:flex;align-items:center;gap:12px"><div style="font-weight:800;color:var(--accent);font-size:1.2rem;text-align:right">${r.kcal}<br><span style="font-size:.7rem;color:var(--muted)">kcal</span></div><button class="wh-del" onclick="event.stopPropagation();delRecipe(${i})" style="margin-left:6px">✕</button></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="font-weight:800;color:var(--accent);font-size:1.2rem;text-align:right;margin-right:6px">${r.kcal}<br><span style="font-size:.7rem;color:var(--muted)">kcal</span></div>
+        <button class="wh-del" onclick="event.stopPropagation();editRecipe(${i})" style="font-size:.9rem" title="Editar Receita">✏️</button>
+        <button class="wh-del" onclick="event.stopPropagation();delRecipe(${i})" title="Apagar Receita">✕</button>
+      </div>
     </div>`).join('');
 }
-function useSavedRecipe(i){ const r = getSavedRecipes()[i]; if (!r) return; saveMeal({ name:r.name, kcal:r.kcal, protein:r.protein, carbs:r.carbs, fat:r.fat, isRecipe:true, ingredients:r.ingredients.length }); showToast('Receita adicionada ao diário!'); }
-function delRecipe(i){ if (!confirm('Apagar receita guardada?')) return; const recipes = getSavedRecipes(); recipes.splice(i,1); setState('ct_recipes', recipes); renderSavedRecipes(); }
+
+function useSavedRecipe(i){ 
+  const r = getSavedRecipes()[i]; if (!r) return; 
+  saveMeal({ name:r.name, kcal:r.kcal, protein:r.protein, carbs:r.carbs, fat:r.fat, isRecipe:true, ingredients:r.ingredients.length }); 
+  showToast('Receita adicionada ao diário!'); 
+}
+
+function editRecipe(i) {
+  const r = getSavedRecipes()[i]; if (!r) return;
+  _editingRecipeId = r.id;
+  recipeIngredients = JSON.parse(JSON.stringify(r.ingredients));
+  $('#recipeName').value = r.name;
+  switchTab('recipe');
+  renderIngredients();
+  showToast('A editar receita...');
+}
+
+function delRecipe(i){ 
+  if (!confirm('Tem a certeza que quer apagar esta receita?')) return; 
+  const recipes = getSavedRecipes(); recipes.splice(i,1); setState('ct_recipes', recipes); renderSavedRecipes(); 
+}
 
 /* ================== EVOLUÇÃO (PROGRESSO) ================== */
 function switchProgressTab(tab){
@@ -837,21 +891,17 @@ function renderProgress(){ renderCaloriesProgress(); renderWeightProgress(); ren
 function renderCaloriesProgress(){
   const meals = getMeals(), goal = getProfile()?.kcalGoal || 2000;
   const last7 = [], last14 = [];
-  
   for (let i=13;i>=0;i--){
     const d=new Date(); d.setDate(d.getDate()-i); const key=d.toISOString().slice(0,10);
     const val = (meals[key]||[]).reduce((s,m)=>s+(m.kcal||0),0);
     const obj = { label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), weekday:d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3), value:val, date:key };
-    last14.push(obj);
-    if(i<7) last7.push(obj);
+    last14.push(obj); if(i<7) last7.push(obj);
   }
-  
   const vals = last7.map(d=>d.value).filter(v=>v>0);
   $('#statAvg').textContent = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   $('#statBest').textContent = vals.length ? Math.min(...vals) : 0;
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${vals.filter(v=>v<=goal).length}/7`;
-  
   setTimeout(() => { drawBarChartCal('chartCal7', last7, goal); drawLineChartCal('chartCal14', last14, goal); }, 100);
 }
 
@@ -859,24 +909,14 @@ function drawBarChartCal(id,data,goal){
   const canvas = $(`#${id}`); if(!canvas || !canvas.parentElement.offsetWidth) return;
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 220;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  
   const pad=35, max=Math.max(...data.map(d=>d.value), goal*1.1) || 1, barW=(W-pad*2)/data.length*.6, gap=(W-pad*2)/data.length;
   const goalY = H-pad - ((goal/max)*(H-pad*2));
-  
-  ctx.strokeStyle='rgba(255,71,87,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
-  ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(255,71,87,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle='rgba(255,71,87,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}`, W-pad, goalY-6);
-
   data.forEach((d,i)=>{
-    const x=pad+i*gap+(gap-barW)/2, h=(d.value/max)*(H-pad*2), y=H-pad-h;
-    const color = d.value===0 ? 'rgba(255,255,255,0.05)' : d.value<=goal*.8 ? '#10ac84' : d.value<=goal ? '#feca57' : '#ff4757';
-    const grad = ctx.createLinearGradient(x, y, x, H-pad);
-    grad.addColorStop(0, color); grad.addColorStop(1, d.value===0 ? color : color + '33');
-    
-    ctx.fillStyle = grad; ctx.beginPath(); 
-    if(ctx.roundRect) ctx.roundRect(x,y,barW,Math.max(h,2),[6,6,0,0]); else ctx.rect(x,y,barW,Math.max(h,2));
-    ctx.fill();
-    
+    const x=pad+i*gap+(gap-barW)/2, h=(d.value/max)*(H-pad*2), y=H-pad-h, color = d.value===0 ? 'rgba(255,255,255,0.05)' : d.value<=goal*.8 ? '#10ac84' : d.value<=goal ? '#feca57' : '#ff4757';
+    const grad = ctx.createLinearGradient(x, y, x, H-pad); grad.addColorStop(0, color); grad.addColorStop(1, d.value===0 ? color : color + '33');
+    ctx.fillStyle = grad; ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x,y,barW,Math.max(h,2),[6,6,0,0]); else ctx.rect(x,y,barW,Math.max(h,2)); ctx.fill();
     if(d.value > 0){ ctx.fillStyle='#f1f2f6'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.value, x+barW/2, y-6); }
     ctx.fillStyle='#8395a7'; ctx.font='600 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.weekday, x+barW/2, H-8);
   });
@@ -886,20 +926,13 @@ function drawLineChartCal(id,data,goal){
   const canvas = $(`#${id}`); if(!canvas || !canvas.parentElement.offsetWidth) return;
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 260;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  
   const pad=40, vals=data.map(d=>d.value), max=Math.max(...vals, goal*1.1) || 1, goalY = H-pad - ((goal/max)*(H-pad*2));
-  
-  ctx.strokeStyle='rgba(255,71,87,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
-  ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(255,71,87,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle='rgba(255,71,87,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}`, W-pad, goalY-5);
-
   const pts = data.map((d,i)=>({ x:pad+(i/(data.length-1))*(W-pad*2), y:H-pad-((d.value/max)*(H-pad*2)) }));
-  
   const grad = ctx.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(72,219,251,0.2)'); grad.addColorStop(1,'rgba(72,219,251,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-pad); ctx.fillStyle=grad; ctx.fill();
-  
   ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle='#48dbfb'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
-
   pts.forEach((p,i)=>{
     ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle=data[i].value<=goal?'#10ac84':'#ff4757'; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle='#0a0a12'; ctx.fill();
@@ -923,41 +956,32 @@ function renderWeightProgress(){
   $('#weightDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'long', day:'2-digit', month:'long' });
   const todayEntry = weights.find(w => w.date === today);
   $('#weightTodayBadge').innerHTML = todayEntry ? `<div class="weight-today-badge">✓ Hoje: ${todayEntry.value} kg</div>` : '';
-
   if(weights.length > 0){
     const latest = weights[weights.length - 1], first = weights[0], change = latest.value - first.value, goalDiff = p ? (latest.value - p.goal) : 0;
     $('#weightCurrent').textContent = `${latest.value}`;
     if(weights.length > 1){ $('#weightChange').textContent = `${change>0?'+':''}${change.toFixed(1)}`; $('#weightChange').style.color = change <= 0 ? 'var(--green)' : 'var(--accent)'; } else { $('#weightChange').textContent = '--'; }
     if(p){ $('#weightGoalDiff').textContent = `${goalDiff>0?'+':''}${goalDiff.toFixed(1)}`; $('#weightGoalDiff').style.color = Math.abs(goalDiff) < 1 ? 'var(--green)' : 'var(--accent)'; }
   } else { $('#weightCurrent').textContent = p ? p.weight : '--'; $('#weightChange').textContent = '--'; $('#weightGoalDiff').textContent = '--'; }
-  
-  setTimeout(() => drawWeightChart(weights, p), 100);
-  renderWeightHistory(weights);
+  setTimeout(() => drawWeightChart(weights, p), 100); renderWeightHistory(weights);
 }
 
 function drawWeightChart(weights, profile){
   const canvas = $('#chartWeight'); if(!canvas || !canvas.parentElement.offsetWidth) return;
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, W = canvas.parentElement.offsetWidth, H = 260;
   canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  
-  if(weights.length < 2){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens', W/2, H/2); return; }
-  
+  if(weights.length < 2){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2); return; }
   const pad = 45, vals = weights.map(w => w.value), goalW = profile ? profile.goal : null;
   let min = Math.min(...vals), max = Math.max(...vals); if(goalW !== null){ min = Math.min(min, goalW); max = Math.max(max, goalW); }
   const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
   const getY = v => pad + (1 - (v - min)/(max - min)) * (H - pad*2);
-  
   if(goalW !== null){
     const gy = getY(goalW); ctx.strokeStyle='rgba(16,172,132,0.4)'; ctx.lineWidth=1; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(pad,gy); ctx.lineTo(W-pad,gy); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle='rgba(16,172,132,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left'; ctx.fillText(`Objetivo ${goalW} kg`, pad + 4, gy - 6);
   }
-  
   const pts = weights.map((w,i) => ({ x: pad + (i/(weights.length-1)) * (W - pad*2), y: getY(w.value), val: w.value }));
   const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(255,71,87,0.15)'); grad.addColorStop(1, 'rgba(255,71,87,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length-1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
-  
   ctx.beginPath(); pts.forEach((p,i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
-  
   pts.forEach((p,i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fillStyle = '#ff4757'; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fillStyle = '#0a0a12'; ctx.fill();
@@ -966,7 +990,6 @@ function drawWeightChart(weights, profile){
       const d = new Date(weights[i].date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H - 8);
     }
   });
-  
   ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'right';
   for(let i = 0; i <= 5; i++){ const v = min + (i/5)*(max-min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 8, y + 3); ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke(); }
 }
@@ -991,9 +1014,7 @@ function renderWaterProgress(){
     const d = new Date(); d.setDate(d.getDate()-i); const key = d.toISOString().slice(0,10);
     last7.push({ date: key, label: d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), weekday: d.toLocaleDateString('pt-PT',{weekday:'short'}).slice(0,3), value: w[key] || 0 });
   }
-
-  const vals = last7.map(d=>d.value).filter(v=>v>0);
-  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  const vals = last7.map(d=>d.value).filter(v=>v>0), avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   
   $('#statWaterAvg').textContent = avg; $('#statWaterBest').textContent = vals.length ? Math.max(...last7.map(d=>d.value)) : 0;
   $('#statWaterDays').textContent = `${last7.filter(d=>d.value >= waterGoal).length}/7`; $('#statWaterTotal').textContent = (last7.reduce((a,b)=>a+b.value, 0) / 1000).toFixed(1);
@@ -1001,7 +1022,7 @@ function renderWaterProgress(){
   $('#waterInsights').innerHTML = `
     <div class="water-insight-box">
       <div class="water-insight-title">O seu mínimo ideal: ${waterGoal} ml/dia</div>
-      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Baseado no seu peso (${weight} kg) × 35ml. Essencial para o metabolismo.</p>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Baseado no seu peso (${weight} kg) × 35ml. Essencial para o metabolismo e hidratação.</p>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(72,219,251,0.15)">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:.9rem;font-weight:600;color:var(--text)">A sua média:</span><span style="font-weight:800;font-size:1.1rem;color:${avg >= waterGoal ? 'var(--green)' : 'var(--accent)'}">${avg} ml</span></div>
         <div style="display:flex;justify-content:space-between"><span style="font-size:.9rem;font-weight:600;color:var(--text)">Estado:</span><span style="font-weight:800;font-size:.9rem;background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:8px;color:var(--text)">${avg >= waterGoal ? '✅ Excelente' : (avg >= waterGoal*0.7 ? '⚠️ Quase lá' : '🚨 Beber mais')}</span></div>
@@ -1010,20 +1031,10 @@ function renderWaterProgress(){
 
   const meals = getMeals(); let compHtml = '';
   [...last7].reverse().forEach(d => {
-     const calTotal = (meals[d.date] || []).reduce((s,m)=>s+(m.kcal||0),0);
-     const waterPct = Math.min(Math.round((d.value/waterGoal)*100), 100), calPct = Math.min(Math.round((calTotal/calGoal)*100), 100);
-     compHtml += `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:.85rem">
-        <div style="width:45px;color:var(--text);font-weight:700">${d.weekday}</div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:0 12px">
-          <div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">💧</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:var(--blue);width:${waterPct}%"></div></div></div>
-          <div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">🔥</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:${calTotal > calGoal ? 'var(--accent)' : 'var(--yellow)'};width:${calPct}%"></div></div></div>
-        </div>
-        <div style="width:65px;text-align:right"><div style="color:var(--blue);font-weight:800;font-size:.95rem">${d.value} <span style="font-size:.7rem;opacity:0.7">ml</span></div><div style="color:var(--text);font-weight:600;font-size:.8rem;margin-top:2px">${calTotal} <span style="font-size:.65rem;color:var(--muted)">kcal</span></div></div>
-      </div>`;
+     const calTotal = (meals[d.date] || []).reduce((s,m)=>s+(m.kcal||0),0), waterPct = Math.min(Math.round((d.value/waterGoal)*100), 100), calPct = Math.min(Math.round((calTotal/calGoal)*100), 100);
+     compHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:.85rem"><div style="width:45px;color:var(--text);font-weight:700">${d.weekday}</div><div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:0 12px"><div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">💧</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:var(--blue);width:${waterPct}%"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">🔥</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:${calTotal > calGoal ? 'var(--accent)' : 'var(--yellow)'};width:${calPct}%"></div></div></div></div><div style="width:65px;text-align:right"><div style="color:var(--blue);font-weight:800;font-size:.95rem">${d.value} <span style="font-size:.7rem;opacity:0.7">ml</span></div><div style="color:var(--text);font-weight:600;font-size:.8rem;margin-top:2px">${calTotal} <span style="font-size:.65rem;color:var(--muted)">kcal</span></div></div></div>`;
   });
   $('#waterComparison').innerHTML = compHtml;
-
   setTimeout(() => drawBarChartWater('chartWater7', last7, waterGoal), 100);
 }
 
@@ -1031,12 +1042,9 @@ function drawBarChartWater(id, data, goal){
   const canvas = $(`#${id}`); if(!canvas||!canvas.parentElement.offsetWidth) return;
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 220;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  
   const pad=35, max=Math.max(...data.map(d=>d.value), goal*1.1) || 1, barW=(W-pad*2)/data.length*.6, gap=(W-pad*2)/data.length, goalY = H-pad - ((goal/max)*(H-pad*2));
-  
   ctx.strokeStyle='rgba(72,219,251,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle='rgba(72,219,251,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}ml`, W-pad, goalY-6);
-
   data.forEach((d,i)=>{
     const x=pad+i*gap+(gap-barW)/2, h=(d.value/max)*(H-pad*2), y=H-pad-h, color = d.value === 0 ? 'rgba(255,255,255,0.05)' : (d.value >= goal ? '#48dbfb' : 'rgba(72,219,251,0.4)');
     if(d.value>0) {
