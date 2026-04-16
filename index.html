@@ -3,172 +3,198 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="theme-color" content="#0a0a12" />
   <title>CalorieTracker</title>
 
   <style>
-    :root{--bg:#0f0f1a;--card:#1a1a2e;--card-hover:#22223a;--accent:#e94560;--green:#00d474;--yellow:#f5a623;--blue:#00a8ff;--text:#eee;--muted:#888;--radius:16px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+    /* VARIÁVEIS MODERNIZADAS */
+    :root{
+      --bg:#0a0a12;
+      --card:#141423;
+      --card-hover:#1c1c2e;
+      --accent:#ff4757;
+      --accent-dim:rgba(255,71,87,0.15);
+      --green:#10ac84;
+      --green-dim:rgba(16,172,132,0.15);
+      --yellow:#feca57;
+      --yellow-dim:rgba(254,202,87,0.15);
+      --blue:#48dbfb;
+      --blue-dim:rgba(72,219,251,0.15);
+      --text:#f1f2f6;
+      --muted:#8395a7;
+      --radius:24px;
+      --safe-top:env(safe-area-inset-top);
+      --safe-bottom:env(safe-area-inset-bottom);
+    }
+    
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif}
-    body{background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 8px) 16px calc(var(--safe-bottom) + 80px);overflow-x:hidden}
-    h1{font-size:1.6rem;text-align:center;padding:12px 0}h1 span{color:var(--accent)}
-    .card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,0.2);animation:fadeUp .35s ease}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:4px;font-weight:600}
-    input,select{width:100%;padding:12px;border:1px solid #333;border-radius:12px;background:#111;color:var(--text);font-size:1rem;outline:none;transition:border .2s}
-    input:focus,select:focus{border-color:var(--accent)}
-    .btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s}
-    .btn:active{transform:scale(.97);opacity:.8}
-    .btn-primary{background:var(--accent);color:#fff}.btn-green{background:var(--green);color:#fff}.btn-blue{background:var(--blue);color:#fff}
-    .btn-outline{background:transparent;border:1.5px solid var(--accent);color:var(--accent)}
-    .btn-sm{width:auto;padding:8px 16px;font-size:.85rem;border-radius:8px}
-    .tabs{display:flex;gap:8px;margin-bottom:14px;background:#111;padding:4px;border-radius:14px}
-    .tab{flex:1;padding:10px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
-    .tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+    body{background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 90px);overflow-x:hidden}
+    h1{font-size:1.8rem;text-align:center;padding:10px 0;font-weight:800;letter-spacing:-0.5px} h1 span{color:var(--accent)}
     
-    /* Date Navigator */
-    .date-nav{display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-bottom:10px}
-    .date-btn{background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer;padding:5px 15px}
-    .date-text{font-weight:700;font-size:1.1rem;color:var(--text)}
+    /* CARTÕES (CARDS) */
+    .card{background:var(--card);border:1px solid rgba(255,255,255,0.03);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15);animation:fadeUp .4s cubic-bezier(0.16, 1, 0.3, 1)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}}
+    
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{font-size:.8rem;color:var(--muted);display:block;margin-bottom:6px;font-weight:600;letter-spacing:0.2px}
+    
+    /* INPUTS & SELECTS */
+    input,select{width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:14px;background:rgba(255,255,255,0.03);color:var(--text);font-size:1rem;outline:none;transition:all .2s;font-weight:500}
+    input:focus,select:focus{border-color:var(--accent);background:rgba(255,255,255,0.06);box-shadow:0 0 0 4px var(--accent-dim)}
+    input::placeholder{color:#576574}
+    
+    /* BOTÕES */
+    .btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:transform .2s,opacity .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:active{transform:scale(.96);opacity:.9}
+    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 20px var(--accent-dim)}
+    .btn-green{background:var(--green);color:#fff;box-shadow:0 6px 20px var(--green-dim)}
+    .btn-blue{background:var(--blue);color:#111;box-shadow:0 6px 20px var(--blue-dim)}
+    .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
+    .btn-sm{width:auto;padding:10px 20px;font-size:.9rem;border-radius:12px}
+    
+    /* TABS (SEGMENTED CONTROL STYLE) */
+    .tabs{display:flex;background:rgba(0,0,0,0.3);padding:4px;border-radius:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.02)}
+    .tab{flex:1;padding:10px 4px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;text-align:center;transition:all .25s ease}
+    .tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+    
+    /* NAVEGAÇÃO DE DATA (PILL) */
+    .date-nav-wrapper{display:flex;justify-content:center;margin-bottom:16px}
+    .date-nav{display:inline-flex;align-items:center;background:rgba(255,255,255,0.05);border-radius:30px;padding:6px 8px;border:1px solid rgba(255,255,255,0.05)}
+    .date-btn{background:var(--card);border:none;color:var(--text);width:32px;height:32px;border-radius:16px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+    .date-btn:active{transform:scale(0.9)}
+    .date-text{font-weight:800;font-size:1rem;color:var(--text);padding:0 16px;min-width:100px;text-align:center}
 
-    /* Ring & Macros */
+    /* RING & MACROS */
     .ring-wrap{text-align:center;padding:10px 0;position:relative}
-    .ring-wrap svg{width:180px;height:180px;transform:rotate(-90deg)}
-    .ring-bg{fill:none;stroke:#222;stroke-width:12}.ring-fg{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1), stroke .3s}
+    .ring-wrap svg{width:200px;height:200px;transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:rgba(255,255,255,0.05);stroke-width:14}.ring-fg{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1), stroke .4s}
     .ring-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
-    .ring-text{font-size:2.2rem;font-weight:800;line-height:1}.ring-sub{font-size:.85rem;color:var(--muted);margin-top:4px}
+    .ring-text{font-size:2.8rem;font-weight:800;line-height:1;letter-spacing:-1px;color:var(--text)}
+    .ring-sub{font-size:.9rem;color:var(--muted);margin-top:6px;font-weight:600}
     
-    .macro-bar-container{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #222}
+    .macro-bar-container{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05)}
     .macro-item{display:flex;flex-direction:column;align-items:center}
-    .macro-label{font-size:.7rem;color:var(--muted);margin-bottom:4px}
-    .macro-val{font-weight:700;font-size:.9rem;margin-bottom:6px}
-    .progress-bg{width:100%;height:6px;background:#222;border-radius:3px;overflow:hidden}
-    .progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+    .macro-label{font-size:.75rem;color:var(--muted);margin-bottom:6px;font-weight:700}
+    .macro-val{font-weight:800;font-size:.95rem;margin-bottom:8px;color:var(--text)}
+    .progress-bg{width:100%;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(0.4,0,0.2,1)}
 
-    /* Water Tracker */
-    .water-tracker{display:flex;align-items:center;justify-content:space-between;background:rgba(0,168,255,0.1);padding:15px;border-radius:12px;margin-top:15px;border:1px solid rgba(0,168,255,0.2)}
+    /* WATER TRACKER (MODERNIZADO) */
+    .water-tracker{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg, var(--card), rgba(72,219,251,0.05));padding:18px;border-radius:var(--radius);margin-top:16px;border:1px solid rgba(72,219,251,0.15);box-shadow:0 8px 24px var(--blue-dim)}
     .water-info{display:flex;flex-direction:column}
-    .water-title{color:var(--blue);font-weight:700;font-size:1rem}
-    .water-sub{color:var(--muted);font-size:.8rem}
-    .water-controls{display:flex;align-items:center;gap:15px}
-    .water-btn{width:36px;height:36px;border-radius:18px;border:none;background:var(--blue);color:#fff;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .water-btn.minus{background:rgba(0,168,255,0.2);color:var(--blue)}
+    .water-title{color:var(--blue);font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:6px}
+    .water-sub{color:var(--muted);font-size:.85rem;font-weight:600;margin-top:4px}
+    .water-controls{display:flex;align-items:center;gap:10px}
+    .water-btn{height:44px;border-radius:22px;border:none;font-size:1rem;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0 16px;transition:transform .2s}
+    .water-btn:active{transform:scale(0.92)}
+    .water-btn.add{background:var(--blue);color:#111;box-shadow:0 4px 12px var(--blue-dim)}
+    .water-btn.minus{background:rgba(255,255,255,0.05);color:var(--muted);padding:0 16px}
 
-    /* Meals */
-    .meal-item{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #222}
-    .meal-item:last-child{border:none}
-    .meal-thumb{width:60px;height:60px;border-radius:12px;object-fit:cover;background:#222;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
-    .meal-info{flex:1;min-width:0}.meal-name{font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
-    .meal-meta{font-size:.8rem;color:var(--muted)}.meal-kcal{font-weight:800;color:var(--accent);font-size:1.1rem;white-space:nowrap}
-    .meal-del{background:#222;border:none;color:var(--muted);width:32px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
-    .meal-del:active{background:var(--accent);color:#fff}
+    /* MEALS LIST */
+    .meal-item{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .meal-item:last-child{border:none;padding-bottom:0}
+    .meal-thumb{width:56px;height:56px;border-radius:16px;object-fit:cover;background:rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+    .meal-info{flex:1;min-width:0}
+    .meal-name{font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;color:var(--text)}
+    .meal-meta{font-size:.8rem;color:var(--muted);font-weight:500}
+    .meal-kcal{font-weight:800;color:var(--accent);font-size:1.2rem;white-space:nowrap;text-align:right}
+    .meal-del{background:rgba(255,255,255,0.05);border:none;color:var(--muted);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;margin-left:8px}
+    .meal-del:active{background:var(--accent);color:#fff;transform:scale(0.9)}
 
-    /* Search & Results */
-    .search-header{display:flex;gap:10px;margin-bottom:10px}
+    /* SEARCH WRAPPER */
+    .search-header{display:flex;gap:10px;margin-bottom:14px}
     .search-wrap{position:relative;flex:1}
-    .search-wrap input{padding-left:40px;background:#111;border:none}
-    .search-wrap::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1rem}
-    .btn-recent{background:#222;border:none;color:var(--text);border-radius:12px;padding:0 15px;cursor:pointer;font-size:1.2rem}
+    .search-wrap input{padding-left:44px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05)}
+    .search-wrap::before{content:'🔍';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;opacity:0.7}
+    .btn-recent{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);color:var(--text);border-radius:14px;padding:0 16px;cursor:pointer;font-size:1.2rem;transition:background .2s}
+    .btn-recent:active{background:var(--card)}
     
-    .results{max-height:350px;overflow-y:auto;border-radius:12px}
-    .result-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:#1a1a2e;border-bottom:1px solid #222;cursor:pointer;transition:background .2s}
+    .results{max-height:350px;overflow-y:auto;border-radius:16px;background:rgba(0,0,0,0.15);padding:4px}
+    .result-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border-radius:12px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(255,255,255,0.02)}
     .result-item:hover, .result-item:active{background:var(--card-hover)}
     .result-item:last-child{border-bottom:none}
-    
-    .ingredient-row{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #222;font-size:.95rem}
+
+    /* INGREDIENT ROW */
+    .ingredient-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
     .ingredient-row:last-child{border:none}
-    .ing-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
-    .ing-detail{color:var(--muted);font-size:.85rem;background:#222;padding:2px 6px;border-radius:6px}
-    .ing-kcal{font-weight:700;color:var(--accent);white-space:nowrap;min-width:60px;text-align:right}
-    .ing-del{background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer}
-    .recipe-total{display:flex;justify-content:space-between;align-items:center;padding:15px 0;margin-top:10px;border-top:2px solid var(--accent);font-weight:800;font-size:1.2rem}
+    .ing-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+    .ing-detail{color:var(--text);font-size:.8rem;background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:8px;font-weight:700}
+    .ing-kcal{font-weight:800;color:var(--accent);min-width:65px;text-align:right}
 
-    /* Modal de porção */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
-    .modal-box{background:var(--card);border-radius:var(--radius);padding:25px;width:100%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
-    .modal-box h3{margin-bottom:15px;font-size:1.1rem}
-    .portion-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-    .portion-btn{padding:8px 14px;border-radius:20px;border:1px solid #333;background:#111;color:var(--text);font-size:.85rem;cursor:pointer;transition:all .2s}
-    .portion-btn.active{border-color:var(--accent);background:rgba(233,69,96,0.15);color:var(--accent)}
+    /* NAVIGATION (BOTTOM) */
+    nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;justify-content:space-around;padding:12px 0 calc(var(--safe-bottom) + 12px);border-top:1px solid rgba(255,255,255,0.05);z-index:100}
+    .nav-btn{background:none;border:none;color:var(--muted);font-size:.7rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px 20px;transition:color .2s}
+    .nav-btn.active{color:var(--accent)}.nav-btn span{font-size:1.6rem;transition:transform .2s}
+    .nav-btn.active span{transform:scale(1.15)}
 
-    /* Manual entry */
-    .manual-entry{background:#111;border-radius:12px;padding:15px;margin-top:10px}
-    .manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .manual-grid input{padding:10px;font-size:.9rem}
-
-    /* Photo Area */
-    .photo-area{border:2px dashed #333;background:#111;border-radius:16px;padding:25px;text-align:center;cursor:pointer;position:relative;overflow:hidden;margin-top:15px;transition:border-color .2s}
-    .photo-area:active{border-color:var(--accent)}
-    .photo-area input{position:absolute;inset:0;opacity:0;cursor:pointer}
-    .photo-preview{width:100%;border-radius:12px;margin-top:15px;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
-
-    nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,46,0.95);backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:10px 0 calc(var(--safe-bottom) + 10px);border-top:1px solid #222;z-index:100}
-    .nav-btn{background:none;border:none;color:var(--muted);font-size:.7rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 20px}
-    .nav-btn.active{color:var(--accent)}.nav-btn span{font-size:1.5rem}
-    
     .page{display:none}.page.active{display:block;animation:fadeIn .3s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     
-    .mt{margin-top:10px}.mb{margin-bottom:10px}.center{text-align:center}
-    .tag{display:inline-block;padding:6px 12px;border-radius:20px;font-size:.8rem;font-weight:700}
-    .tag-ok{background:rgba(0,212,116,0.15);color:var(--green)}.tag-warn{background:rgba(245,166,35,0.15);color:var(--yellow)}.tag-over{background:rgba(233,69,96,0.15);color:var(--accent)}
-    .empty{text-align:center;color:var(--muted);padding:40px 0;font-size:1rem;display:flex;flex-direction:column;align-items:center;gap:10px}
-    .loader{display:inline-block;width:24px;height:24px;border:3px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    .tag{display:inline-block;padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;letter-spacing:0.3px}
+    .tag-ok{background:var(--green-dim);color:var(--green)}.tag-warn{background:var(--yellow-dim);color:var(--yellow)}.tag-over{background:var(--accent-dim);color:var(--accent)}
+    .empty{text-align:center;color:var(--muted);padding:50px 0;font-size:1rem;display:flex;flex-direction:column;align-items:center;gap:12px;font-weight:500}
+    .loader{display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .hidden{display:none!important}
+    .mt{margin-top:16px}.mb{margin-bottom:16px}.center{text-align:center}
 
-    /* Toast Notification */
-    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#fff;padding:12px 24px;border-radius:30px;font-weight:700;font-size:.9rem;box-shadow:0 4px 15px rgba(0,212,116,0.4);transition:transform .3s cubic-bezier(0.4,0,0.2,1);z-index:1000;display:flex;align-items:center;gap:8px}
-    .toast.show{transform:translateX(-50%) translateY(0)}
-    .toast.error{background:var(--accent);box-shadow:0 4px 15px rgba(233,69,96,0.4)}
+    .toast{position:fixed;top:env(safe-area-inset-top, 20px);left:50%;transform:translateX(-50%) translateY(-100px);background:var(--card);color:var(--text);padding:14px 24px;border-radius:30px;font-weight:700;font-size:.95rem;box-shadow:0 10px 30px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);transition:transform .4s cubic-bezier(0.16, 1, 0.3, 1);z-index:1000;display:flex;align-items:center;gap:10px}
+    .toast.show{transform:translateX(-50%) translateY(20px)}
+    .toast.error{border-color:var(--accent);color:var(--accent)}
 
-    .auth-box{max-width:460px;margin:0 auto}
+    /* MODAL BOTTOM SHEET (GAVETA INFERIOR) */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+    .modal-overlay.show{opacity:1;pointer-events:auto}
+    .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s cubic-bezier(0.16, 1, 0.3, 1)}
+    .modal-overlay.show .modal-box{transform:translateY(0)}
+    .modal-drag-handle{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;margin:0 auto 20px}
+    .modal-box h3{margin-bottom:20px;font-size:1.3rem;font-weight:800;text-align:center}
+    
+    .portion-presets{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+    .portion-btn{flex:1;min-width:60px;padding:12px 0;border-radius:14px;border:1px solid rgba(255,255,255,0.05);background:var(--card);color:var(--text);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .portion-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+    .portion-preview-box{background:var(--card);padding:16px;border-radius:16px;margin:20px 0;font-size:.95rem;border:1px solid rgba(255,255,255,0.02)}
 
-    /* ===== PROGRESS PAGE REDESIGN ===== */
-    .progress-tabs{display:flex;gap:6px;margin-bottom:16px;background:#111;padding:4px;border-radius:14px}
-    .progress-tab{flex:1;padding:10px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
-    .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+    /* PROGRESS PAGE */
+    .progress-tabs{display:flex;gap:8px;margin-bottom:20px;background:rgba(0,0,0,0.3);padding:6px;border-radius:16px;overflow-x:auto}
+    .progress-tab{flex:1;min-width:90px;padding:12px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;text-align:center;transition:all .2s}
+    .progress-tab.active{background:var(--card);color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
     .progress-section{display:none;animation:fadeIn .3s ease}
     .progress-section.active{display:block}
 
-    .cal-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    .cal-stat-item{background:var(--card);border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:4px}
-    .cal-stat-icon{font-size:1.4rem}
-    .cal-stat-value{font-size:1.5rem;font-weight:800}
-    .cal-stat-label{font-size:.72rem;color:var(--muted);text-align:center}
+    .cal-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+    .cal-stat-item{background:var(--card);border-radius:20px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.02)}
+    .cal-stat-icon{font-size:1.8rem}
+    .cal-stat-value{font-size:1.6rem;font-weight:800;letter-spacing:-0.5px}
+    .cal-stat-label{font-size:.75rem;color:var(--muted);text-align:center;font-weight:600}
 
-    .section-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-    .section-title::after{content:'';flex:1;height:1px;background:#222}
+    .section-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .section-title::after{content:'';flex:1;height:2px;background:rgba(255,255,255,0.05);border-radius:2px}
 
-    .chart-container{position:relative;width:100%;height:200px}
+    .chart-container{position:relative;width:100%;height:220px}
     .chart-container canvas{width:100%!important;height:100%!important}
-    .chart-container-tall{height:240px}
+    .chart-container-tall{height:260px}
 
-    /* Weight Input Card */
-    .weight-input-card{background:linear-gradient(135deg, rgba(0,168,255,0.1), rgba(233,69,96,0.05));border:1px solid rgba(0,168,255,0.2);border-radius:var(--radius);padding:20px;margin-bottom:12px}
-    .weight-input-row{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
-    .weight-input-row input{flex:1}
-    .weight-today-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,116,0.15);color:var(--green);padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:700;margin-top:10px}
+    /* WEIGHT SECTION */
+    .weight-input-card{background:linear-gradient(135deg, var(--card), rgba(255,71,87,0.05));border:1px solid rgba(255,71,87,0.1);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+    .weight-input-row{display:flex;gap:12px;align-items:stretch;margin-top:16px}
+    .weight-input-row input{flex:1;font-size:1.2rem;font-weight:800;text-align:center}
+    .weight-today-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-dim);color:var(--green);padding:8px 16px;border-radius:20px;font-size:.85rem;font-weight:800;margin-top:16px}
 
-    .weight-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-    .weight-summary .stat-card{background:var(--card);border-radius:12px;padding:12px;text-align:center}
-    .weight-summary .stat-val{font-size:1.3rem;font-weight:800}
-    .weight-summary .stat-label{font-size:.7rem;color:var(--muted);margin-top:4px}
+    .weight-history-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .wh-value{font-weight:800;font-size:1.15rem}
+    .wh-diff{font-size:.8rem;font-weight:800;padding:4px 10px;border-radius:12px}
+    .wh-diff.down{background:var(--green-dim);color:var(--green)}
+    .wh-diff.up{background:var(--accent-dim);color:var(--accent)}
+    .wh-del{background:rgba(255,255,255,0.05);border:none;color:var(--muted);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-    .weight-history-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #222}
-    .weight-history-item:last-child{border:none}
-    .wh-value{font-weight:800;font-size:1.1rem}
-    .wh-diff{font-size:.8rem;font-weight:700;padding:3px 8px;border-radius:12px}
-    .wh-diff.down{background:rgba(0,212,116,0.15);color:var(--green)}
-    .wh-diff.up{background:rgba(233,69,96,0.15);color:var(--accent)}
-    .wh-diff.same{background:rgba(136,136,136,0.15);color:var(--muted)}
-    .wh-del{background:none;border:none;color:#555;font-size:1rem;cursor:pointer;padding:4px 8px}
+    /* WATER SPECIFIC */
+    .water-insight-box{background:linear-gradient(135deg, var(--card), rgba(72,219,251,0.05));border-radius:20px;padding:20px;margin-bottom:16px;border:1px solid rgba(72,219,251,0.15)}
+    .water-insight-title{font-size:1.15rem;font-weight:800;color:var(--blue);margin-bottom:8px}
+    .water-bar-bg{width:100%;height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:hidden}
+    .water-bar-fill{height:100%;border-radius:5px}
 
-    /* Water Specific */
-    .water-insight-box{background:var(--card);border-radius:12px;padding:15px;margin-bottom:12px;border:1px solid rgba(0,168,255,0.2)}
-    .water-insight-title{font-size:1.05rem;font-weight:700;color:var(--blue);margin-bottom:6px}
-    .water-bar-bg{width:100%;height:8px;background:#222;border-radius:4px;overflow:hidden}
-    .water-bar-fill{height:100%;border-radius:4px}
+    .auth-box{max-width:400px;margin:0 auto}
   </style>
 </head>
 <body>
@@ -176,14 +202,17 @@
 <!-- TOAST -->
 <div id="toast" class="toast">✓ Sucesso!</div>
 
-<!-- MODAL DE PORÇÃO -->
-<div id="portionModal" class="modal-overlay hidden" onclick="if(event.target===this)closePortionModal()">
+<!-- MODAL DE PORÇÃO (BOTTOM SHEET) -->
+<div id="portionModal" class="modal-overlay" onclick="if(event.target===this)closePortionModal()">
   <div class="modal-box">
+    <div class="modal-drag-handle"></div>
     <h3 id="portionTitle">Ajustar porção</h3>
-    <div style="margin:12px 0">
-      <label>Quantidade (gramas/ml)</label>
-      <input id="portionGrams" type="number" value="100" min="1" placeholder="100">
+    
+    <div style="margin:20px 0">
+      <label>Quantidade (gramas / ml)</label>
+      <input id="portionGrams" type="number" value="100" min="1" placeholder="Ex: 150" inputmode="numeric">
     </div>
+    
     <div class="portion-presets">
       <button class="portion-btn" onclick="setPortionGrams(25)">25g</button>
       <button class="portion-btn" onclick="setPortionGrams(50)">50g</button>
@@ -191,9 +220,13 @@
       <button class="portion-btn" onclick="setPortionGrams(150)">150g</button>
       <button class="portion-btn" onclick="setPortionGrams(200)">200g</button>
     </div>
-    <div id="portionPreview" style="background:#111;padding:12px;border-radius:10px;margin:10px 0;font-size:.9rem"></div>
-    <button class="btn btn-green" onclick="confirmPortion()">✅ Adicionar</button>
-    <button class="btn btn-outline mt" onclick="closePortionModal()">Cancelar</button>
+    
+    <div id="portionPreview" class="portion-preview-box"></div>
+    
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn btn-outline" style="flex:1" onclick="closePortionModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="confirmPortion()">Adicionar</button>
+    </div>
   </div>
 </div>
 
@@ -202,17 +235,17 @@
   <h1>🔥 <span>Calorie</span>Tracker</h1>
   <div class="auth-box">
     <div class="card">
-      <h2 style="text-align:center;margin-bottom:20px;font-size:1.2rem">Iniciar Sessão</h2>
+      <h2 style="text-align:center;margin-bottom:24px;font-size:1.3rem;font-weight:800">Iniciar Sessão</h2>
       <label>Email</label>
       <input id="authEmail" type="email" placeholder="seuemail@exemplo.com">
       <div class="mt"></div>
       <label>Palavra-passe</label>
       <input id="authPass" type="password" placeholder="********">
-      <div class="mt" style="margin-top:20px"></div>
-      <button class="btn btn-primary" onclick="signIn()">Entrar</button>
+      <div class="mt" style="margin-top:24px"></div>
+      <button class="btn btn-primary" onclick="signIn()">Entrar no Diário</button>
       <div class="mt"></div>
-      <button class="btn btn-outline" onclick="signUp()">Criar conta</button>
-      <p id="authMsg" class="center mt" style="font-size:.8rem;color:var(--accent);min-height:20px"></p>
+      <button class="btn btn-outline" onclick="signUp()">Criar nova conta</button>
+      <p id="authMsg" class="center mt" style="font-size:.85rem;color:var(--accent);min-height:20px;font-weight:600"></p>
     </div>
   </div>
 </div>
@@ -221,7 +254,7 @@
 <div id="setup" class="page">
   <h1>🔥 <span>Calorie</span>Tracker</h1>
   <div class="card">
-    <p class="center mb" style="font-size:.9rem;color:var(--muted)">Configure o seu perfil para calcular a sua meta</p>
+    <p class="center mb" style="font-size:.95rem;color:var(--muted);font-weight:500">Configure o seu perfil para calcular a meta</p>
     <div class="grid">
       <div><label>Sexo</label><select id="sex"><option value="M">Masculino</option><option value="F">Feminino</option></select></div>
       <div><label>Idade</label><input id="age" type="number" placeholder="Ex: 25"></div>
@@ -230,21 +263,23 @@
       <div><label>Peso Objetivo (kg)</label><input id="goal" type="number" placeholder="Ex: 70"></div>
       <div><label>Atividade</label><select id="activity"><option value="1.2">Sedentário</option><option value="1.375">Leve</option><option value="1.55" selected>Moderado</option><option value="1.725">Intenso</option><option value="1.9">Atleta</option></select></div>
     </div>
-    <button class="btn btn-primary mt" style="margin-top:20px" onclick="saveProfile()">Começar 🚀</button>
+    <button class="btn btn-primary mt" style="margin-top:24px" onclick="saveProfile()">Começar a Registar 🚀</button>
   </div>
 </div>
 
 <!-- HOME -->
 <div id="home" class="page">
-  <div class="date-nav">
-    <button class="date-btn" onclick="changeDate(-1)">◀</button>
-    <div class="date-text" id="displayDate">Hoje</div>
-    <button class="date-btn" onclick="changeDate(1)" id="btnNextDate" style="visibility:hidden">▶</button>
+  <div class="date-nav-wrapper">
+    <div class="date-nav">
+      <button class="date-btn" onclick="changeDate(-1)">◀</button>
+      <div class="date-text" id="displayDate">Hoje</div>
+      <button class="date-btn" onclick="changeDate(1)" id="btnNextDate" style="visibility:hidden">▶</button>
+    </div>
   </div>
 
-  <div class="card">
+  <div class="card" style="padding-top:30px">
     <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
+      <svg viewBox="0 0 200 200"><circle class="ring-bg" cx="100" cy="100" r="88"/><circle class="ring-fg" id="ringFg" cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="552.92"/></svg>
       <div class="ring-content">
         <div class="ring-text" id="kcalNow">0</div>
         <div class="ring-sub">de <b id="kcalGoal">0</b> kcal</div>
@@ -252,29 +287,29 @@
     </div>
     <div class="center mt mb" id="statusTag"></div>
     <div class="macro-bar-container">
-      <div class="macro-item"><span class="macro-label">Proteína (<span id="pctP">0</span>%)</span><span class="macro-val" id="macroP">0g</span><div class="progress-bg"><div class="progress-fill" id="barP" style="background:var(--blue);width:0%"></div></div></div>
-      <div class="macro-item"><span class="macro-label">Carbos (<span id="pctC">0</span>%)</span><span class="macro-val" id="macroC">0g</span><div class="progress-bg"><div class="progress-fill" id="barC" style="background:var(--yellow);width:0%"></div></div></div>
-      <div class="macro-item"><span class="macro-label">Gordura (<span id="pctG">0</span>%)</span><span class="macro-val" id="macroG">0g</span><div class="progress-bg"><div class="progress-fill" id="barG" style="background:var(--accent);width:0%"></div></div></div>
+      <div class="macro-item"><span class="macro-label">Proteína <span id="pctP" style="color:var(--text)">0%</span></span><div class="progress-bg"><div class="progress-fill" id="barP" style="background:var(--blue);width:0%"></div></div><span class="macro-val" id="macroP" style="margin-top:8px">0g</span></div>
+      <div class="macro-item"><span class="macro-label">Carbos <span id="pctC" style="color:var(--text)">0%</span></span><div class="progress-bg"><div class="progress-fill" id="barC" style="background:var(--yellow);width:0%"></div></div><span class="macro-val" id="macroC" style="margin-top:8px">0g</span></div>
+      <div class="macro-item"><span class="macro-label">Gordura <span id="pctG" style="color:var(--text)">0%</span></span><div class="progress-bg"><div class="progress-fill" id="barG" style="background:var(--accent);width:0%"></div></div><span class="macro-val" id="macroG" style="margin-top:8px">0g</span></div>
     </div>
   </div>
 
   <div class="water-tracker">
     <div class="water-info">
-      <span class="water-title">💧 Água</span>
-      <span class="water-sub"><span id="waterCount">0</span> ml consumidos</span>
+      <span class="water-title">💧 Hidratação</span>
+      <span class="water-sub"><span id="waterCount" style="color:var(--text);font-weight:800;font-size:1.05rem">0</span> ml consumidos</span>
     </div>
     <div class="water-controls">
       <button class="water-btn minus" onclick="logWater(-250)">-</button>
-      <button class="water-btn" onclick="logWater(250)">+</button>
+      <button class="water-btn add" onclick="logWater(250)">+250ml</button>
     </div>
   </div>
 
-  <div class="card" style="margin-top:15px">
-    <label style="font-size:1.1rem;margin-bottom:15px;color:var(--text)">Adicionar Refeição</label>
+  <div class="card" style="margin-top:20px">
+    <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
       <button class="tab" data-tab="barcode" onclick="switchTab('barcode')">📷 Código</button>
-      <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Montar</button>
+      <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
       <button class="tab" data-tab="manual" onclick="switchTab('manual')">✏️ Manual</button>
     </div>
 
@@ -284,56 +319,56 @@
         <div class="search-wrap"><input id="foodSearch" type="text" placeholder="Ex: pão, frango, maçã..." enterkeyhint="search"></div>
         <button class="btn-recent" onclick="showRecent()" title="Ver recentes">🕒</button>
       </div>
-      <div id="searchResults" class="results"></div>
+      <div id="searchResults" class="results" style="background:transparent;padding:0"></div>
     </div>
 
     <div id="tabBarcode" class="hidden">
-      <label>Código de barras</label>
+      <label>Código de barras do pacote</label>
       <input id="barcodeInput" type="text" placeholder="Ex: 5601234567890" inputmode="numeric" enterkeyhint="search">
-      <button class="btn btn-blue mt" onclick="searchBarcode()">🔍 Procurar</button>
-      <div id="barcodeResults" class="results mt"></div>
+      <button class="btn btn-blue mt" onclick="searchBarcode()">🔍 Procurar Produto</button>
+      <div id="barcodeResults" class="results mt" style="background:transparent;padding:0"></div>
     </div>
 
     <div id="tabRecipe" class="hidden">
-      <input id="recipeName" type="text" placeholder="Nome da refeição (ex: Almoço)" class="mb">
-      <div style="display:flex;gap:8px;align-items:center">
+      <input id="recipeName" type="text" placeholder="Nome da receita (ex: Salada de Atum)" class="mb">
+      <div style="display:flex;gap:10px;align-items:center">
         <input id="ingName" type="text" placeholder="Ingrediente" style="flex:2">
-        <input id="ingWeight" type="number" placeholder="g" style="flex:0.7">
-        <button class="btn btn-primary btn-sm" onclick="searchIngredient()">+</button>
+        <button class="btn btn-primary btn-sm" onclick="searchIngredient()" style="padding:14px;border-radius:14px">🔍</button>
       </div>
-      <div id="ingResults" class="results mt"></div>
-      <div id="ingredientList" style="margin-top:10px"></div>
+      <div id="ingResults" class="results mt" style="background:transparent;padding:0"></div>
+      <div id="ingredientList" style="margin-top:16px"></div>
       <div id="recipeTotal" class="hidden">
-        <div class="recipe-total"><div>Total</div><span id="recipeTotalKcal">0 kcal</span></div>
-        <div style="display:flex;gap:10px;margin-top:15px"><button class="btn btn-green" style="flex:1" onclick="saveRecipe(true)">✅ Guardar</button></div>
+        <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total Receita</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
+        <div style="display:flex;gap:12px;margin-top:20px"><button class="btn btn-green" onclick="saveRecipe(true)">✅ Guardar e Consumir</button></div>
       </div>
     </div>
 
     <div id="tabManual" class="hidden">
       <div class="manual-entry">
-        <h4>✏️ Entrada manual</h4>
-        <input id="manualName" type="text" placeholder="Ex: Bolo caseiro" class="mb">
+        <h4 style="font-size:1.05rem;color:var(--text);margin-bottom:16px">✏️ Introdução Manual</h4>
+        <label>Nome</label>
+        <input id="manualName" type="text" placeholder="Ex: Fatia de Bolo" class="mb">
         <div class="manual-grid">
-          <div><label>Kcal</label><input id="manualKcal" type="number" placeholder="0"></div>
-          <div><label>Porção(g)</label><input id="manualGrams" type="number" placeholder="100"></div>
-          <div><label>Proteína</label><input id="manualProtein" type="number" placeholder="0"></div>
-          <div><label>Carbos</label><input id="manualCarbs" type="number" placeholder="0"></div>
-          <div><label>Gordura</label><input id="manualFat" type="number" placeholder="0"></div>
+          <div><label>Calorias</label><input id="manualKcal" type="number" placeholder="0"></div>
+          <div><label>Quantidade (g)</label><input id="manualGrams" type="number" placeholder="100"></div>
+          <div><label>Proteína (g)</label><input id="manualProtein" type="number" placeholder="0"></div>
+          <div><label>Carbos (g)</label><input id="manualCarbs" type="number" placeholder="0"></div>
+          <div><label>Gordura (g)</label><input id="manualFat" type="number" placeholder="0"></div>
         </div>
-        <button class="btn btn-green mt" onclick="addManualFood()">✅ Adicionar</button>
+        <button class="btn btn-primary mt" style="margin-top:20px" onclick="addManualFood()">Adicionar ao Diário</button>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <label style="font-size:1.1rem;margin-bottom:15px;color:var(--text)">Refeições Registadas</label>
-    <div id="mealList"><div class="empty"><span style="font-size:2rem">🍽️</span>Nenhum registo ainda</div></div>
+    <label style="font-size:1.15rem;margin-bottom:8px;color:var(--text);font-weight:800">Diário de Hoje</label>
+    <div id="mealList"><div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares</div></div>
   </div>
 </div>
 
 <!-- ============ PROGRESS (REDESIGNED) ============ -->
 <div id="progress" class="page">
-  <h1 style="margin-bottom:8px">📈 <span>Evolução</span></h1>
+  <h1 style="margin-bottom:12px">📈 <span>Evolução</span></h1>
 
   <!-- Sub-tabs -->
   <div class="progress-tabs">
@@ -345,10 +380,10 @@
   <!-- ===== CALORIES SECTION ===== -->
   <div id="progressCalories" class="progress-section active">
     <div class="cal-stats-grid">
-      <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statAvg" style="color:var(--blue)">0</div><div class="cal-stat-label">Média 7d (kcal)</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statAvg" style="color:var(--text)">0</div><div class="cal-stat-label">Média 7d (kcal)</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">🏆</div><div class="cal-stat-value" id="statBest" style="color:var(--green)">0</div><div class="cal-stat-label">Melhor dia (kcal)</div></div>
       <div class="cal-stat-item"><div class="cal-stat-icon">⚠️</div><div class="cal-stat-value" id="statWorst" style="color:var(--yellow)">0</div><div class="cal-stat-label">Pior dia (kcal)</div></div>
-      <div class="cal-stat-item"><div class="cal-stat-icon">🎯</div><div class="cal-stat-value" id="statDays" style="color:var(--accent)">0</div><div class="cal-stat-label">Dias na meta</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">🎯</div><div class="cal-stat-value" id="statDays" style="color:var(--blue)">0</div><div class="cal-stat-label">Dias na meta</div></div>
     </div>
     
     <div class="card">
@@ -357,7 +392,7 @@
     </div>
     
     <div class="card">
-      <div class="section-title">Últimos 14 dias</div>
+      <div class="section-title">Tendência 14 dias</div>
       <div class="chart-container chart-container-tall"><canvas id="chartCal14"></canvas></div>
     </div>
   </div>
@@ -366,22 +401,22 @@
   <div id="progressWeight" class="progress-section">
     <!-- Input Card -->
     <div class="weight-input-card">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:1.6rem">⚖️</span>
-        <div><div style="font-weight:700;font-size:1.05rem">Registar peso de hoje</div><div style="font-size:.8rem;color:var(--muted)" id="weightDateLabel"></div></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:2rem">⚖️</span>
+        <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">Registar peso diário</div><div style="font-size:.85rem;color:var(--muted);font-weight:600" id="weightDateLabel"></div></div>
       </div>
       <div class="weight-input-row">
         <input id="weightInput" type="number" step="0.1" placeholder="Ex: 78.5" inputmode="decimal">
-        <button class="btn btn-blue" onclick="saveWeight()" style="white-space:nowrap">Guardar</button>
+        <button class="btn btn-primary" onclick="saveWeight()" style="padding:0 24px;width:auto">Guardar</button>
       </div>
       <div id="weightTodayBadge"></div>
     </div>
     
     <!-- Summary -->
-    <div class="weight-summary">
-      <div class="stat-card"><div class="stat-val" id="weightCurrent" style="color:var(--blue)">--</div><div class="stat-label">Peso atual</div></div>
-      <div class="stat-card"><div class="stat-val" id="weightChange" style="color:var(--green)">--</div><div class="stat-label">Variação</div></div>
-      <div class="stat-card"><div class="stat-val" id="weightGoalDiff" style="color:var(--accent)">--</div><div class="stat-label">Falta p/ meta</div></div>
+    <div class="cal-stats-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightCurrent" style="color:var(--text);font-size:1.3rem">--</div><div class="cal-stat-label">Atual</div></div>
+      <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightChange" style="color:var(--green);font-size:1.3rem">--</div><div class="cal-stat-label">Variação</div></div>
+      <div class="cal-stat-item" style="padding:16px 10px"><div class="cal-stat-value" id="weightGoalDiff" style="color:var(--accent);font-size:1.3rem">--</div><div class="cal-stat-label">Falta</div></div>
     </div>
     
     <!-- Charts & History -->
@@ -396,16 +431,16 @@
     <div id="waterInsights"></div>
 
     <div class="cal-stats-grid">
-      <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statWaterAvg" style="color:var(--blue)">0</div><div class="cal-stat-label">Média 7d (ml)</div></div>
-      <div class="cal-stat-item"><div class="cal-stat-icon">🏆</div><div class="cal-stat-value" id="statWaterBest" style="color:var(--green)">0</div><div class="cal-stat-label">Melhor dia (ml)</div></div>
-      <div class="cal-stat-item"><div class="cal-stat-icon">🎯</div><div class="cal-stat-value" id="statWaterDays" style="color:var(--blue)">0</div><div class="cal-stat-label">Dias na Meta</div></div>
-      <div class="cal-stat-item"><div class="cal-stat-icon">🌊</div><div class="cal-stat-value" id="statWaterTotal" style="color:var(--blue)">0</div><div class="cal-stat-label">Total Semanal (L)</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">📊</div><div class="cal-stat-value" id="statWaterAvg" style="color:var(--text)">0</div><div class="cal-stat-label">Média 7d (ml)</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">🏆</div><div class="cal-stat-value" id="statWaterBest" style="color:var(--blue)">0</div><div class="cal-stat-label">Melhor dia (ml)</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">🎯</div><div class="cal-stat-value" id="statWaterDays" style="color:var(--green)">0</div><div class="cal-stat-label">Dias na Meta</div></div>
+      <div class="cal-stat-item"><div class="cal-stat-icon">🌊</div><div class="cal-stat-value" id="statWaterTotal" style="color:var(--blue)">0</div><div class="cal-stat-label">Semana (L)</div></div>
     </div>
 
     <!-- Comparação Água x Calorias -->
     <div class="card">
-      <div class="section-title">Comparação Diária: Água vs Calorias</div>
-      <p style="font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.4">Verifique se nos dias em que come mais calorias bebe menos água. A desidratação muitas vezes aumenta o apetite e confunde a saciedade.</p>
+      <div class="section-title">Balanço: Água vs Calorias</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;font-weight:500">Verifique se nos dias em que consome mais calorias tem bebido pouca água. Muitas vezes o cérebro confunde sede com fome.</p>
       <div id="waterComparison"></div>
     </div>
 
@@ -419,11 +454,11 @@
 
 <!-- PROFILE -->
 <div id="profile" class="page">
-  <h1 style="margin-bottom:15px">👤 <span>Perfil</span></h1>
+  <h1 style="margin-bottom:20px">👤 <span>O Meu Perfil</span></h1>
   <div class="card" id="profileInfo" style="line-height:1.6"></div>
-  <button class="btn btn-outline mt" onclick="showOnly('setup');setNavVisible(false)">✏️ Editar Perfil</button>
-  <button class="btn btn-outline mt" onclick="signOutUser()">Terminar sessão</button>
-  <button class="btn btn-outline mt" style="border-color:#555;color:#888" onclick="resetApp()">Redefinir Todos os Dados</button>
+  <button class="btn btn-outline mt" onclick="showOnly('setup');setNavVisible(false)">✏️ Editar Dados Pessoais</button>
+  <button class="btn btn-outline mt" style="border-color:rgba(255,255,255,0.1);color:var(--muted)" onclick="signOutUser()">🚪 Terminar sessão</button>
+  <button class="btn btn-outline mt" style="border-color:rgba(255,71,87,0.3);color:var(--accent)" onclick="resetApp()">🗑️ Apagar Todos os Dados</button>
 </div>
 
 <nav id="mainNav" style="display:none">
@@ -466,12 +501,11 @@ const LOCAL_FOODS = {
 };
 
 /* ================== ESTADO ================== */
-const CIRCUM = 2 * Math.PI * 52;
+const CIRCUM = 2 * Math.PI * 88; // radius = 88
 const $ = s => document.querySelector(s);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 let currentUser = null;
-let currentPhoto = null;
 let recipeIngredients = [];
 let _searchItems = [];
 let _ingredientItems = [];
@@ -499,7 +533,9 @@ const docRef = () => db.collection('users').doc(currentUser.uid).collection('app
 
 /* ================== UTILITÁRIOS ================== */
 function showToast(msg, isError = false) {
-  const t = $('#toast'); t.innerHTML = isError ? `⚠️ ${msg}` : `✓ ${msg}`; t.className = `toast ${isError ? 'error' : ''} show`;
+  const t = $('#toast'); t.innerHTML = isError ? `⚠️ ${msg}` : `✓ ${msg}`; 
+  if(isError) t.classList.add('error'); else t.classList.remove('error');
+  t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 function setNavVisible(show){ $('#mainNav').style.display = show ? 'flex' : 'none'; }
@@ -527,12 +563,12 @@ async function loadCloudState(){
 /* ================== AUTH ================== */
 async function signUp(){
   const email = $('#authEmail').value.trim(), pass = $('#authPass').value.trim();
-  if(!email || pass.length < 6) return $('#authMsg').textContent = 'Email ou senha inválidos.';
+  if(!email || pass.length < 6) return $('#authMsg').textContent = 'Email ou senha inválidos (mínimo 6 chars).';
   try{ await auth.createUserWithEmailAndPassword(email, pass); $('#authMsg').textContent = 'A iniciar...'; }catch(e){ $('#authMsg').textContent = e.message; }
 }
 async function signIn(){
   const email = $('#authEmail').value.trim(), pass = $('#authPass').value.trim();
-  try{ await auth.signInWithEmailAndPassword(email, pass); }catch(e){ $('#authMsg').textContent = 'Erro ao entrar.'; }
+  try{ await auth.signInWithEmailAndPassword(email, pass); }catch(e){ $('#authMsg').textContent = 'Credenciais incorretas.'; }
 }
 async function signOutUser(){ await auth.signOut(); }
 
@@ -580,7 +616,8 @@ function calcGoal(p){
 }
 function saveProfile(){
   const p = { sex:$('#sex').value, age:+$('#age').value, height:+$('#height').value, weight:+$('#weight').value, goal:+$('#goal').value, activity:+$('#activity').value };
-  p.kcalGoal = calcGoal(p); setState('ct_profile', p); showToast('Perfil salvo!'); navigate('home');
+  if ([p.age,p.height,p.weight,p.goal].some(v=>!v||v<=0)) return showToast('Preencha os campos com valores válidos.', true);
+  p.kcalGoal = calcGoal(p); setState('ct_profile', p); showToast('Perfil atualizado!'); navigate('home');
 }
 function navigate(page){
   showOnly(page); setNavVisible(['home','progress','profile'].includes(page));
@@ -593,8 +630,8 @@ document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', (
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add('active');
-  ['tabSearch','tabBarcode','tabRecipe','tabManual','tabSaved'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-  const m = { search:'tabSearch', barcode:'tabBarcode', recipe:'tabRecipe', manual:'tabManual', saved:'tabSaved' };
+  ['tabSearch','tabBarcode','tabRecipe','tabManual'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+  const m = { search:'tabSearch', barcode:'tabBarcode', recipe:'tabRecipe', manual:'tabManual' };
   document.getElementById(m[tab])?.classList.remove('hidden');
 }
 
@@ -616,23 +653,23 @@ function renderHome(){
   $('#statusTag').innerHTML = remain > goal*.25 ? `<span class="tag tag-ok">👍 Restam ${remain} kcal</span>` : remain >= 0 ? `<span class="tag tag-warn">⚠️ Faltam ${remain} kcal</span>` : `<span class="tag tag-over">🚫 Excedeu ${Math.abs(remain)} kcal</span>`;
 
   const m = viewingMacros(), goalP = Math.round((goal*.3)/4), goalC = Math.round((goal*.4)/4), goalG = Math.round((goal*.3)/9);
-  $('#macroP').textContent = `${Math.round(m.p)}g / ${goalP}g`; $('#barP').style.width = `${Math.min((m.p/goalP)*100, 100)}%`;
-  $('#macroC').textContent = `${Math.round(m.c)}g / ${goalC}g`; $('#barC').style.width = `${Math.min((m.c/goalC)*100, 100)}%`;
-  $('#macroG').textContent = `${Math.round(m.g)}g / ${goalG}g`; $('#barG').style.width = `${Math.min((m.g/goalG)*100, 100)}%`;
+  $('#macroP').textContent = `${Math.round(m.p)}g`; $('#barP').style.width = `${Math.min((m.p/goalP)*100, 100)}%`;
+  $('#macroC').textContent = `${Math.round(m.c)}g`; $('#barC').style.width = `${Math.min((m.c/goalC)*100, 100)}%`;
+  $('#macroG').textContent = `${Math.round(m.g)}g`; $('#barG').style.width = `${Math.min((m.g/goalG)*100, 100)}%`;
   
   const totalMacroKcal = (m.p*4) + (m.c*4) + (m.g*9);
-  $('#pctP').textContent = totalMacroKcal > 0 ? Math.round((m.p*4 / totalMacroKcal)*100) : 0;
-  $('#pctC').textContent = totalMacroKcal > 0 ? Math.round((m.c*4 / totalMacroKcal)*100) : 0;
-  $('#pctG').textContent = totalMacroKcal > 0 ? Math.round((m.g*9 / totalMacroKcal)*100) : 0;
+  $('#pctP').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.p*4 / totalMacroKcal)*100)}%` : '0%';
+  $('#pctC').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.c*4 / totalMacroKcal)*100)}%` : '0%';
+  $('#pctG').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.g*9 / totalMacroKcal)*100)}%` : '0%';
 
   $('#waterCount').textContent = viewingWater();
   
   const meals = viewingMeals();
-  if(!meals.length){ $('#mealList').innerHTML='<div class="empty">Sem registos</div>'; return; }
+  if(!meals.length){ $('#mealList').innerHTML='<div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares</div>'; return; }
   $('#mealList').innerHTML = meals.map((ml,i)=>`
     <div class="meal-item"><div class="meal-thumb">${ml.isRecipe?'🧑‍🍳':'🍽️'}</div>
-    <div class="meal-info"><div class="meal-name">${ml.name}</div><div class="meal-meta">${Math.round(ml.protein)}g P · ${Math.round(ml.carbs)}g C</div></div>
-    <div class="meal-kcal">${ml.kcal} <span style="font-size:.7rem">kcal</span></div><button class="meal-del" onclick="delMeal(${i})">✕</button></div>
+    <div class="meal-info"><div class="meal-name">${ml.name}</div><div class="meal-meta">P:${Math.round(ml.protein)}g · C:${Math.round(ml.carbs)}g</div></div>
+    <div class="meal-kcal">${ml.kcal} <span style="font-size:.7rem;color:var(--muted)">kcal</span></div><button class="meal-del" onclick="delMeal(${i})">✕</button></div>
   `).join('');
 }
 
@@ -653,8 +690,8 @@ function renderSearchResults(){
   if(!_searchItems.length){ $('#searchResults').innerHTML='<div class="empty">Nada encontrado</div>'; return; }
   $('#searchResults').innerHTML = _searchItems.map((it,i)=>`
     <div class="result-item" onclick="openPortionModal(${i}, 'search')">
-      <div style="flex:1"><div style="font-weight:600">${cap(it.name)}</div><div style="font-size:.75rem;color:var(--muted)">por 100g · P:${Math.round(it.protein100)}g</div></div>
-      <div style="font-weight:800;color:var(--accent)">${Math.round(it.kcal100)}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:1.05rem">${cap(it.name)}</div><div style="font-size:.8rem;color:var(--muted);margin-top:4px">por 100g · P: ${it.protein100}g</div></div>
+      <div style="font-weight:800;color:var(--accent);font-size:1.2rem">${Math.round(it.kcal100)}</div>
     </div>
   `).join('');
 }
@@ -663,19 +700,33 @@ function openPortionModal(idx, ctx){
   _selectedItem = ctx === 'search' ? _searchItems[idx] : _ingredientItems[idx]; _portionContext = ctx;
   if(!_selectedItem) return;
   $('#portionTitle').textContent = cap(_selectedItem.name); $('#portionGrams').value = 100;
-  updatePortionPreview(); $('#portionModal').classList.remove('hidden');
+  updatePortionPreview(); 
+  $('#portionModal').classList.add('show');
 }
-function closePortionModal(){ $('#portionModal').classList.add('hidden'); }
-function setPortionGrams(g){ $('#portionGrams').value = g; updatePortionPreview(); }
-$('#portionGrams').addEventListener('input', updatePortionPreview);
+function closePortionModal(){ $('#portionModal').classList.remove('show'); }
+function setPortionGrams(g){ 
+  $('#portionGrams').value = g; 
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updatePortionPreview(); 
+}
+$('#portionGrams').addEventListener('input', () => {
+  document.querySelectorAll('.portion-btn').forEach(b => b.classList.remove('active'));
+  updatePortionPreview();
+});
 function updatePortionPreview(){
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
-  $('#portionPreview').innerHTML = `Calorias: <b style="color:var(--accent)">${p.kcal} kcal</b> <br> P:${p.protein}g C:${p.carbs}g G:${p.fat}g`;
+  $('#portionPreview').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:1.1rem;font-weight:800"><span style="color:var(--text)">Energia</span><span style="color:var(--accent)">${p.kcal} kcal</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Proteína</span><span style="color:var(--text);font-weight:700">${p.protein}g</span></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted)"><span>Carboidratos</span><span style="color:var(--text);font-weight:700">${p.carbs}g</span></div>
+    <div style="display:flex;justify-content:space-between;color:var(--muted)"><span>Gordura</span><span style="color:var(--text);font-weight:700">${p.fat}g</span></div>
+  `;
 }
 function confirmPortion(){
   const p = calcPortion(_selectedItem, +$('#portionGrams').value || 100);
   if(_portionContext === 'search'){
-    saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); showToast('Adicionado!'); $('#foodSearch').value=''; $('#searchResults').innerHTML='';
+    saveMeal({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams }); showToast('Refeição Adicionada!'); $('#foodSearch').value=''; $('#searchResults').innerHTML='';
   } else {
     recipeIngredients.push({ name: cap(_selectedItem.name), kcal:p.kcal, protein:p.protein, carbs:p.carbs, fat:p.fat, grams:p.grams });
     $('#ingName').value=''; renderIngredients();
@@ -688,40 +739,33 @@ function saveMeal(meal){
   all[d].push(meal); setState('ct_meals', all); renderHome();
 }
 function addManualFood(){
-  saveMeal({ name: cap($('#manualName').value), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, isRecipe:false });
-  showToast('Adicionado!');
+  const name = $('#manualName').value.trim();
+  if(!name){ showToast('Digite um nome válido', true); return; }
+  saveMeal({ name: cap(name), kcal: +$('#manualKcal').value||0, protein: +$('#manualProtein').value||0, carbs: +$('#manualCarbs').value||0, fat: +$('#manualFat').value||0, isRecipe:false });
+  showToast('Adicionado com sucesso!');
+  ['manualName','manualKcal','manualGrams','manualProtein','manualCarbs','manualFat'].forEach(id => $(`#${id}`).value = '');
 }
 async function searchBarcode(){
   const code = $('#barcodeInput').value.trim(); if(!code) return;
   $('#barcodeResults').innerHTML='<div class="empty"><div class="loader"></div></div>';
   try{
     const item = await offSearchByBarcode(code);
-    if(item){ _searchItems=[item]; renderSearchResults(); } else { $('#barcodeResults').innerHTML='<div class="empty">Não encontrado</div>'; }
-  }catch{ $('#barcodeResults').innerHTML='Erro.'; }
+    if(item){ _searchItems=[item]; renderSearchResults(); } else { $('#barcodeResults').innerHTML='<div class="empty">Produto não encontrado</div>'; }
+  }catch{ $('#barcodeResults').innerHTML='<div class="empty">Erro na pesquisa</div>'; }
 }
 
 function showRecent(){
   const meals = getMeals();
-  const dates = Object.keys(meals).sort().reverse().slice(0, 5); // ultimos 5 dias
-  const recentItems = [];
-  const added = new Set();
-  
-  dates.forEach(d => {
-    meals[d].forEach(m => {
+  const dates = Object.keys(meals).sort().reverse().slice(0, 5); 
+  const recentItems = []; const added = new Set();
+  dates.forEach(d => { meals[d].forEach(m => {
       if(!m.isRecipe && !added.has(m.name)){
         added.add(m.name);
-        recentItems.push({
-          name: m.name, brand: '(Recente)',
-          kcal100: m.grams ? Math.round(m.kcal / m.grams * 100) : m.kcal,
-          protein100: m.grams ? Math.round(m.protein / m.grams * 100 * 10)/10 : m.protein,
-          carbs100: m.grams ? Math.round(m.carbs / m.grams * 100 * 10)/10 : m.carbs,
-          fat100: m.grams ? Math.round(m.fat / m.grams * 100 * 10)/10 : m.fat
-        });
+        recentItems.push({ name: m.name, brand: 'Recente', kcal100: m.grams ? Math.round(m.kcal / m.grams * 100) : m.kcal, protein100: m.grams ? Math.round(m.protein / m.grams * 100 * 10)/10 : m.protein, carbs100: m.grams ? Math.round(m.carbs / m.grams * 100 * 10)/10 : m.carbs, fat100: m.grams ? Math.round(m.fat / m.grams * 100 * 10)/10 : m.fat });
       }
     });
   });
-
-  _searchItems = recentItems.slice(0, 10);
+  _searchItems = recentItems.slice(0, 15);
   if(!_searchItems.length) $('#searchResults').innerHTML = '<div class="empty">Sem histórico recente.</div>';
   else renderSearchResults();
 }
@@ -736,13 +780,9 @@ function switchProgressTab(tab){
   renderProgress();
 }
 
-function renderProgress(){
-  renderCaloriesProgress();
-  renderWeightProgress();
-  renderWaterProgress();
-}
+function renderProgress(){ renderCaloriesProgress(); renderWeightProgress(); renderWaterProgress(); }
 
-/* --- Calorias (Charts completos restaurados) --- */
+/* --- Calorias --- */
 function renderCaloriesProgress(){
   const meals = getMeals(), goal = getProfile()?.kcalGoal || 2000;
   const last7 = [], last14 = [];
@@ -761,74 +801,68 @@ function renderCaloriesProgress(){
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${vals.filter(v=>v<=goal).length}/7`;
   
-  requestAnimationFrame(() => {
-    drawBarChartCal('chartCal7', last7, goal);
-    drawLineChartCal('chartCal14', last14, goal);
-  });
+  requestAnimationFrame(() => { drawBarChartCal('chartCal7', last7, goal); drawLineChartCal('chartCal14', last14, goal); });
 }
 
 function drawBarChartCal(id,data,goal){
   const canvas = $(`#${id}`); if(!canvas||!canvas.offsetWidth) return;
-  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 200;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 220;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
   
   const pad=35, max=Math.max(...data.map(d=>d.value), goal*1.1), barW=(W-pad*2)/data.length*.6, gap=(W-pad*2)/data.length;
   const goalY = H-pad - ((goal/(max*1.1))*(H-pad*2));
   
-  ctx.strokeStyle='rgba(233,69,96,0.3)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.strokeStyle='rgba(255,71,87,0.3)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
   ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle='rgba(233,69,96,0.6)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta: ${goal}`, W-pad, goalY-6);
+  ctx.fillStyle='rgba(255,71,87,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}`, W-pad, goalY-6);
 
   data.forEach((d,i)=>{
     const x=pad+i*gap+(gap-barW)/2, h=(d.value/(max*1.1))*(H-pad*2), y=H-pad-h;
-    const color = d.value===0 ? '#333' : d.value<=goal*.8 ? '#00d474' : d.value<=goal ? '#f5a623' : '#e94560';
+    const color = d.value===0 ? 'rgba(255,255,255,0.05)' : d.value<=goal*.8 ? '#10ac84' : d.value<=goal ? '#feca57' : '#ff4757';
     const grad = ctx.createLinearGradient(x, y, x, H-pad);
-    grad.addColorStop(0, color); grad.addColorStop(1, color + '44');
+    grad.addColorStop(0, color); grad.addColorStop(1, color + '22');
     ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(h,2),[4,4,0,0]); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(h,2),[6,6,0,0]); ctx.fill();
     
-    if(d.value > 0){
-      ctx.fillStyle='#ccc'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
-      ctx.fillText(d.value, x+barW/2, y-6);
-    }
-    ctx.fillStyle='#666'; ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.weekday, x+barW/2, H-8);
+    if(d.value > 0){ ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.value, x+barW/2, y-6); }
+    ctx.fillStyle='var(--muted)'; ctx.font='600 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.weekday, x+barW/2, H-8);
   });
 }
 
 function drawLineChartCal(id,data,goal){
   const canvas = $(`#${id}`); if(!canvas||!canvas.offsetWidth) return;
-  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 240;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 260;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
   
   const pad=40, vals=data.map(d=>d.value), max=Math.max(...vals, goal*1.1);
   const goalY = H-pad - ((goal/max)*(H-pad*2));
   
-  ctx.strokeStyle='rgba(233,69,96,0.3)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.strokeStyle='rgba(255,71,87,0.3)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
   ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle='rgba(233,69,96,0.6)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta: ${goal}`, W-pad, goalY-5);
+  ctx.fillStyle='rgba(255,71,87,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}`, W-pad, goalY-5);
 
   const pts = data.map((d,i)=>({ x:pad+(i/(data.length-1))*(W-pad*2), y:H-pad-((d.value/max)*(H-pad*2)) }));
   
-  const grad = ctx.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(0,168,255,0.2)'); grad.addColorStop(1,'rgba(0,168,255,0)');
+  const grad = ctx.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(72,219,251,0.2)'); grad.addColorStop(1,'rgba(72,219,251,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts.at(-1).x,H-pad); ctx.fillStyle=grad; ctx.fill();
   
-  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle='#00a8ff'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.stroke();
+  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle='#48dbfb'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
 
   pts.forEach((p,i)=>{
-    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fillStyle=data[i].value<=goal?'#00d474':'#e94560'; ctx.fill();
-    ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
-    if (i%2===0 || i===data.length-1) { ctx.fillStyle='#555'; ctx.font='8px sans-serif'; ctx.textAlign='center'; ctx.fillText(data[i].label, p.x, H-8); }
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle=data[i].value<=goal?'#10ac84':'#ff4757'; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle=var(--bg); ctx.fill();
+    if (i%2===0 || i===data.length-1) { ctx.fillStyle='var(--muted)'; ctx.font='600 8px sans-serif'; ctx.textAlign='center'; ctx.fillText(data[i].label, p.x, H-8); }
   });
 }
 
-/* --- Peso (Gráfico e Histórico restaurados) --- */
+/* --- Peso --- */
 function saveWeight(){
-  const val = parseFloat($('#weightInput').value); if(!val || val<20 || val>400) return showToast('Peso inválido', true);
+  const val = parseFloat($('#weightInput').value); if(!val || val<20 || val>400) return showToast('Insira um peso válido.', true);
   const w = getWeights(), today = todayStr();
   const idx = w.findIndex(x=>x.date===today); if(idx>=0) w[idx].value=val; else w.push({date:today,value:val});
   w.sort((a,b)=>a.date.localeCompare(b.date)); setState('ct_weights', w);
   const p = getProfile(); if(p){ p.weight=val; p.kcalGoal=calcGoal(p); setState('ct_profile', p); }
-  $('#weightInput').value=''; showToast('Peso guardado'); renderWeightProgress();
+  $('#weightInput').value=''; showToast('Peso atualizado com sucesso!'); renderWeightProgress();
 }
 function deleteWeight(idx){
   const w = getWeights(); if(idx<0 || idx>=w.length) return;
@@ -870,13 +904,13 @@ function renderWeightProgress(){
 function drawWeightChart(weights, profile){
   const canvas = $('#chartWeight'); if(!canvas || !canvas.offsetWidth) return;
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
-  const W = canvas.parentElement.offsetWidth, H = 240;
+  const W = canvas.parentElement.offsetWidth, H = 260;
   canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
   
   if(weights.length < 2){
-    ctx.fillStyle = '#555'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2); return;
+    ctx.fillStyle = 'var(--muted)'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Registe pelo menos 2 pesagens', W/2, H/2); return;
   }
   
   const pad = 45, vals = weights.map(w => w.value), goalW = profile ? profile.goal : null;
@@ -888,37 +922,37 @@ function drawWeightChart(weights, profile){
   
   if(goalW !== null){
     const gy = getY(goalW);
-    ctx.strokeStyle='rgba(0,212,116,0.4)'; ctx.lineWidth=1; ctx.setLineDash([6,4]);
+    ctx.strokeStyle='rgba(16,172,132,0.4)'; ctx.lineWidth=1; ctx.setLineDash([6,4]);
     ctx.beginPath(); ctx.moveTo(pad,gy); ctx.lineTo(W-pad,gy); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='rgba(0,212,116,0.7)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left'; ctx.fillText(`Objetivo: ${goalW} kg`, pad + 4, gy - 6);
+    ctx.fillStyle='rgba(16,172,132,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left'; ctx.fillText(`Objetivo ${goalW} kg`, pad + 4, gy - 6);
   }
   
   const pts = weights.map((w,i) => ({ x: pad + (i/(weights.length-1)) * (W - pad*2), y: getY(w.value), val: w.value }));
   
-  const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(233,69,96,0.15)'); grad.addColorStop(1, 'rgba(233,69,96,0)');
+  const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(255,71,87,0.15)'); grad.addColorStop(1, 'rgba(255,71,87,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts.at(-1).x, H - pad);
   ctx.fillStyle = grad; ctx.fill();
   
   ctx.beginPath(); pts.forEach((p,i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-  ctx.strokeStyle = '#e94560'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
   
   pts.forEach((p,i) => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fillStyle = '#e94560'; ctx.fill();
-    ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fillStyle = '#ff4757'; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fillStyle = 'var(--bg)'; ctx.fill();
     
-    ctx.fillStyle = '#ddd'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${p.val}`, p.x, p.y - 12);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${p.val}`, p.x, p.y - 12);
     const showLabel = weights.length <= 10 || i % Math.ceil(weights.length/8) === 0 || i === weights.length-1;
     if(showLabel){
-      const d = new Date(weights[i].date + 'T12:00:00'); ctx.fillStyle = '#555'; ctx.font = '8px sans-serif';
+      const d = new Date(weights[i].date + 'T12:00:00'); ctx.fillStyle = 'var(--muted)'; ctx.font = '600 8px sans-serif';
       ctx.fillText(d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}), p.x, H - 8);
     }
   });
   
-  ctx.fillStyle = '#444'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'right';
   const steps = 5;
   for(let i = 0; i <= steps; i++){
-    const v = min + (i/steps)*(max-min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 6, y + 3);
-    ctx.strokeStyle = '#1a1a2e'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
+    const v = min + (i/steps)*(max-min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 8, y + 3);
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
   }
 }
 
@@ -934,13 +968,12 @@ function renderWeightHistory(weights){
       const diff = w.value - weights[realIdx - 1].value;
       if(diff < 0) diffHtml = `<span class="wh-diff down">${diff.toFixed(1)} kg</span>`;
       else if(diff > 0) diffHtml = `<span class="wh-diff up">+${diff.toFixed(1)} kg</span>`;
-      else diffHtml = `<span class="wh-diff same">= 0</span>`;
     }
     const isToday = w.date === todayStr();
     return `
       <div class="weight-history-item">
-        <div><div style="font-weight:600;font-size:.95rem">${isToday ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`}</div></div>
-        <div style="display:flex;align-items:center;gap:10px">${diffHtml}<div class="wh-value">${w.value} kg</div><button class="wh-del" onclick="deleteWeight(${realIdx})">✕</button></div>
+        <div><div style="font-weight:700;font-size:1.05rem">${isToday ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday:'short' })}, ${d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short' })}`}</div></div>
+        <div style="display:flex;align-items:center;gap:12px">${diffHtml}<div class="wh-value">${w.value} kg</div><button class="wh-del" onclick="deleteWeight(${realIdx})">✕</button></div>
       </div>`;
   }).join('');
 }
@@ -949,7 +982,7 @@ function renderWeightHistory(weights){
 function renderWaterProgress(){
   const w = getWater(), p = getProfile();
   const weight = p ? p.weight : 70;
-  const waterGoal = Math.round(weight * 35); // O seu ideal = 35ml por kg
+  const waterGoal = Math.round(weight * 35); 
   const calGoal = p ? p.kcalGoal : 2000;
 
   const last7 = [];
@@ -966,18 +999,16 @@ function renderWaterProgress(){
   $('#statWaterDays').textContent = `${last7.filter(d=>d.value >= waterGoal).length}/7`;
   $('#statWaterTotal').textContent = (last7.reduce((a,b)=>a+b.value, 0) / 1000).toFixed(1);
 
-  // Insights / Dicas
   $('#waterInsights').innerHTML = `
     <div class="water-insight-box">
       <div class="water-insight-title">O seu mínimo ideal: ${waterGoal} ml/dia</div>
-      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Calculado com base no seu peso (${weight} kg) × 35ml. Este é o mínimo necessário para manter o seu metabolismo eficiente.</p>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,168,255,0.2)">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:.85rem">A sua média atual:</span><span style="font-weight:800;color:${avg >= waterGoal ? 'var(--green)' : 'var(--accent)'}">${avg} ml</span></div>
-        <div style="display:flex;justify-content:space-between"><span style="font-size:.85rem">Estado da Hidratação:</span><span style="font-weight:700;font-size:.85rem">${avg >= waterGoal ? '✅ Excelente' : (avg >= waterGoal*0.7 ? '⚠️ Quase lá' : '🚨 Deve beber mais')}</span></div>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.5">Calculado com base no seu peso (${weight} kg) × 35ml. Essencial para o metabolismo.</p>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(72,219,251,0.15)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:.9rem;font-weight:600">A sua média:</span><span style="font-weight:800;font-size:1.1rem;color:${avg >= waterGoal ? 'var(--green)' : 'var(--accent)'}">${avg} ml</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:.9rem;font-weight:600">Estado:</span><span style="font-weight:800;font-size:.9rem;background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:8px">${avg >= waterGoal ? '✅ Excelente' : (avg >= waterGoal*0.7 ? '⚠️ Quase lá' : '🚨 Beber mais')}</span></div>
       </div>
     </div>`;
 
-  // Comparação Água vs Calorias
   const meals = getMeals();
   let compHtml = '';
   [...last7].reverse().forEach(d => {
@@ -986,13 +1017,13 @@ function renderWaterProgress(){
      const calPct = Math.min(Math.round((calTotal/calGoal)*100), 100);
 
      compHtml += `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:.85rem">
-        <div style="width:50px;color:var(--muted);font-weight:600">${d.weekday}</div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:0 10px">
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:20px;text-align:center">💧</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:var(--blue);width:${waterPct}%"></div></div></div>
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:20px;text-align:center">🔥</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:${calTotal > calGoal ? 'var(--accent)' : 'var(--yellow)'};width:${calPct}%"></div></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:.85rem">
+        <div style="width:45px;color:var(--text);font-weight:700">${d.weekday}</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:0 12px">
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">💧</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:var(--blue);width:${waterPct}%"></div></div></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:20px;text-align:center">🔥</span><div class="water-bar-bg"><div class="water-bar-fill" style="background:${calTotal > calGoal ? 'var(--accent)' : 'var(--yellow)'};width:${calPct}%"></div></div></div>
         </div>
-        <div style="width:55px;text-align:right"><div style="color:var(--blue);font-weight:700">${d.value} <span style="font-size:.65rem">ml</span></div><div style="color:var(--muted);font-size:.75rem">${calTotal} <span style="font-size:.65rem">kc</span></div></div>
+        <div style="width:65px;text-align:right"><div style="color:var(--blue);font-weight:800;font-size:.95rem">${d.value} <span style="font-size:.7rem;opacity:0.7">ml</span></div><div style="color:var(--text);font-weight:600;font-size:.8rem;margin-top:2px">${calTotal} <span style="font-size:.65rem;color:var(--muted)">kcal</span></div></div>
       </div>`;
   });
   $('#waterComparison').innerHTML = compHtml;
@@ -1002,24 +1033,27 @@ function renderWaterProgress(){
 
 function drawBarChartWater(id, data, goal){
   const canvas = $(`#${id}`); if(!canvas||!canvas.offsetWidth) return;
-  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 200;
+  const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio||1, W = canvas.parentElement.offsetWidth, H = 220;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
   
-  const pad=30, max=Math.max(...data.map(d=>d.value), goal*1.1), barW=(W-pad*2)/data.length*.6, gap=(W-pad*2)/data.length;
+  const pad=35, max=Math.max(...data.map(d=>d.value), goal*1.1), barW=(W-pad*2)/data.length*.6, gap=(W-pad*2)/data.length;
   const goalY = H-pad - ((goal/max)*(H-pad*2));
   
-  ctx.strokeStyle='rgba(0,168,255,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.strokeStyle='rgba(72,219,251,0.4)'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
   ctx.beginPath(); ctx.moveTo(pad,goalY); ctx.lineTo(W-pad,goalY); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle='#00a8ff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta: ${goal}ml`, W-pad, goalY-4);
+  ctx.fillStyle='rgba(72,219,251,0.8)'; ctx.font='bold 10px sans-serif'; ctx.textAlign='right'; ctx.fillText(`Meta ${goal}ml`, W-pad, goalY-6);
 
   data.forEach((d,i)=>{
     const x=pad+i*gap+(gap-barW)/2, h=(d.value/max)*(H-pad*2), y=H-pad-h;
-    const color = d.value === 0 ? '#333' : (d.value >= goal ? '#00a8ff' : '#00a8ff88');
+    const color = d.value === 0 ? 'rgba(255,255,255,0.05)' : (d.value >= goal ? '#48dbfb' : 'rgba(72,219,251,0.4)');
     if(d.value>0) {
-      ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(x,y,barW,h,[4,4,0,0]); ctx.fill();
-      ctx.fillStyle='#ddd'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.value, x+barW/2, y-4);
+      const grad = ctx.createLinearGradient(x, y, x, H-pad);
+      grad.addColorStop(0, color); grad.addColorStop(1, color + '44');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(h,2),[6,6,0,0]); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.value, x+barW/2, y-6);
     }
-    ctx.fillStyle='#888'; ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.weekday, x+barW/2, H-8);
+    ctx.fillStyle='var(--muted)'; ctx.font='600 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(d.weekday, x+barW/2, H-8);
   });
 }
 
@@ -1027,13 +1061,15 @@ function drawBarChartWater(id, data, goal){
 function renderProfile(){
   const p = getProfile(); if (!p) return;
   $('#profileInfo').innerHTML = `
-    <div style="background:#111;padding:15px;border-radius:12px;margin-bottom:15px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--muted)">Idade/Altura</span><b>${p.age} anos / ${p.height} cm</b></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--muted)">Peso Atual</span><b>${p.weight} kg</b></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Objetivo</span><b>${p.goal} kg</b></div>
+    <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div style="width:60px;height:60px;border-radius:30px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:1.8rem">👤</div>
+      <div><div style="font-weight:800;font-size:1.1rem;color:var(--text)">${currentUser?.email || ''}</div><div style="color:var(--green);font-size:.85rem;font-weight:700;margin-top:2px">Conta Ativa</div></div>
     </div>
-    <div style="background:rgba(0,212,116,0.1);padding:15px;border-radius:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--green);font-weight:700">Meta Diária</span><b style="font-size:1.2rem;color:var(--green)">${p.kcalGoal} kcal</b></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Idade / Altura</span><b style="color:var(--text)">${p.age} anos / ${p.height} cm</b></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Peso Atual</span><b style="color:var(--text)">${p.weight} kg</b></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:var(--muted);font-weight:600">Objetivo</span><b style="color:var(--text)">${p.goal} kg</b></div>
+    <div style="margin-top:24px;background:var(--green-dim);padding:16px;border-radius:16px;border:1px solid rgba(16,172,132,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--green);font-weight:800">Meta Calórica Diária</span><b style="font-size:1.3rem;color:var(--green)">${p.kcalGoal} kcal</b></div>
     </div>`;
 }
 async function resetApp(){
