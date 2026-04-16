@@ -80,7 +80,8 @@
     .progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(0.4,0,0.2,1)}
 
     /* WATER TRACKER */
-    .water-tracker{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg, var(--card), rgba(72,219,251,0.05));padding:18px;border-radius:var(--radius);margin-top:16px;border:1px solid rgba(72,219,251,0.15);box-shadow:0 8px 24px var(--blue-dim)}
+    .water-tracker{display:flex;flex-direction:column;gap:14px;background:linear-gradient(135deg, var(--card), rgba(72,219,251,0.05));padding:18px;border-radius:var(--radius);margin-top:16px;border:1px solid rgba(72,219,251,0.15);box-shadow:0 8px 24px var(--blue-dim)}
+    .water-top-row{display:flex;align-items:center;justify-content:space-between}
     .water-info{display:flex;flex-direction:column}
     .water-title{color:var(--blue);font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:6px}
     .water-sub{color:var(--muted);font-size:.85rem;font-weight:600;margin-top:4px}
@@ -89,6 +90,25 @@
     .water-btn:active{transform:scale(0.92)}
     .water-btn.add{background:var(--blue);color:#111;box-shadow:0 4px 12px var(--blue-dim)}
     .water-btn.minus{background:rgba(255,255,255,0.05);color:var(--muted);padding:0 16px}
+
+    /* WATER PROGRESS BAR (HOME) */
+    .water-progress-section{margin-top:4px}
+    .water-progress-bar-bg{width:100%;height:12px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden}
+    .water-progress-bar-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg, var(--blue), #1dd1a1)}
+    .water-remaining-text{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;font-weight:700}
+
+    /* WEIGHT HOME CARD */
+    .weight-home-card{background:linear-gradient(135deg, var(--card), rgba(255,71,87,0.05));border:1px solid rgba(255,71,87,0.12);border-radius:var(--radius);padding:18px;margin-top:16px;box-shadow:0 8px 24px var(--accent-dim)}
+    .weight-home-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .weight-home-title{color:var(--accent);font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:6px}
+    .weight-home-input-row{display:flex;gap:10px;align-items:stretch}
+    .weight-home-input-row input{flex:1;font-size:1.1rem;font-weight:800;text-align:center;padding:12px 14px}
+    .weight-home-input-row button{padding:0 20px;width:auto;border-radius:14px;font-size:.95rem}
+    .weight-home-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px}
+    .weight-home-stat{display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,0.2);border-radius:16px;padding:14px 8px;border:1px solid rgba(255,255,255,0.03)}
+    .weight-home-stat-value{font-size:1.25rem;font-weight:800;letter-spacing:-0.5px}
+    .weight-home-stat-label{font-size:.7rem;color:var(--muted);margin-top:4px;font-weight:700;text-align:center}
+    .weight-home-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:16px;font-size:.8rem;font-weight:800;margin-top:12px}
 
     /* MEALS LIST */
     .meal-item{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
@@ -293,14 +313,54 @@
     </div>
   </div>
 
+  <!-- WATER TRACKER (MELHORADO COM COMPARATIVA) -->
   <div class="water-tracker">
-    <div class="water-info">
-      <span class="water-title">💧 Hidratação</span>
-      <span class="water-sub"><span id="waterCount" style="color:var(--text);font-weight:800;font-size:1.05rem">0</span> ml consumidos</span>
+    <div class="water-top-row">
+      <div class="water-info">
+        <span class="water-title">💧 Hidratação</span>
+        <span class="water-sub"><span id="waterCount" style="color:var(--text);font-weight:800;font-size:1.05rem">0</span> ml consumidos</span>
+      </div>
+      <div class="water-controls">
+        <button class="water-btn minus" onclick="logWater(-250)">-</button>
+        <button class="water-btn add" onclick="logWater(250)">+250ml</button>
+      </div>
     </div>
-    <div class="water-controls">
-      <button class="water-btn minus" onclick="logWater(-250)">-</button>
-      <button class="water-btn add" onclick="logWater(250)">+250ml</button>
+    <!-- Barra de progresso + quanto falta -->
+    <div class="water-progress-section">
+      <div class="water-progress-bar-bg">
+        <div class="water-progress-bar-fill" id="waterProgressFill" style="width:0%"></div>
+      </div>
+      <div class="water-remaining-text">
+        <span id="waterRemainingLabel" style="color:var(--muted)">Faltam 0 ml</span>
+        <span id="waterGoalLabel" style="color:var(--blue)">Meta: 0 ml</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEIGHT HOME CARD (NOVO) -->
+  <div class="weight-home-card">
+    <div class="weight-home-header">
+      <span class="weight-home-title">⚖️ Peso</span>
+      <span id="weightHomeDateLabel" style="font-size:.8rem;color:var(--muted);font-weight:600"></span>
+    </div>
+    <div class="weight-home-input-row">
+      <input id="weightHomeInput" type="number" step="0.1" placeholder="Ex: 78.5" inputmode="decimal">
+      <button class="btn btn-primary" onclick="saveWeightFromHome()" style="width:auto;padding:0 20px;border-radius:14px">Guardar</button>
+    </div>
+    <div id="weightHomeBadge"></div>
+    <div class="weight-home-stats">
+      <div class="weight-home-stat">
+        <div class="weight-home-stat-value" id="whStatCurrent" style="color:var(--text)">--</div>
+        <div class="weight-home-stat-label">Atual (kg)</div>
+      </div>
+      <div class="weight-home-stat">
+        <div class="weight-home-stat-value" id="whStatVsYesterday" style="color:var(--muted)">--</div>
+        <div class="weight-home-stat-label">vs Ontem</div>
+      </div>
+      <div class="weight-home-stat">
+        <div class="weight-home-stat-value" id="whStatVsGoal" style="color:var(--accent)">--</div>
+        <div class="weight-home-stat-label">Falta p/ Meta</div>
+      </div>
     </div>
   </div>
 
@@ -308,7 +368,7 @@
   <div class="card" style="margin-top:20px">
     <label style="font-size:1.15rem;margin-bottom:16px;color:var(--text);font-weight:800">Adicionar Refeição</label>
     
-    <!-- TABS MENU (Sem Barcode) -->
+    <!-- TABS MENU -->
     <div class="tabs">
       <button class="tab active" data-tab="search" onclick="switchTab('search')">🔍 Busca</button>
       <button class="tab" data-tab="recipe" onclick="switchTab('recipe')">🧑‍🍳 Receita</button>
@@ -337,7 +397,6 @@
       <div id="recipeTotal" class="hidden">
         <div class="recipe-total" style="border-color:rgba(255,255,255,0.1)"><div>Total</div><span id="recipeTotalKcal" style="color:var(--accent)">0 kcal</span></div>
         <div id="recipeButtons" style="display:flex;gap:8px;margin-top:20px">
-          <!-- Botões injetados via JS -->
         </div>
       </div>
     </div>
@@ -500,7 +559,7 @@ const todayStr = () => new Date().toISOString().slice(0, 10);
 
 let currentUser = null, recipeIngredients = [], _searchItems = [], _ingredientItems = [];
 let _selectedItem = null, _portionContext = 'search', saveTimer = null;
-let _editingRecipeId = null; // Guardar ID da receita em edição
+let _editingRecipeId = null;
 
 let viewingDate = new Date(); 
 const getViewingDateStr = () => viewingDate.toISOString().slice(0, 10);
@@ -627,6 +686,12 @@ function switchTab(tab){
 /* ================== HOME (DIÁRIO) ================== */
 function changeDate(days){ viewingDate.setDate(viewingDate.getDate() + days); renderHome(); }
 
+function getWaterGoal(){
+  const p = getProfile();
+  const weight = p ? p.weight : 70;
+  return Math.round(weight * 35);
+}
+
 function renderHome(){
   const p = getProfile(); if (!p) return navigate('setup');
   
@@ -652,8 +717,28 @@ function renderHome(){
   $('#pctC').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.c*4 / totalMacroKcal)*100)}%` : '0%';
   $('#pctG').innerHTML = totalMacroKcal > 0 ? `${Math.round((m.g*9 / totalMacroKcal)*100)}%` : '0%';
 
-  $('#waterCount').textContent = viewingWater();
+  // === ÁGUA COM COMPARATIVA ===
+  const currentWater = viewingWater();
+  const waterGoal = getWaterGoal();
+  const waterRemaining = Math.max(0, waterGoal - currentWater);
+  const waterPct = Math.min((currentWater / waterGoal) * 100, 100);
+
+  $('#waterCount').textContent = currentWater;
+  $('#waterProgressFill').style.width = `${waterPct}%`;
   
+  if(currentWater >= waterGoal){
+    $('#waterProgressFill').style.background = 'linear-gradient(90deg, #10ac84, #1dd1a1)';
+    $('#waterRemainingLabel').innerHTML = `<span style="color:var(--green)">✅ Meta atingida! (+${currentWater - waterGoal} ml)</span>`;
+  } else {
+    $('#waterProgressFill').style.background = 'linear-gradient(90deg, var(--blue), #1dd1a1)';
+    $('#waterRemainingLabel').innerHTML = `<span style="color:var(--blue)">💧 Faltam <b style="color:var(--text)">${waterRemaining} ml</b> (${Math.round(waterRemaining / 250)} copos)</span>`;
+  }
+  $('#waterGoalLabel').textContent = `Meta: ${waterGoal} ml`;
+
+  // === PESO NA HOME ===
+  renderWeightHome();
+
+  // === REFEIÇÕES ===
   const meals = viewingMeals();
   if(!meals.length){ $('#mealList').innerHTML='<div class="empty"><span style="font-size:2.5rem">🍽️</span>Sem registos alimentares hoje</div>'; return; }
   $('#mealList').innerHTML = meals.map((ml,i)=>`
@@ -663,7 +748,86 @@ function renderHome(){
   `).join('');
 }
 
-function logWater(amt){ const w = getWater(), d = getViewingDateStr(); w[d] = Math.max(0, (w[d]||0) + amt); setState('ct_water', w); $('#waterCount').textContent = w[d]; }
+/* === RENDER WEIGHT NA HOME === */
+function renderWeightHome(){
+  const weights = getWeights(), p = getProfile();
+  const viewDate = getViewingDateStr();
+  const todayFmt = todayStr();
+  
+  // Data label
+  if(viewDate === todayFmt){
+    $('#weightHomeDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' });
+  } else {
+    $('#weightHomeDateLabel').textContent = viewingDate.toLocaleDateString('pt-PT', { weekday:'short', day:'2-digit', month:'short' });
+  }
+
+  // Verificar se já tem peso registado para o dia em visualização
+  const dayEntry = weights.find(w => w.date === viewDate);
+  if(dayEntry){
+    $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:var(--green-dim);color:var(--green)">✓ Registado: ${dayEntry.value} kg</div>`;
+  } else {
+    $('#weightHomeBadge').innerHTML = `<div class="weight-home-badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">Sem registo para este dia</div>`;
+  }
+
+  // Peso atual (último registo)
+  const latestWeight = weights.length > 0 ? weights[weights.length - 1].value : (p ? p.weight : null);
+  $('#whStatCurrent').textContent = latestWeight ? `${latestWeight}` : '--';
+
+  // vs Dia anterior
+  if(weights.length >= 2){
+    const last = weights[weights.length - 1];
+    const prev = weights[weights.length - 2];
+    const diff = last.value - prev.value;
+    const diffStr = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}`;
+    $('#whStatVsYesterday').textContent = diffStr;
+    $('#whStatVsYesterday').style.color = diff <= 0 ? 'var(--green)' : 'var(--accent)';
+  } else {
+    $('#whStatVsYesterday').textContent = '--';
+    $('#whStatVsYesterday').style.color = 'var(--muted)';
+  }
+
+  // vs Meta (quanto falta)
+  if(p && latestWeight){
+    const goalDiff = latestWeight - p.goal;
+    if(Math.abs(goalDiff) < 0.1){
+      $('#whStatVsGoal').textContent = '🎯 Meta!';
+      $('#whStatVsGoal').style.color = 'var(--green)';
+    } else if(goalDiff > 0){
+      // Precisa perder peso
+      $('#whStatVsGoal').textContent = `-${goalDiff.toFixed(1)} kg`;
+      $('#whStatVsGoal').style.color = 'var(--accent)';
+    } else {
+      // Precisa ganhar peso
+      $('#whStatVsGoal').textContent = `+${Math.abs(goalDiff).toFixed(1)} kg`;
+      $('#whStatVsGoal').style.color = 'var(--blue)';
+    }
+  } else {
+    $('#whStatVsGoal').textContent = '--';
+    $('#whStatVsGoal').style.color = 'var(--muted)';
+  }
+}
+
+/* === GUARDAR PESO A PARTIR DA HOME === */
+function saveWeightFromHome(){
+  const val = parseFloat($('#weightHomeInput').value);
+  if(!val || val < 20 || val > 400) return showToast('Insira um peso válido (20-400 kg).', true);
+  
+  const w = getWeights(), today = todayStr();
+  const idx = w.findIndex(x => x.date === today);
+  if(idx >= 0) w[idx].value = val; else w.push({ date: today, value: val });
+  w.sort((a,b) => a.date.localeCompare(b.date));
+  setState('ct_weights', w);
+  
+  // Atualizar peso no perfil
+  const p = getProfile();
+  if(p){ p.weight = val; p.kcalGoal = calcGoal(p); setState('ct_profile', p); }
+  
+  $('#weightHomeInput').value = '';
+  showToast('Peso registado com sucesso!');
+  renderHome();
+}
+
+function logWater(amt){ const w = getWater(), d = getViewingDateStr(); w[d] = Math.max(0, (w[d]||0) + amt); setState('ct_water', w); renderHome(); }
 function delMeal(i){ const all = getMeals(); all[getViewingDateStr()].splice(i,1); setState('ct_meals', all); renderHome(); }
 
 /* ================== SEARCH & MODAL ================== */
