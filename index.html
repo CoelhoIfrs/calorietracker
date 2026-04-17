@@ -8,6 +8,8 @@
 
   <!-- Biblioteca para Leitor de Código de Barras -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <!-- Biblioteca para Pesquisa Inteligente (Fuzzy Search) -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
     :root{--bg:#0a0a12;--card:#141423;--card-hover:#1c1c2e;--accent:#ff4757;--accent-dim:rgba(255,71,87,0.15);--green:#10ac84;--green-dim:rgba(16,172,132,0.15);--yellow:#feca57;--yellow-dim:rgba(254,202,87,0.15);--blue:#48dbfb;--blue-dim:rgba(72,219,251,0.15);--purple:#a55eea;--purple-dim:rgba(165,94,234,0.15);--text:#f1f2f6;--muted:#8395a7;--radius:24px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);}
@@ -866,7 +868,62 @@ function closeScanner() {
   $('#scannerModal').classList.remove('show');
 }
 
-/* ── BUSCA DE ALIMENTOS ── */
+/* ── PESQUISA INTELIGENTE COM FUSE.JS ── */
+const SYNONYMS = {
+  "aipim": "mandioca macaxeira",
+  "mandioca": "aipim macaxeira",
+  "macaxeira": "aipim mandioca",
+  "pao": "pão",
+  "acucar": "açúcar",
+  "frango": "galinha ave",
+  "ovo": "ovos"
+};
+
+// Preparar os dados locais para o formato que o Fuse.js entende
+const fuseData = Object.entries(LOCAL_FOODS).map(([k, v]) => {
+  let searchTerms = k;
+  Object.keys(SYNONYMS).forEach(syn => {
+    if (k.includes(syn)) searchTerms += ` ${SYNONYMS[syn]}`;
+  });
+  
+  return {
+    idKey: k,
+    name: cap(k.split(' / ')[0]),
+    searchTerms: searchTerms,
+    brand: 'Base Local',
+    kcal100: v.kcal,
+    protein100: v.protein,
+    carbs100: v.carbs,
+    fat100: v.fat
+  };
+});
+
+// Configurar o motor de pesquisa difusa (tolerância a erros)
+const fuse = new Fuse(fuseData, {
+  keys: ['name', 'searchTerms'],
+  threshold: 0.4, // Quanto maior, mais perdoa erros
+  ignoreLocation: true,
+  minMatchCharLength: 2
+});
+
+function localSearch(q) {
+  const normalizedQuery = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (!normalizedQuery) return [];
+
+  // O Fuse faz a magia de procurar tolerando erros de digitação
+  const results = fuse.search(normalizedQuery);
+  
+  // Devolver os resultados no formato exato que a sua app já espera
+  return results.map(result => ({
+    name: result.item.name,
+    brand: result.item.brand,
+    kcal100: result.item.kcal100,
+    protein100: result.item.protein100,
+    carbs100: result.item.carbs100,
+    fat100: result.item.fat100
+  }));
+}
+
 async function offSearchByText(query) {
   const url = `${OFF_SEARCH_URL}?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,product_name_pt,product_name_es,product_name_en,brands,nutriments`;
   const res = await fetch(url);
@@ -881,15 +938,6 @@ function normalizeOFFProduct(p) {
     kcal100: safe(n['energy-kcal_100g'] || n['energy-kcal']),
     protein100: safe(n.proteins_100g), carbs100: safe(n.carbohydrates_100g), fat100: safe(n.fat_100g)
   };
-}
-function localSearch(q) {
-  q = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const res = [];
-  for (const [k, v] of Object.entries(LOCAL_FOODS)) {
-    if (k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q))
-      res.push({ name: cap(k.split(' / ')[0]), brand: 'Base Local', kcal100: v.kcal, protein100: v.protein, carbs100: v.carbs, fat100: v.fat });
-  }
-  return res;
 }
 function calcPortion(item, grams) {
   const f = grams / 100;
@@ -2003,210 +2051,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-  <script>
-/* =========================
-   CONFIGURAÇÃO RÁPIDA
-========================= */
-const SEARCH_CONFIG = {
-  inputId: "searchInput",
-  resultsId: "resultsList",
-  metaId: "searchMeta",
-  sourceId: "sourceSelect"
-};
-
-/* =========================
-   UTILITÁRIOS
-========================= */
-const SYNONYMS = {
-  "aipim": ["mandioca", "macaxeira"],
-  "mandioca": ["aipim", "macaxeira"],
-  "acucar": ["açúcar"],
-  "pimentao": ["pimento"],
-  "pimento": ["pimentão"]
-};
-
-function normalize(text = "") {
-  return String(text)
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^\w\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function expandQuery(query = "") {
-  const base = normalize(query).split(" ").filter(Boolean);
-  const set = new Set(base);
-  base.forEach(t => (SYNONYMS[t] || []).forEach(s => set.add(normalize(s))));
-  return [...set].join(" ");
-}
-
-function debounce(fn, wait = 200) {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), wait);
-  };
-}
-
-/* =========================
-   DETEÇÃO DOS DADOS LOCAIS
-   (adapte só se necessário)
-========================= */
-function getLocalData() {
-  // Tenta usar variáveis comuns já existentes no seu projeto
-  const candidates = [
-    window.allItems,
-    window.items,
-    window.recipes,
-    window.receitas,
-    window.products,
-    window.produtos
-  ];
-
-  const arr = candidates.find(x => Array.isArray(x));
-  if (!arr) return [];
-
-  // Normaliza campos para estrutura única
-  return arr.map((x, i) => ({
-    id: x.id || x.code || `local-${i}`,
-    name: x.name || x.nome || x.title || x.titulo || "",
-    category: x.category || x.categoria || "",
-    ingredients: x.ingredients || x.ingredientes || [],
-    tags: x.tags || [],
-    source: "local",
-    _raw: x
-  })).filter(x => x.name);
-}
-
-/* =========================
-   ÍNDICE DE PESQUISA LOCAL
-========================= */
-let LOCAL_DATA = getLocalData();
-let fuse = null;
-
-function rebuildFuse() {
-  LOCAL_DATA = getLocalData();
-
-  fuse = new Fuse(LOCAL_DATA, {
-    includeScore: true,
-    threshold: 0.35,
-    ignoreLocation: true,
-    minMatchCharLength: 2,
-    keys: [
-      { name: "name", weight: 0.50 },
-      { name: "category", weight: 0.20 },
-      { name: "ingredients", weight: 0.20 },
-      { name: "tags", weight: 0.10 }
-    ]
-  });
-}
-
-function searchLocalSmart(query) {
-  if (!fuse) rebuildFuse();
-  const q = expandQuery(query);
-  if (!q) return [];
-
-  return fuse.search(q, { limit: 30 }).map(r => r.item);
-}
-
-/* =========================
-   API GLOBAL (Open Food Facts)
-========================= */
-async function searchOpenFoodFacts(query, pageSize = 20) {
-  const q = encodeURIComponent(query);
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=${pageSize}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Falha API");
-  const data = await res.json();
-
-  return (data.products || []).map((p, i) => ({
-    id: `off-${p.code || i}`,
-    name: p.product_name || p.generic_name || "Produto sem nome",
-    category: p.categories || "",
-    ingredients: [],
-    tags: [],
-    source: "api",
-    image: p.image_front_small_url || p.image_small_url || ""
-  })).filter(x => normalize(x.name).length >= 2);
-}
-
-/* =========================
-   UI RENDER
-========================= */
-function escapeHtml(str = "") {
-  return String(str).replace(/[&<>"']/g, m => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  }[m]));
-}
-
-function dedupeByName(list) {
-  const map = new Map();
-  for (const it of list) {
-    const key = normalize(it.name);
-    if (!map.has(key)) map.set(key, it);
-  }
-  return [...map.values()];
-}
-
-function renderResults(target, list) {
-  target.innerHTML = list.map(x => `
-    <div class="search-item" style="padding:8px;border-bottom:1px solid #eee;">
-      <strong>${escapeHtml(x.name)}</strong>
-      ${x.category ? ` <small>(${escapeHtml(x.category)})</small>` : ""}
-      <div style="font-size:12px;opacity:.7;">Fonte: ${x.source === "api" ? "Open Food Facts" : "Local"}</div>
-    </div>
-  `).join("");
-}
-
-/* =========================
-   INIT
-========================= */
-(function initSmartSearch() {
-  const input = document.getElementById(SEARCH_CONFIG.inputId);
-  const results = document.getElementById(SEARCH_CONFIG.resultsId);
-  const meta = document.getElementById(SEARCH_CONFIG.metaId);
-  const source = document.getElementById(SEARCH_CONFIG.sourceId);
-
-  if (!input || !results || !meta) {
-    console.warn("[SmartSearch] IDs não encontrados. Verifique searchInput/resultsList/searchMeta.");
-    return;
-  }
-
-  rebuildFuse();
-
-  const runSearch = async () => {
-    const q = input.value.trim();
-    const mode = source ? source.value : "all";
-
-    if (!q) {
-      meta.textContent = "Comece a escrever para procurar.";
-      results.innerHTML = "";
-      return;
-    }
-
-    meta.textContent = "A procurar...";
-    try {
-      let local = [];
-      let api = [];
-
-      if (mode === "all" || mode === "local") local = searchLocalSmart(q);
-      if (mode === "all" || mode === "api") api = await searchOpenFoodFacts(q, 20);
-
-      const merged = dedupeByName([...local, ...api]).slice(0, 30);
-      meta.textContent = `${merged.length} resultado(s) encontrado(s).`;
-      renderResults(results, merged);
-    } catch (e) {
-      const local = searchLocalSmart(q);
-      meta.textContent = `API indisponível. ${local.length} resultado(s) local(is).`;
-      renderResults(results, local);
-    }
-  };
-
-  input.addEventListener("input", debounce(runSearch, 200));
-  if (source) source.addEventListener("change", runSearch);
-})();
-</script>
-
 </body>
 </html>
