@@ -24,7 +24,8 @@
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
-    :root{--bg:#0a0a12;--card:#141423;--card-hover:#1c1c2e;--accent:#ff4757;--accent-dim:rgba(255,71,87,0.15);--green:#10ac84;--green-dim:rgba(16,172,132,0.15);--yellow:#feca57;--yellow-dim:rgba(254,202,87,0.15);--blue:#48dbfb;--blue-dim:rgba(72,219,251,0.15);--purple:#a55eea;--purple-dim:rgba(165,94,234,0.15);--text:#f1f2f6;--muted:#8395a7;--radius:24px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-bottom);}
+    /* CORREÇÃO DO SCROLL: env(safe-area-bottom) corrigido para env(safe-area-inset-bottom) */
+    :root{--bg:#0a0a12;--card:#141423;--card-hover:#1c1c2e;--accent:#ff4757;--accent-dim:rgba(255,71,87,0.15);--green:#10ac84;--green-dim:rgba(16,172,132,0.15);--yellow:#feca57;--yellow-dim:rgba(254,202,87,0.15);--blue:#48dbfb;--blue-dim:rgba(72,219,251,0.15);--purple:#a55eea;--purple-dim:rgba(165,94,234,0.15);--text:#f1f2f6;--muted:#8395a7;--radius:24px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);}
     html { scroll-behavior: smooth; }
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif}
     body{background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 90px);overflow-x:hidden}
@@ -905,12 +906,6 @@ function renderHome() {
   updateMacroUI('G', 'Gordura', m.g, goalG, 'max', 'var(--accent)');
   updateMacroUI('F', 'Fibras', m.f, goalF, 'min', 'var(--purple)');
 
-  const totalMac = (m.p*4) + (m.c*4) + (m.g*9);
-  $('#pctP').textContent = totalMac>0 ? `${Math.round((m.p*4/totalMac)*100)}%` : '0%';
-  $('#pctC').textContent = totalMac>0 ? `${Math.round((m.c*4/totalMac)*100)}%` : '0%';
-  $('#pctG').textContent = totalMac>0 ? `${Math.round((m.g*9/totalMac)*100)}%` : '0%';
-  $('#pctF').textContent = '';
-
   const meals = viewingMeals(); $('#mealCountStr').textContent = `(${meals.length})`;
   let diaryHtml = '';
   for (const [catKey, catName] of Object.entries(CATEGORIES)) {
@@ -1294,12 +1289,12 @@ function renderCaloriesProgress() {
 
 function renderWeightProgress() {
   const p = getProfile(), allWeights = getWeights();
-  let rangeWeights = getRangeDataFromWeights(progressRangeDays); if (rangeWeights.length < 2) rangeWeights = allWeights;
+  let rangeWeights = getRangeDataFromWeights(progressRangeDays);
 
   setTimeout(() => { drawWeightChart(rangeWeights, p); drawIMCChart(rangeWeights, p); drawTMBChart(rangeWeights, p); }, 100);
 
   const list = $('#weightHistoryList');
-  if (!rangeWeights.length){ list.innerHTML = '<div class="empty">Nenhum registo de peso</div>'; return; }
+  if (!rangeWeights.length){ list.innerHTML = '<div class="empty">Nenhum registo de peso no período</div>'; return; }
   
   list.innerHTML = [...rangeWeights].reverse().map((w) => {
     const realIdx = allWeights.indexOf(w), d = new Date(w.date + 'T12:00:00');
@@ -1326,7 +1321,7 @@ function renderWaterProgress() {
 
 function renderMeasuresProgress() {
   const allMeasures = getMeasures(), today = todayStr();
-  let mRange = getRangeDataFromMeasures(progressRangeDays); if (mRange.length < 2) mRange = allMeasures;
+  let mRange = getRangeDataFromMeasures(progressRangeDays);
 
   $('#measureDateLabel').textContent = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
   const tEntry = allMeasures.find(m => m.date === today);
@@ -1352,7 +1347,7 @@ function renderMeasuresProgress() {
 }
 function renderMeasureComparison(mRange) {
   const el = $('#measureComparisonContent');
-  if (mRange.length < 2) { el.innerHTML = '<div class="empty">Registe pelo menos 2 medições para ver a comparação</div>'; return; }
+  if (mRange.length < 2) { el.innerHTML = '<div class="empty">Registe pelo menos 2 medições no período selecionado</div>'; return; }
   const first = mRange[0], latest = mRange[mRange.length - 1];
   const fd = new Date(first.date + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }), ld = new Date(latest.date + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
   let html = `<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:.85rem;font-weight:700"><span style="color:var(--muted)">Primeira medição do período: ${fd}</span><span style="color:var(--purple)">Última: ${ld}</span></div>`;
@@ -1365,7 +1360,7 @@ function renderMeasureComparison(mRange) {
 }
 function renderMeasureHistory(mRange, allMeasures) {
   const el = $('#measureHistoryList');
-  if (!mRange || !mRange.length) { el.innerHTML = '<div class="empty">Nenhum registo de medidas</div>'; return; }
+  if (!mRange || !mRange.length) { el.innerHTML = '<div class="empty">Nenhum registo de medidas no período</div>'; return; }
   el.innerHTML = [...mRange].reverse().map((m) => {
     const rIdx = allMeasures.indexOf(m), d = new Date(m.date + 'T12:00:00');
     const dateStr = m.date === todayStr() ? '📍 Hoje' : `${d.toLocaleDateString('pt-PT', { weekday: 'short' })}, ${d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' })}`;
