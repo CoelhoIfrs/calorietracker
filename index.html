@@ -169,7 +169,7 @@
     
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
     .modal-overlay.show{opacity:1;pointer-events:auto}
-    .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto; will-change: transform;}
+    .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto;}
     .modal-overlay.show .modal-box{transform:translateY(0)}
     .modal-drag-handle{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;margin:0 auto 20px}
     .portion-presets{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
@@ -200,6 +200,25 @@
 <body>
 
 <div id="toast" class="toast">✓ Sucesso!</div>
+
+<!-- MODAL DE MOVER REFEIÇÃO -->
+<div id="moveMealModal" class="modal-overlay" onclick="if(event.target===this)closeMoveMealModal()">
+  <div class="modal-box">
+    <div class="modal-drag-handle"></div>
+    <h3 style="margin-bottom:16px">Mover Refeição</h3>
+    <label>Escolha a nova categoria:</label>
+    <select id="moveMealSelect" style="margin-bottom:24px; padding:14px 10px; font-size:1rem;">
+      <option value="breakfast">☕ Pequeno-almoço</option>
+      <option value="lunch">🍲 Almoço</option>
+      <option value="snack">🍎 Lanche</option>
+      <option value="dinner">🥗 Jantar</option>
+    </select>
+    <div style="display:flex;gap:12px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeMoveMealModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmMoveMeal()">Confirmar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL DE CATEGORIAS -->
 <div id="categoryModal" class="modal-overlay" onclick="if(event.target===this)closeCategoryModal()">
@@ -407,22 +426,22 @@
     
     <div class="macro-bar-container">
       <div class="macro-item">
-        <div class="macro-label"><span>Proteína</span> <span id="pctP" style="color:var(--text)">0%</span></div>
+        <div class="macro-label"><span id="lblP">Proteína</span> <span id="pctP" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barP" style="background:var(--blue);width:0%"></div></div>
         <span class="macro-val" id="macroP">0g</span>
       </div>
       <div class="macro-item">
-        <div class="macro-label"><span>Carbos</span> <span id="pctC" style="color:var(--text)">0%</span></div>
+        <div class="macro-label"><span id="lblC">Carbos</span> <span id="pctC" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barC" style="background:var(--yellow);width:0%"></div></div>
         <span class="macro-val" id="macroC">0g</span>
       </div>
       <div class="macro-item">
-        <div class="macro-label"><span>Gordura</span> <span id="pctG" style="color:var(--text)">0%</span></div>
+        <div class="macro-label"><span id="lblG">Gordura</span> <span id="pctG" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barG" style="background:var(--accent);width:0%"></div></div>
         <span class="macro-val" id="macroG">0g</span>
       </div>
       <div class="macro-item">
-        <div class="macro-label"><span>Fibras (Meta 25g)</span></div>
+        <div class="macro-label"><span id="lblF">Fibras</span> <span style="color:var(--muted)">25g</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barF" style="background:var(--purple);width:0%"></div></div>
         <span class="macro-val" id="macroF">0g</span>
       </div>
@@ -724,8 +743,10 @@ function queueSave() {
 }
 function setState(key, val) { STATE[key] = val; queueSave(); }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
 function autoSelectMealType() {
-  const h = new Date().getHours(); const sel = $('#mealTypeSelect');
+  const h = new Date().getHours();
+  const sel = $('#mealTypeSelect');
   if(sel) sel.value = (h >= 5 && h < 10) ? 'breakfast' : (h >= 10 && h < 14) ? 'lunch' : (h >= 14 && h < 17) ? 'snack' : 'dinner';
 }
 
@@ -815,7 +836,7 @@ function getIMCCategory(imc) {
 function getIMCScalePosition(imc) { return Math.max(0, Math.min(100, ((imc - 15) / 27) * 100)); }
 function getWaterGoal() { return Math.round((getWeightForDate(getViewingDateStr()) || 70) * 35); }
 
-/* ── UI DINÂMICA (HOME) ── */
+/* ── UI DINÂMICA (HOME E DIÁRIO) ── */
 function toggleTrainingDay() {
   if(!STATE.ct_trainingDays) STATE.ct_trainingDays = {};
   const d = getViewingDateStr(); STATE.ct_trainingDays[d] = !STATE.ct_trainingDays[d]; queueSave(); renderHome();
@@ -855,10 +876,11 @@ function renderHome() {
   let goalP = Math.max(Math.round((goal * 0.3) / 4), Math.round(p.weight * 1.5)), goalG = Math.round((goal * 0.3) / 9), goalC = Math.round((goal - (goalP * 4) - (goalG * 9)) / 4), goalF = 25; 
 
   const m = viewingMacros();
-  $('#macroP').textContent = `${Math.round(m.p)}g`; $('#barP').style.width = `${Math.min((m.p/goalP)*100, 100)}%`;
-  $('#macroC').textContent = `${Math.round(m.c)}g`; $('#barC').style.width = `${Math.min((m.c/goalC)*100, 100)}%`;
-  $('#macroG').textContent = `${Math.round(m.g)}g`; $('#barG').style.width = `${Math.min((m.g/goalG)*100, 100)}%`;
+  $('#lblP').textContent = `Proteína (${goalP}g)`; $('#macroP').textContent = `${Math.round(m.p)}g`; $('#barP').style.width = `${Math.min((m.p/goalP)*100, 100)}%`;
+  $('#lblC').textContent = `Carbos (${goalC}g)`; $('#macroC').textContent = `${Math.round(m.c)}g`; $('#barC').style.width = `${Math.min((m.c/goalC)*100, 100)}%`;
+  $('#lblG').textContent = `Gordura (${goalG}g)`; $('#macroG').textContent = `${Math.round(m.g)}g`; $('#barG').style.width = `${Math.min((m.g/goalG)*100, 100)}%`;
   $('#macroF').textContent = `${Math.round(m.f)}g`; $('#barF').style.width = `${Math.min((m.f/goalF)*100, 100)}%`;
+  
   const totalMac = (m.p*4) + (m.c*4) + (m.g*9);
   $('#pctP').textContent = totalMac>0 ? `${Math.round((m.p*4/totalMac)*100)}%` : '0%';
   $('#pctC').textContent = totalMac>0 ? `${Math.round((m.c*4/totalMac)*100)}%` : '0%';
@@ -870,8 +892,20 @@ function renderHome() {
     const catMeals = meals.filter(x => (x.type || 'snack') === catKey);
     let itemsHtml = catMeals.length === 0 ? `<button class="btn-copy-yesterday" onclick="copyYesterday('${catKey}')">🔄 Copiar de ontem</button>` : 
       catMeals.map(ml => {
+        const globalIdx = meals.indexOf(ml);
         let emo = ml.satiety ? `<span style="font-size:1.1rem;margin-left:6px" title="Sensação">${ml.satiety}</span>` : '';
-        return `<div class="meal-item"><div class="meal-thumb">${ml.isRecipe?'🧑‍🍳':'🍽️'}</div><div class="meal-info"><div class="meal-name">${ml.name}</div><div class="meal-meta">P:${Math.round(ml.protein)}g · Fibras:${Math.round(ml.fiber||0)}g ${emo}</div></div><div class="meal-kcal">${ml.kcal} <span style="font-size:.7rem;color:var(--muted)">kcal</span></div><button class="meal-del" onclick="delMeal(${meals.indexOf(ml)})">✕</button></div>`;
+        return `<div class="meal-item">
+          <div class="meal-thumb">${ml.isRecipe?'🧑‍🍳':'🍽️'}</div>
+          <div class="meal-info">
+            <div class="meal-name">${ml.name}</div>
+            <div class="meal-meta">P:${Math.round(ml.protein)}g · Fibras:${Math.round(ml.fiber||0)}g ${emo}</div>
+          </div>
+          <div class="meal-kcal">${ml.kcal} <span style="font-size:.7rem;color:var(--muted)">kcal</span></div>
+          <div style="display:flex; gap:6px;">
+            <button class="meal-del" onclick="openMoveMealModal(${globalIdx})" title="Mover categoria">🔄</button>
+            <button class="meal-del" onclick="delMeal(${globalIdx})" title="Apagar">✕</button>
+          </div>
+        </div>`;
       }).join('');
     diaryHtml += `<div class="meal-category"><div class="meal-category-header"><div class="meal-category-title">${catName}</div><div class="meal-category-kcal">${catMeals.reduce((s,x)=>s+x.kcal,0)} kcal</div></div>${itemsHtml}</div>`;
   }
@@ -950,6 +984,29 @@ function copyYesterday(catKey) {
   toCopy.forEach(m => STATE.ct_meals[t].push({...m, type:catKey})); queueSave(); renderHome(); toggleMealList(true); showToast('Copiado!');
 }
 
+/* ── MOVER REFEIÇÃO (NOVIDADE) ── */
+let _mealToMoveIdx = null;
+function openMoveMealModal(idx) {
+  _mealToMoveIdx = idx;
+  const meal = viewingMeals()[idx];
+  $('#moveMealSelect').value = meal.type || 'snack';
+  $('#moveMealModal').classList.add('show');
+}
+function closeMoveMealModal() {
+  $('#moveMealModal').classList.remove('show');
+  _mealToMoveIdx = null;
+}
+function confirmMoveMeal() {
+  if(_mealToMoveIdx === null) return;
+  const allMeals = getMeals();
+  const today = getViewingDateStr();
+  allMeals[today][_mealToMoveIdx].type = $('#moveMealSelect').value;
+  setState('ct_meals', allMeals);
+  closeMoveMealModal();
+  renderHome();
+  showToast('Refeição movida!');
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add('active');
@@ -977,7 +1034,6 @@ function openCategoryModal() { renderCategoryModal(); $('#categoryModal').classL
 function closeCategoryModal() { $('#categoryModal').classList.remove('show'); }
 function selectCategoryItem(idx) { closeCategoryModal(); _searchItems = _categoryItemsFlat; openPortionModal(idx, 'search'); }
 
-const SYNONYMS = { "aipim": "mandioca macaxeira", "mandioca": "aipim macaxeira", "macaxeira": "aipim mandioca", "pao": "pão", "acucar": "açúcar", "frango": "galinha ave", "ovo": "ovos", "suco": "sumo", "sumo": "suco", "curgete": "abobrinha", "abobrinha": "curgete", "beringela": "berinjela", "berinjela": "beringela" };
 const fuseData = Object.entries(LOCAL_FOODS).map(([k, v]) => {
   let s = k; Object.keys(SYNONYMS).forEach(syn => { if (k.includes(syn)) s += ` ${SYNONYMS[syn]}`; });
   return { idKey:k, name:cap(k.split(' / ')[0]), searchTerms:s, brand:'Base Local', kcal100:v.kcal, protein100:v.protein, carbs100:v.carbs, fat100:v.fat, fiber100:v.fiber||0 };
@@ -1150,8 +1206,8 @@ function deleteMeasure(idx) {
   measures.splice(idx, 1); setState('ct_measures', measures); renderMeasuresProgress();
 }
 
-/* ── PROGRESS & EVOLUÇÃO (COMPLETO) ── */
-function onProgressCategoryChange(){ currentProgressTab = document.getElementById('progressCategorySelect').value; renderProgress(); }
+/* ── PROGRESS & EVOLUÇÃO (CORRIGIDO) ── */
+function onProgressCategoryChange(){ switchProgressTab(document.getElementById('progressCategorySelect').value); }
 function onProgressRangeChange(){ progressRangeDays = parseInt(document.getElementById('progressRangeSelect').value, 10); renderProgress(); }
 
 function switchProgressTab(tab) {
