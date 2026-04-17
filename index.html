@@ -6,8 +6,6 @@
   <meta name="theme-color" content="#0a0a12" />
   <title>CalorieTracker Premium</title>
 
-  <!-- Biblioteca para Leitor de Código de Barras -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <!-- Biblioteca para Pesquisa Inteligente (Fuzzy Search) -->
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
@@ -77,12 +75,12 @@
     .meal-del{background:rgba(255,255,255,0.05);border:none;color:var(--muted);width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
     .btn-copy-yesterday{width:100%;padding:10px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);color:var(--muted);border-radius:12px;font-size:.85rem;font-weight:600;margin-top:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
 
-    /* BUSCA E SCANNER */
+    /* BUSCA E CATEGORIAS */
     .search-header{display:flex;gap:8px;margin-bottom:14px}
     .search-wrap{position:relative;flex:1;display:flex}
     .search-wrap input{padding-left:44px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);border-radius:14px 0 0 14px}
     .search-wrap::before{content:'🔍';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;opacity:0.7;pointer-events:none}
-    .btn-scan{background:var(--blue-dim);border:1px solid rgba(72,219,251,0.2);color:var(--blue);padding:0 18px;border-radius:0 14px 14px 0;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+    .btn-filter{background:var(--purple-dim);border:1px solid rgba(165,94,234,0.2);color:var(--purple);padding:0 18px;border-radius:0 14px 14px 0;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
     .btn-recent{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);color:var(--text);border-radius:14px;padding:0 16px;cursor:pointer;font-size:1.2rem}
     
     .health-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
@@ -93,7 +91,17 @@
 
     .results{max-height:350px;overflow-y:auto;border-radius:16px;background:rgba(0,0,0,0.15);padding:4px}
     .result-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:transparent;border-radius:12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.02)}
-    #reader{width:100%; border-radius:16px; overflow:hidden;} #reader video{border-radius:16px; object-fit:cover;}
+
+    /* ESTILOS DA LISTA DE CATEGORIAS */
+    .cat-group { margin-bottom: 12px; background: rgba(0,0,0,0.2); border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+    .cat-header { padding: 16px; font-weight: 800; font-size: 1.05rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text); }
+    .cat-content { display: none; padding: 0 12px; }
+    .cat-content.open { display: block; animation: fadeIn 0.3s ease; }
+    .cat-item { padding: 14px 10px; border-top: 1px dashed rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s;}
+    .cat-item:active { background: rgba(255,255,255,0.05); border-radius: 10px; }
+    .cat-item-name { font-weight: 700; font-size: 0.95rem; }
+    .cat-item-macros { font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-weight: 500; }
+    .cat-item-kcal { font-weight: 800; color: var(--accent); font-size: 1.1rem; }
 
     /* INGREDIENTES DA RECEITA */
     .ingredient-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,0.05)}
@@ -123,7 +131,6 @@
     .imc-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
     .imc-detail-item{background:rgba(0,0,0,0.2);border-radius:14px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.03)}
 
-    /* CORREÇÃO DO TMB E IMC */
     .imc-detail-value { font-size:1.25rem; font-weight:800; }
     .imc-detail-label { font-size:0.75rem; color:var(--muted); margin-top:4px; font-weight:700; }
     .imc-scale-labels { display:flex; justify-content:space-between; font-size:0.65rem; color:var(--muted); font-weight:700; margin-top:4px; padding:0 4px; }
@@ -175,13 +182,15 @@
 <!-- TOAST NOTIFICATION -->
 <div id="toast" class="toast">✓ Sucesso!</div>
 
-<!-- MODAL CÂMARA BARCODE -->
-<div id="scannerModal" class="modal-overlay" onclick="if(event.target===this)closeScanner()">
-  <div class="modal-box" style="padding-bottom: 40px;">
+<!-- MODAL DE CATEGORIAS -->
+<div id="categoryModal" class="modal-overlay" onclick="if(event.target===this)closeCategoryModal()">
+  <div class="modal-box" style="padding-bottom: 20px; height: 85vh; display: flex; flex-direction: column;">
     <div class="modal-drag-handle"></div>
-    <h3 style="margin-bottom:16px">Ler Código de Barras</h3>
-    <div id="reader"></div>
-    <button class="btn btn-outline" style="margin-top:20px" onclick="closeScanner()">Cancelar</button>
+    <h3 style="margin-bottom:16px; display:flex; align-items:center; gap:8px">🗂️ Explorar por Categorias</h3>
+    <div id="categoryList" style="flex:1; overflow-y:auto; padding-right:5px; margin-bottom:16px;">
+        <!-- Categorias renderizadas aqui -->
+    </div>
+    <button class="btn btn-purple" style="margin-top:auto" onclick="closeCategoryModal()">Fechar Filtros</button>
   </div>
 </div>
 
@@ -302,12 +311,12 @@
       <button class="tab" data-tab="saved" onclick="switchTab('saved')">⭐ Favoritos</button>
     </div>
 
-    <!-- TAB: SEARCH COM CAMERA -->
+    <!-- TAB: SEARCH COM FILTROS -->
     <div id="tabSearch">
       <div class="search-header">
         <div class="search-wrap">
             <input id="foodSearch" type="text" placeholder="Arroz, pão, maçã..." enterkeyhint="search">
-            <button class="btn-scan" onclick="openScanner()" title="Ler Código de Barras">📷</button>
+            <button class="btn-filter" onclick="openCategoryModal()" title="Procurar por Categorias">🗂️</button>
         </div>
         <button class="btn-recent" onclick="showRecent()" title="Recentes">🕐</button>
       </div>
@@ -561,13 +570,24 @@ const LOCAL_FOODS = {
   'espinafre': { kcal:23, protein:2.9, carbs:3.6, fat:0.4 }
 };
 
+/* ── MAPEAMENTO DE CATEGORIAS LÓGICAS ── */
+const FOOD_CATEGORIES = {
+  "🥩 Proteínas (Carnes, Ovos, Peixes)": ['frango grelhado / peito de frango', 'ovo cozido', 'ovo frito', 'carne moída / patinho', 'picanha sem gordura', 'picanha com gordura', 'linguiça toscana', 'salmão grelhado', 'atum em lata', 'whey protein'],
+  "🍞 Carboidratos (Arroz, Pães, Massas)": ['arroz branco / arroz agulhinha', 'arroz integral', 'feijão carioca / feijão marrom', 'feijão preto', 'pão francês / pão de sal', 'pão de forma integral', 'tapioca', 'pão de queijo', 'cuscuz de milho', 'batata doce', 'batata inglesa', 'mandioca / aipim / macaxeira', 'farofa / farinha de mandioca', 'crepioca', 'aveia', 'macarrão cozido'],
+  "🥗 Vegetais e Saladas": ['alface / salada', 'tomate', 'cenoura', 'brócolis', 'espinafre'],
+  "🍎 Frutas": ['banana / banana prata', 'maçã', 'mamão', 'abacate'],
+  "🥛 Laticínios e Derivados": ['leite integral', 'leite desnatado', 'iogurte natural', 'queijo minas'],
+  "🥑 Gorduras e Oleaginosas": ['amendoim', 'azeite de oliva']
+};
+
 const CATEGORIES = { breakfast:'☕ Café da Manhã', lunch:'🍲 Almoço', snack:'🍎 Lanche', dinner:'🥗 Jantar' };
 const CIRCUM = 2 * Math.PI * 88;
 const $ = s => document.querySelector(s);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 let currentUser = null, recipeIngredients = [], _searchItems = [], _ingredientItems = [];
-let _selectedItem = null, _portionContext = 'search', saveTimer = null, _editingRecipeId = null, html5QrcodeScanner = null;
+let _categoryItemsFlat = []; // Ajuda no mapeamento modal categorias -> porção
+let _selectedItem = null, _portionContext = 'search', saveTimer = null, _editingRecipeId = null;
 let viewingDate = new Date();
 const getViewingDateStr = () => viewingDate.toISOString().slice(0, 10);
 
@@ -615,7 +635,6 @@ function showOnly(pageId) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* Proteção contra ataques XSS */
 function escapeHTML(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/[&<>'"]/g, function(tag) {
@@ -843,29 +862,66 @@ function renderTMBCard(containerId, weightKg, profile) {
     <p style="font-size:0.8rem; color:var(--muted); text-align:center; margin-top:12px; font-weight:600">Se ingerir menos de <b style="color:var(--accent)">${Math.round(tdee)} kcal</b>, irá perder peso.</p>`;
 }
 
-/* ── SCANNER ── */
-function openScanner() {
-  $('#scannerModal').classList.add('show');
-  if (!html5QrcodeScanner) {
-    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
-    html5QrcodeScanner.render(async (dt) => {
-      closeScanner();
-      showToast('Lido! Procurando...');
-      try {
-        let res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${dt}.json`);
-        let data = await res.json();
-        if (data.status === 1) {
-          _searchItems = [normalizeOFFProduct(data.product)];
-          renderSearchResults();
-          openPortionModal(0, 'search');
-        } else showToast('Não encontrado.', true);
-      } catch { showToast('Erro', true); }
-    }, () => { });
+/* ── EXPLORAR POR CATEGORIAS (MODAL) ── */
+function renderCategoryModal() {
+  let html = '';
+  _categoryItemsFlat = [];
+  let globalIdx = 0;
+
+  for (const [catName, keys] of Object.entries(FOOD_CATEGORIES)) {
+    html += `
+      <div class="cat-group">
+        <div class="cat-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          <span>${catName}</span><span style="color:var(--muted); font-size:0.8rem">▼</span>
+        </div>
+        <div class="cat-content">
+    `;
+    
+    keys.forEach(k => {
+      if(LOCAL_FOODS[k]) {
+        const food = LOCAL_FOODS[k];
+        const itemName = cap(k.split(' / ')[0]);
+        
+        _categoryItemsFlat.push({
+          name: itemName,
+          brand: 'Base Local',
+          kcal100: food.kcal,
+          protein100: food.protein,
+          carbs100: food.carbs,
+          fat100: food.fat
+        });
+
+        html += `
+          <div class="cat-item" onclick="selectCategoryItem(${globalIdx})">
+            <div>
+              <div class="cat-item-name">${itemName}</div>
+              <div class="cat-item-macros">P:${food.protein}g · C:${food.carbs}g · G:${food.fat}g</div>
+            </div>
+            <div class="cat-item-kcal">${food.kcal} <span style="font-size:0.7rem; color:var(--muted)">kcal</span></div>
+          </div>
+        `;
+        globalIdx++;
+      }
+    });
+    html += `</div></div>`;
   }
+  document.getElementById('categoryList').innerHTML = html;
 }
-function closeScanner() {
-  if (html5QrcodeScanner) { html5QrcodeScanner.clear(); html5QrcodeScanner = null; }
-  $('#scannerModal').classList.remove('show');
+
+function openCategoryModal() {
+  renderCategoryModal();
+  document.getElementById('categoryModal').classList.add('show');
+}
+
+function closeCategoryModal() {
+  document.getElementById('categoryModal').classList.remove('show');
+}
+
+function selectCategoryItem(idx) {
+  closeCategoryModal();
+  // Engana temporariamente o _searchItems para o modal de porção usar o nosso item da categoria
+  _searchItems = _categoryItemsFlat; 
+  openPortionModal(idx, 'search');
 }
 
 /* ── PESQUISA INTELIGENTE COM FUSE.JS ── */
@@ -879,7 +935,6 @@ const SYNONYMS = {
   "ovo": "ovos"
 };
 
-// Preparar os dados locais para o formato que o Fuse.js entende
 const fuseData = Object.entries(LOCAL_FOODS).map(([k, v]) => {
   let searchTerms = k;
   Object.keys(SYNONYMS).forEach(syn => {
@@ -898,10 +953,9 @@ const fuseData = Object.entries(LOCAL_FOODS).map(([k, v]) => {
   };
 });
 
-// Configurar o motor de pesquisa difusa (tolerância a erros)
 const fuse = new Fuse(fuseData, {
   keys: ['name', 'searchTerms'],
-  threshold: 0.4, // Quanto maior, mais perdoa erros
+  threshold: 0.4,
   ignoreLocation: true,
   minMatchCharLength: 2
 });
@@ -910,10 +964,7 @@ function localSearch(q) {
   const normalizedQuery = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (!normalizedQuery) return [];
 
-  // O Fuse faz a magia de procurar tolerando erros de digitação
   const results = fuse.search(normalizedQuery);
-  
-  // Devolver os resultados no formato exato que a sua app já espera
   return results.map(result => ({
     name: result.item.name,
     brand: result.item.brand,
@@ -1001,7 +1052,6 @@ function renderHome() {
       ? `<span class="tag tag-warn">⚠️ Faltam ${remain} kcal</span>`
       : `<span class="tag tag-over">🚫 Excedeu ${Math.abs(remain)} kcal</span>`;
 
-  // CÁLCULO DE PROTEÍNA MÍNIMA
   const currentWeight = getWeightForDate(viewDate) || p.weight;
   const proteinFactors = { "1.2": 1.2, "1.375": 1.4, "1.55": 1.6, "1.725": 1.8, "1.9": 2.0 };
   const minProtein = Math.round(currentWeight * (proteinFactors[p.activity] || 1.5));
@@ -1023,7 +1073,6 @@ function renderHome() {
   $('#pctC').textContent = totalMacroKcal > 0 ? `${Math.round((m.c * 4 / totalMacroKcal) * 100)}%` : '0%';
   $('#pctG').textContent = totalMacroKcal > 0 ? `${Math.round((m.g * 9 / totalMacroKcal) * 100)}%` : '0%';
 
-  // DIÁRIO CATEGORIZADO
   const meals = viewingMeals();
   $('#mealCountStr').textContent = `(${meals.length})`;
 
@@ -1275,7 +1324,6 @@ function confirmPortion() {
   const p = calcPortion(_selectedItem, totalGrams);
   if (isNaN(p.kcal)) { showToast('Erro no cálculo', true); return; }
   
-  // SANITIZAÇÃO NO NOME VINDO DO SEARCH/API
   let displayName = escapeHTML(cap(_selectedItem.name));
   const unitSelect = $('#portionUnit');
   const unitText = unitSelect.options[unitSelect.selectedIndex].text.split(' ')[0];
@@ -1311,7 +1359,6 @@ function saveMeal(meal) {
 }
 
 function addManualFood() {
-  // SANITIZAÇÃO DO TEXTO INTRODUZIDO PELO UTILIZADOR (XSS)
   const rawName = $('#manualName').value.trim();
   if (!rawName) return showToast('Digite um nome', true);
   const name = escapeHTML(rawName);
@@ -1398,7 +1445,6 @@ function saveRecipe(alsoLog) {
   if (!recipeIngredients.length) return showToast('Adicione ingredientes primeiro.', true);
   const sum = recipeIngredients.reduce((o, g) => ({ kcal: o.kcal + g.kcal, p: o.p + g.protein, c: o.c + g.carbs, g: o.g + g.fat }), { kcal: 0, p: 0, c: 0, g: 0 });
   
-  // SANITIZAÇÃO DO NOME DA RECEITA
   const name = escapeHTML($('#recipeName').value.trim()) || recipeIngredients.map(i => i.name).join(' + ');
   
   const recipes = getSavedRecipes();
@@ -1475,7 +1521,6 @@ function onProgressRangeChange(){
 function switchProgressTab(tab) {
   currentProgressTab = tab;
   
-  // Sincroniza a interface
   const sel = document.getElementById('progressCategorySelect');
   if(sel) sel.value = tab;
   
@@ -1493,7 +1538,6 @@ function renderProgress() {
   else if (currentProgressTab === 'measures') renderMeasuresProgress();
 }
 
-/* Utilitários de Filtro de Tempo (7, 30, 90 dias) */
 function getRangeDataFromMeals(days){
   const meals = getMeals(), out = [];
   for (let i = days - 1; i >= 0; i--){
@@ -1539,7 +1583,6 @@ function renderCaloriesProgress() {
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${data.filter(d=>d.value<=goal && d.value > 0).length}/${progressRangeDays}`;
 
-  // Se forem 7 dias, mostra ambos (barras e linha). Se for mais, só linha.
   if(progressRangeDays <= 7) {
       $('#chartCal7').parentElement.style.display = 'block';
       setTimeout(() => drawBarChartCal('chartCal7', data, goal), 100);
@@ -2044,7 +2087,6 @@ async function resetApp() {
   navigate('setup');
 }
 
-/* Inicializa com a tab de Evolução correta */
 document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('progressCategorySelect');
   if(sel) sel.value = currentProgressTab;
