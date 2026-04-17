@@ -534,6 +534,7 @@
       <div class="cal-stat-item"><div style="font-size:1.8rem">🎯</div><div id="statWaterDays" style="font-size:1.6rem;font-weight:800;color:var(--green)">0</div><div style="font-size:.75rem;color:var(--muted)">Dias na Meta</div></div>
     </div>
     <div class="card"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Análise de Hidratação</div><div class="chart-container"><canvas id="chartWater7"></canvas></div></div>
+    <div class="card" id="waterHistoryCard"><div style="font-size:1.05rem;font-weight:800;margin-bottom:16px">Histórico de Hidratação</div><div id="waterHistoryList"><div class="empty">Nenhum registo de água</div></div></div>
   </div>
 
   <div id="progressMeasures" class="progress-section">
@@ -1073,7 +1074,7 @@ async function apiSearch(q) {
           fat100: Math.round((nut.fat_100g || nut.fat || 0) * 10) / 10,
           fiber100: Math.round((nut.fiber_100g || nut.fiber || 0) * 10) / 10
         };
-      }).filter(p => p.name !== 'Produto Web' && !isNaN(p.kcal100) && p.kcal100 > 0);
+      }).filter(p => p.name !== 'Produto Web' && !isNaN(p.kcal100)); // Filtro de >0 removido para mostrar tudo
     }
   } catch (error) { console.error("Erro na API externa:", error); }
   return [];
@@ -1358,18 +1359,6 @@ function getRangeDataFromWeights(days){
   return all.filter(w => w.date >= cutoff.toISOString().slice(0,10));
 }
 
-// Histórico com preenchimento (para o gráfico não ficar quebrado)
-function getPaddedWeightData(days) {
-  const out = [];
-  for (let i = days - 1; i >= 0; i--){
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0,10);
-    const val = getWeightForDate(key);
-    if (val) out.push({ date: key, value: val });
-  }
-  return out;
-}
-
 function getRangeDataFromMeasures(days){
   const all = getMeasures(); if (!all.length) return [];
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - (days - 1));
@@ -1387,20 +1376,25 @@ function renderCaloriesProgress() {
   $('#statWorst').textContent = vals.length ? Math.max(...vals) : 0;
   $('#statDays').textContent = `${data.filter(d=>d.value<=goal && d.value > 0).length}/${progressRangeDays}`;
 
-  if(progressRangeDays <= 7) { $('#chartCal7').parentElement.style.display = 'block'; setTimeout(() => drawBarChartCal('chartCal7', data, goal), 150); } 
-  else { $('#chartCal7').parentElement.style.display = 'none'; }
-  setTimeout(() => drawLineChartCal('chartCal14', data, goal), 150);
+  if(progressRangeDays <= 7) { 
+    $('#chartCal7').parentElement.parentElement.style.display = 'block'; 
+    $('#chartCal14').parentElement.parentElement.style.display = 'none';
+    setTimeout(() => drawBarChartCal('chartCal7', data, goal), 150); 
+  } else { 
+    $('#chartCal7').parentElement.parentElement.style.display = 'none'; 
+    $('#chartCal14').parentElement.parentElement.style.display = 'block';
+    setTimeout(() => drawLineChartCal('chartCal14', data, goal), 150);
+  }
 }
 
 function renderWeightProgress() {
   const p = getProfile(), allWeights = getWeights();
   let rawRangeWeights = getRangeDataFromWeights(progressRangeDays);
-  let paddedWeights = getPaddedWeightData(progressRangeDays);
 
   setTimeout(() => { 
-    drawWeightChart(paddedWeights, p); 
-    drawIMCChart(paddedWeights, p); 
-    drawTMBChart(paddedWeights, p); 
+    drawWeightChart(rawRangeWeights, p); 
+    drawIMCChart(rawRangeWeights, p); 
+    drawTMBChart(rawRangeWeights, p); 
   }, 150);
 
   const list = $('#weightHistoryList');
@@ -1427,6 +1421,14 @@ function renderWaterProgress() {
   $('#statWaterAvg').textContent = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   $('#statWaterDays').textContent = `${data.filter(d=>d.value >= wGoal).length}/${progressRangeDays}`;
   setTimeout(()=> drawBarChartWater('chartWater7', data, wGoal), 150);
+
+  const list = $('#waterHistoryList');
+  const validData = data.filter(d => d.value > 0).reverse();
+  if(!validData.length) { 
+    list.innerHTML = '<div class="empty">Nenhum registo de água no período</div>'; 
+  } else {
+    list.innerHTML = validData.map(d => `<div class="weight-history-item"><div><div style="font-weight:700;font-size:1rem">${d.date === todayStr() ? '📍 Hoje' : d.label}</div></div><div style="font-weight:800;font-size:1.15rem;color:var(--blue)">${d.value} ml</div></div>`).join('');
+  }
 }
 
 function renderMeasuresProgress() {
@@ -1534,26 +1536,39 @@ function drawWeightChart(weights, profile) {
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, H = 260;
   canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
-  if (weights.length < 2) { ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W / 2, H / 2); return; }
+  
+  if (weights.length === 0) { 
+    ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Nenhum registo neste período', W / 2, H / 2); return; 
+  }
+  
   const pad = 45, vals = weights.map(w => w.value), goalW = profile ? profile.goal : null;
   let min = Math.min(...vals), max = Math.max(...vals); if (goalW !== null) { min = Math.min(min, goalW); max = Math.max(max, goalW); }
-  const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
+  const range = max - min || 10; min -= range * 0.15; max += range * 0.15;
   const getY = v => pad + (1 - (v - min) / (max - min)) * (H - pad * 2);
+  
   if (goalW !== null) {
     const gy = getY(goalW); ctx.strokeStyle = 'rgba(16,172,132,0.4)'; ctx.lineWidth = 1; ctx.setLineDash([6, 4]);
     ctx.beginPath(); ctx.moveTo(pad, gy); ctx.lineTo(W - pad, gy); ctx.stroke(); ctx.setLineDash([]);
     ctx.fillStyle = 'rgba(16,172,132,0.8)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`Objetivo ${goalW} kg`, pad + 4, gy - 6);
   }
-  const pts = weights.map((w, i) => ({ x: pad + (i / (weights.length - 1)) * (W - pad * 2), y: getY(w.value), val: w.value }));
+  
+  const pts = weights.length === 1 
+    ? [{ x: W / 2, y: getY(weights[0].value), val: weights[0].value, date: weights[0].date }]
+    : weights.map((w, i) => ({ x: pad + (i / (weights.length - 1)) * (W - pad * 2), y: getY(w.value), val: w.value, date: w.date }));
+    
   const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(255,71,87,0.15)'); grad.addColorStop(1, 'rgba(255,71,87,0)');
-  ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  if(pts.length > 1) {
+    ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  }
+  
   const step = Math.max(1, Math.floor(weights.length / 8));
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = '#ff4757'; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${p.val}`, p.x, p.y - 12);
-    if (i % step === 0 || i === weights.length - 1) { const d = new Date(weights[i].date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8); }
+    if (i % step === 0 || i === weights.length - 1) { const d = new Date(p.date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8); }
   });
   ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '600 9px sans-serif'; ctx.textAlign = 'right';
   for (let i = 0; i <= 5; i++) { const v = min + (i / 5) * (max - min), y = getY(v); ctx.fillText(v.toFixed(1), pad - 8, y + 3); ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke(); }
@@ -1564,12 +1579,15 @@ function drawIMCChart(weights, profile) {
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, H = 260;
   canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
-  if (!profile || weights.length < 2) { ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W / 2, H / 2); return; }
+  
+  if (!profile || weights.length === 0) { ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Nenhum registo neste período', W / 2, H / 2); return; }
+  
   const heightM = profile.height / 100, imcData = weights.map(w => ({ date: w.date, imc: w.value / (heightM * heightM) }));
   const pad = 45, vals = imcData.map(d => d.imc);
   let min = Math.min(...vals, 18.5), max = Math.max(...vals, 25);
-  const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
+  const range = max - min || 5; min -= range * 0.15; max += range * 0.15;
   const getY = v => pad + (1 - (v - min) / (max - min)) * (H - pad * 2);
+  
   ctx.fillStyle = 'rgba(16,172,132,0.08)'; ctx.fillRect(pad, Math.min(getY(18.5), getY(24.9)), W - pad * 2, Math.abs(getY(24.9) - getY(18.5)));
   [18.5, 25, 30].forEach(ref => {
     const ry = getY(ref);
@@ -1579,16 +1597,24 @@ function drawIMCChart(weights, profile) {
       ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`IMC ${ref}`, pad + 4, ry - 4);
     }
   });
-  const pts = imcData.map((d, i) => ({ x: pad + (i / (imcData.length - 1)) * (W - pad * 2), y: getY(d.imc), val: d.imc }));
+  
+  const pts = imcData.length === 1 
+    ? [{ x: W / 2, y: getY(imcData[0].imc), val: imcData[0].imc, date: imcData[0].date }]
+    : imcData.map((d, i) => ({ x: pad + (i / (imcData.length - 1)) * (W - pad * 2), y: getY(d.imc), val: d.imc, date: d.date }));
+    
   const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, 'rgba(165,94,234,0.15)'); grad.addColorStop(1, 'rgba(165,94,234,0)');
-  ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#a55eea'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  if(pts.length > 1) {
+    ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = '#a55eea'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  }
+  
   const step = Math.max(1, Math.floor(imcData.length / 8));
   pts.forEach((p, i) => {
     const cat = getIMCCategory(p.val); ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = cat.color; ctx.fill();
     ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = '#0a0a12'; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.val.toFixed(1), p.x, p.y - 12);
-    if (i % step === 0 || i === imcData.length - 1) { const d = new Date(imcData[i].date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8); }
+    if (i % step === 0 || i === imcData.length - 1) { const d = new Date(p.date + 'T12:00:00'); ctx.fillStyle = '#8395a7'; ctx.font = '600 8px sans-serif'; ctx.fillText(d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }), p.x, H - 8); }
   });
 }
 function drawTMBChart(weights, profile) {
@@ -1597,14 +1623,24 @@ function drawTMBChart(weights, profile) {
   const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1, H = 260;
   canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.width = W+'px'; canvas.style.height = H+'px';
   ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  if(!profile || weights.length < 2){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 pesagens para ver o gráfico', W/2, H/2); return; }
+  
+  if(!profile || weights.length === 0){ ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Nenhum registo neste período', W/2, H/2); return; }
+  
   const tmb = weights.map(w => { const bmr = profile.sex === 'M' ? (10*w.value + 6.25*profile.height - 5*profile.age + 5) : (10*w.value + 6.25*profile.height - 5*profile.age - 161); return { date:w.date, value: Math.round(bmr) }; });
   const pad=45; let min=Math.min(...tmb.map(x=>x.value)), max=Math.max(...tmb.map(x=>x.value));
-  const range=(max-min)||1; min -= range*0.15; max += range*0.15; const getY=v=> pad + (1-(v-min)/(max-min))*(H-pad*2);
-  const pts=tmb.map((d,i)=>({ x: pad + (i/(tmb.length-1))*(W-pad*2), y: getY(d.value), v: d.value, date: d.date }));
+  const range=(max-min)||500; min -= range*0.15; max += range*0.15; const getY=v=> pad + (1-(v-min)/(max-min))*(H-pad*2);
+  
+  const pts = tmb.length === 1 
+    ? [{ x: W / 2, y: getY(tmb[0].value), v: tmb[0].value, date: tmb[0].date }]
+    : tmb.map((d,i)=>({ x: pad + (i/(tmb.length-1))*(W-pad*2), y: getY(d.value), v: d.value, date: d.date }));
+    
   const grad=ctx.createLinearGradient(0,0,0,H); grad.addColorStop(0,'rgba(255,71,87,0.15)'); grad.addColorStop(1,'rgba(255,71,87,0)');
-  ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-pad); ctx.fillStyle=grad; ctx.fill();
-  ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle='#ff4757'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
+  
+  if(pts.length > 1) {
+    ctx.beginPath(); ctx.moveTo(pts[0].x,H-pad); pts.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.lineTo(pts[pts.length-1].x,H-pad); ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.strokeStyle='#ff4757'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.stroke();
+  }
+  
   const step = Math.max(1, Math.floor(tmb.length / 8));
   pts.forEach((p,i)=>{
     ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fillStyle='#ff4757'; ctx.fill();
@@ -1642,14 +1678,22 @@ function drawMeasureChart(id, measures, key, color) {
   canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
   const filtered = measures.filter(m => m[key]);
-  if (filtered.length < 2) { ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Registe pelo menos 2 medições', W / 2, H / 2); return; }
+  if (filtered.length === 0) { ctx.fillStyle = '#8395a7'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Nenhum registo neste período', W / 2, H / 2); return; }
   const pad = 45, vals = filtered.map(m => m[key]);
-  let min = Math.min(...vals), max = Math.max(...vals); const range = max - min || 1; min -= range * 0.15; max += range * 0.15;
+  let min = Math.min(...vals), max = Math.max(...vals); const range = max - min || 10; min -= range * 0.15; max += range * 0.15;
   const getY = v => pad + (1 - (v - min) / (max - min)) * (H - pad * 2);
-  const pts = filtered.map((m, i) => ({ x: pad + (i / (filtered.length - 1)) * (W - pad * 2), y: getY(m[key]), val: m[key], date: m.date }));
+  
+  const pts = filtered.length === 1 
+    ? [{ x: W / 2, y: getY(filtered[0][key]), val: filtered[0][key], date: filtered[0].date }]
+    : filtered.map((m, i) => ({ x: pad + (i / (filtered.length - 1)) * (W - pad * 2), y: getY(m[key]), val: m[key], date: m.date }));
+    
   const grad = ctx.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, color + '22'); grad.addColorStop(1, color + '00');
-  ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
-  ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  
+  if(pts.length > 1) {
+    ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.lineTo(pts[pts.length - 1].x, H - pad); ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  }
+  
   const step = Math.max(1, Math.floor(filtered.length / 8));
   pts.forEach((p, i) => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
