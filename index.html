@@ -24,7 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
   <style>
-    :root{--bg:#0a0a12;--card:#141423;--card-hover:#1c1c2e;--accent:#ff4757;--accent-dim:rgba(255,71,87,0.15);--green:#10ac84;--green-dim:rgba(16,172,132,0.15);--yellow:#feca57;--yellow-dim:rgba(254,202,87,0.15);--blue:#48dbfb;--blue-dim:rgba(72,219,251,0.15);--purple:#a55eea;--purple-dim:rgba(165,94,234,0.15);--text:#f1f2f6;--muted:#8395a7;--radius:24px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom);}
+    :root{--bg:#0a0a12;--card:#141423;--card-hover:#1c1c2e;--accent:#ff4757;--accent-dim:rgba(255,71,87,0.15);--green:#10ac84;--green-dim:rgba(16,172,132,0.15);--yellow:#feca57;--yellow-dim:rgba(254,202,87,0.15);--blue:#48dbfb;--blue-dim:rgba(72,219,251,0.15);--purple:#a55eea;--purple-dim:rgba(165,94,234,0.15);--text:#f1f2f6;--muted:#8395a7;--radius:24px;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-bottom);}
     html { scroll-behavior: smooth; }
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif}
     body{background:var(--bg);color:var(--text);min-height:100dvh;padding:calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 90px);overflow-x:hidden}
@@ -169,7 +169,7 @@
     
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
     .modal-overlay.show{opacity:1;pointer-events:auto}
-    .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto;}
+    .modal-box{background:var(--bg);width:100%;border-radius:32px 32px 0 0;padding:30px 24px calc(var(--safe-bottom) + 24px);box-shadow:0 -10px 40px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto; will-change: transform;}
     .modal-overlay.show .modal-box{transform:translateY(0)}
     .modal-drag-handle{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:3px;margin:0 auto 20px}
     .portion-presets{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
@@ -428,22 +428,26 @@
       <div class="macro-item">
         <div class="macro-label"><span id="lblP">Proteína</span> <span id="pctP" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barP" style="background:var(--blue);width:0%"></div></div>
-        <span class="macro-val" id="macroP">0g</span>
+        <span class="macro-val" id="macroP" style="margin-bottom:2px">0g</span>
+        <div style="font-size:0.65rem; color:var(--muted); font-weight:700" id="tgtP"></div>
       </div>
       <div class="macro-item">
         <div class="macro-label"><span id="lblC">Carbos</span> <span id="pctC" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barC" style="background:var(--yellow);width:0%"></div></div>
-        <span class="macro-val" id="macroC">0g</span>
+        <span class="macro-val" id="macroC" style="margin-bottom:2px">0g</span>
+        <div style="font-size:0.65rem; color:var(--muted); font-weight:700" id="tgtC"></div>
       </div>
       <div class="macro-item">
         <div class="macro-label"><span id="lblG">Gordura</span> <span id="pctG" style="color:var(--text)">0%</span></div>
         <div class="progress-bg"><div class="progress-fill" id="barG" style="background:var(--accent);width:0%"></div></div>
-        <span class="macro-val" id="macroG">0g</span>
+        <span class="macro-val" id="macroG" style="margin-bottom:2px">0g</span>
+        <div style="font-size:0.65rem; color:var(--muted); font-weight:700" id="tgtG"></div>
       </div>
       <div class="macro-item">
-        <div class="macro-label"><span id="lblF">Fibras</span> <span style="color:var(--muted)">25g</span></div>
+        <div class="macro-label"><span id="lblF">Fibras</span> <span id="pctF" style="color:var(--text)"></span></div>
         <div class="progress-bg"><div class="progress-fill" id="barF" style="background:var(--purple);width:0%"></div></div>
-        <span class="macro-val" id="macroF">0g</span>
+        <span class="macro-val" id="macroF" style="margin-bottom:2px">0g</span>
+        <div style="font-size:0.65rem; color:var(--muted); font-weight:700" id="tgtF"></div>
       </div>
     </div>
   </div>
@@ -796,7 +800,7 @@ async function signIn() {
 }
 async function signOutUser() { await auth.signOut(); $('#authEmail').value = ''; $('#authPass').value = ''; }
 
-/* ── NAVEGAÇÃO E DATAS (CORRIGIDO) ── */
+/* ── NAVEGAÇÃO E DATAS ── */
 function navigate(page) {
   showOnly(page);
   setNavVisible(['home', 'progress', 'profile'].includes(page));
@@ -876,15 +880,36 @@ function renderHome() {
   let goalP = Math.max(Math.round((goal * 0.3) / 4), Math.round(p.weight * 1.5)), goalG = Math.round((goal * 0.3) / 9), goalC = Math.round((goal - (goalP * 4) - (goalG * 9)) / 4), goalF = 25; 
 
   const m = viewingMacros();
-  $('#lblP').textContent = `Proteína (${goalP}g)`; $('#macroP').textContent = `${Math.round(m.p)}g`; $('#barP').style.width = `${Math.min((m.p/goalP)*100, 100)}%`;
-  $('#lblC').textContent = `Carbos (${goalC}g)`; $('#macroC').textContent = `${Math.round(m.c)}g`; $('#barC').style.width = `${Math.min((m.c/goalC)*100, 100)}%`;
-  $('#lblG').textContent = `Gordura (${goalG}g)`; $('#macroG').textContent = `${Math.round(m.g)}g`; $('#barG').style.width = `${Math.min((m.g/goalG)*100, 100)}%`;
-  $('#macroF').textContent = `${Math.round(m.f)}g`; $('#barF').style.width = `${Math.min((m.f/goalF)*100, 100)}%`;
   
+  function updateMacroUI(idPrefix, name, current, goalTarget, type, defaultColor) {
+    const p = goalTarget > 0 ? current / goalTarget : 0;
+    let s = '', c = defaultColor;
+    if (type === 'min') {
+      if (p < 0.75) { s = '<span style="color:var(--accent)">⚠️ Baixo</span>'; c = 'var(--accent)'; }
+      else if (p <= 1.2) { s = '<span style="color:var(--green)">✅ Bom</span>'; c = 'var(--green)'; }
+      else { s = '<span style="color:var(--blue)">✨ Ótimo</span>'; c = 'var(--blue)'; }
+      $(`#tgt${idPrefix}`).textContent = `Mín: ${goalTarget}g`;
+    } else {
+      if (p > 1.1) { s = '<span style="color:var(--accent)">⚠️ Alto</span>'; c = 'var(--accent)'; }
+      else if (p >= 0.8) { s = '<span style="color:var(--green)">✅ Bom</span>'; c = 'var(--green)'; }
+      $(`#tgt${idPrefix}`).textContent = `Meta: ${goalTarget}g`;
+    }
+    $(`#lbl${idPrefix}`).innerHTML = `${name} ${s ? '('+s+')' : ''}`;
+    $(`#macro${idPrefix}`).textContent = `${Math.round(current)}g`;
+    $(`#bar${idPrefix}`).style.width = `${Math.min(p * 100, 100)}%`;
+    $(`#bar${idPrefix}`).style.background = c;
+  }
+
+  updateMacroUI('P', 'Proteína', m.p, goalP, 'min', 'var(--blue)');
+  updateMacroUI('C', 'Carbos', m.c, goalC, 'max', 'var(--yellow)');
+  updateMacroUI('G', 'Gordura', m.g, goalG, 'max', 'var(--accent)');
+  updateMacroUI('F', 'Fibras', m.f, goalF, 'min', 'var(--purple)');
+
   const totalMac = (m.p*4) + (m.c*4) + (m.g*9);
   $('#pctP').textContent = totalMac>0 ? `${Math.round((m.p*4/totalMac)*100)}%` : '0%';
   $('#pctC').textContent = totalMac>0 ? `${Math.round((m.c*4/totalMac)*100)}%` : '0%';
   $('#pctG').textContent = totalMac>0 ? `${Math.round((m.g*9/totalMac)*100)}%` : '0%';
+  $('#pctF').textContent = '';
 
   const meals = viewingMeals(); $('#mealCountStr').textContent = `(${meals.length})`;
   let diaryHtml = '';
@@ -984,7 +1009,7 @@ function copyYesterday(catKey) {
   toCopy.forEach(m => STATE.ct_meals[t].push({...m, type:catKey})); queueSave(); renderHome(); toggleMealList(true); showToast('Copiado!');
 }
 
-/* ── MOVER REFEIÇÃO (NOVIDADE) ── */
+/* ── MOVER REFEIÇÃO ── */
 let _mealToMoveIdx = null;
 function openMoveMealModal(idx) {
   _mealToMoveIdx = idx;
@@ -992,19 +1017,13 @@ function openMoveMealModal(idx) {
   $('#moveMealSelect').value = meal.type || 'snack';
   $('#moveMealModal').classList.add('show');
 }
-function closeMoveMealModal() {
-  $('#moveMealModal').classList.remove('show');
-  _mealToMoveIdx = null;
-}
+function closeMoveMealModal() { $('#moveMealModal').classList.remove('show'); _mealToMoveIdx = null; }
 function confirmMoveMeal() {
   if(_mealToMoveIdx === null) return;
-  const allMeals = getMeals();
-  const today = getViewingDateStr();
+  const allMeals = getMeals(), today = getViewingDateStr();
   allMeals[today][_mealToMoveIdx].type = $('#moveMealSelect').value;
   setState('ct_meals', allMeals);
-  closeMoveMealModal();
-  renderHome();
-  showToast('Refeição movida!');
+  closeMoveMealModal(); renderHome(); showToast('Refeição movida!');
 }
 
 function switchTab(tab) {
@@ -1034,6 +1053,7 @@ function openCategoryModal() { renderCategoryModal(); $('#categoryModal').classL
 function closeCategoryModal() { $('#categoryModal').classList.remove('show'); }
 function selectCategoryItem(idx) { closeCategoryModal(); _searchItems = _categoryItemsFlat; openPortionModal(idx, 'search'); }
 
+const SYNONYMS = { "aipim": "mandioca macaxeira", "mandioca": "aipim macaxeira", "macaxeira": "aipim mandioca", "pao": "pão", "acucar": "açúcar", "frango": "galinha ave", "ovo": "ovos", "suco": "sumo", "sumo": "suco", "curgete": "abobrinha", "abobrinha": "curgete", "beringela": "berinjela", "berinjela": "beringela" };
 const fuseData = Object.entries(LOCAL_FOODS).map(([k, v]) => {
   let s = k; Object.keys(SYNONYMS).forEach(syn => { if (k.includes(syn)) s += ` ${SYNONYMS[syn]}`; });
   return { idKey:k, name:cap(k.split(' / ')[0]), searchTerms:s, brand:'Base Local', kcal100:v.kcal, protein100:v.protein, carbs100:v.carbs, fat100:v.fat, fiber100:v.fiber||0 };
@@ -1206,7 +1226,7 @@ function deleteMeasure(idx) {
   measures.splice(idx, 1); setState('ct_measures', measures); renderMeasuresProgress();
 }
 
-/* ── PROGRESS & EVOLUÇÃO (CORRIGIDO) ── */
+/* ── PROGRESS & EVOLUÇÃO ── */
 function onProgressCategoryChange(){ switchProgressTab(document.getElementById('progressCategorySelect').value); }
 function onProgressRangeChange(){ progressRangeDays = parseInt(document.getElementById('progressRangeSelect').value, 10); renderProgress(); }
 
