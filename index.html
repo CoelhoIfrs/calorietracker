@@ -1059,25 +1059,44 @@ function localSearch(q) { const nq = q.toLowerCase().normalize('NFD').replace(/[
 
 async function apiSearch(q) {
   try {
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=15`;
+    // Usamos pt.openfoodfacts.org para dar foco nos produtos de língua portuguesa
+    const url = `https://pt.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=15`;
     const response = await fetch(url);
     const data = await response.json();
+    
     if (data.products && data.products.length > 0) {
       return data.products.map(p => {
         const nut = p.nutriments || {};
+        
+        // BUG FIX: O Open Food Facts às vezes só regista a energia em kJ (energy_100g) e não em kcal.
+        // Se não tiver kcal, fazemos a conversão para que os alimentos não fiquem com 0 calorias e desapareçam
+        let kcal = nut['energy-kcal_100g'];
+        if (kcal === undefined && nut['energy_100g']) {
+          kcal = nut['energy_100g'] / 4.184; // Transforma Joules em Calorias
+        }
+        
+        // BUG FIX: Prioridade total aos nomes em Português
+        let name = p.product_name_pt || p.product_name_br || p.product_name || p.generic_name || '';
+        if (!name && p.brands) name = p.brands; // Se estiver tudo em branco, mostra pelo menos a marca
+        
+        // Formata o nome para ficar bonito (Maiúscula inicial)
+        if (name) name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+
         return {
           idKey: p._id || p.code,
-          name: p.product_name_pt || p.product_name || 'Produto Sem Nome',
+          name: name || 'Produto Desconhecido',
           brand: p.brands ? p.brands.split(',')[0] : 'Web',
-          kcal100: Math.round(nut['energy-kcal_100g'] || 0),
+          kcal100: Math.round(kcal || 0),
           protein100: Math.round((nut.proteins_100g || 0) * 10) / 10,
           carbs100: Math.round((nut.carbohydrates_100g || 0) * 10) / 10,
           fat100: Math.round((nut.fat_100g || 0) * 10) / 10,
           fiber100: Math.round((nut.fiber_100g || 0) * 10) / 10
         };
-      }).filter(p => p.kcal100 > 0);
+      }).filter(p => p.name !== 'Produto Desconhecido' && p.kcal100 > 0); // Filtra as falhas
     }
-  } catch (error) { console.error("Erro na API externa:", error); }
+  } catch (error) { 
+    console.error("Erro na API externa:", error); 
+  }
   return [];
 }
 
@@ -1086,7 +1105,7 @@ $('#foodSearch').addEventListener('input', e => {
   clearTimeout(searchTimer); const q = e.target.value.trim();
   if (q.length < 2) { $('#searchResults').innerHTML = ''; return; }
   
-  $('#searchResults').innerHTML = '<div class="empty">A pesquisar... 🔍</div>';
+  $('#searchResults').innerHTML = '<div class="empty">A pesquisar na internet... 🔍</div>';
 
   searchTimer = setTimeout(async () => {
     const local = localSearch(q);
@@ -1102,7 +1121,7 @@ function renderSearchResults() {
     let tColor = it.kcal100 < 150 ? '#10ac84' : it.kcal100 <= 300 ? '#feca57' : '#ff4757';
     let tDot = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${tColor};margin-right:6px;"></span>`;
     let tagWeb = (it.brand && it.brand !== 'Base Local') ? `<span style="font-size:0.6rem;background:rgba(255,255,255,0.15);padding:2px 6px;border-radius:6px;margin-left:6px;color:var(--muted)">🌍 Web</span>` : '';
-    return `<div class="result-item" onclick="openPortionModal(${i}, 'search')"><div style="flex:1"><div style="font-weight:700;font-size:1.05rem">${tDot}${cap(it.name)}${tagWeb}</div><div style="font-size:.75rem;color:var(--muted);font-weight:500">P:${it.protein100}g C:${it.carbs100}g Fibra:${it.fiber100||0}g</div></div><div style="font-weight:800;color:var(--accent);font-size:1.2rem;min-width:50px;text-align:right">${Math.round(it.kcal100)}</div></div>`;
+    return `<div class="result-item" onclick="openPortionModal(${i}, 'search')"><div style="flex:1"><div style="font-weight:700;font-size:1.05rem">${tDot}${it.name}${tagWeb}</div><div style="font-size:.75rem;color:var(--muted);font-weight:500">P:${it.protein100}g C:${it.carbs100}g Fibra:${it.fiber100||0}g</div></div><div style="font-weight:800;color:var(--accent);font-size:1.2rem;min-width:50px;text-align:right">${Math.round(it.kcal100)}</div></div>`;
   }).join('');
 }
 
@@ -1180,7 +1199,7 @@ $('#ingName').addEventListener('input', e => {
   clearTimeout(searchTimer); const q = e.target.value.trim();
   if (q.length < 2) { $('#ingResults').innerHTML = ''; return; }
   
-  $('#ingResults').innerHTML = '<div class="empty">A pesquisar... 🔍</div>';
+  $('#ingResults').innerHTML = '<div class="empty">A pesquisar ingredientes... 🔍</div>';
   
   searchTimer = setTimeout(async () => {
     const local = localSearch(q);
@@ -1194,7 +1213,7 @@ $('#ingName').addEventListener('input', e => {
 
     $('#ingResults').innerHTML = _ingredientItems.map((it, idx) => {
       let tagWeb = (it.brand && it.brand !== 'Base Local') ? `<span style="font-size:0.6rem;background:rgba(255,255,255,0.15);padding:2px 4px;border-radius:4px;margin-left:4px">Web</span>` : '';
-      return `<div class="result-item" onclick="openPortionModal(${idx}, 'ingredient')"><div style="flex:1"><div style="font-weight:600">${cap(it.name)} ${tagWeb}</div><div style="font-size:.75rem;color:var(--muted)">por 100g · P:${it.protein100}g</div></div><div style="font-weight:700;color:var(--accent)">${Math.round(it.kcal100)} kcal</div></div>`;
+      return `<div class="result-item" onclick="openPortionModal(${idx}, 'ingredient')"><div style="flex:1"><div style="font-weight:600">${it.name} ${tagWeb}</div><div style="font-size:.75rem;color:var(--muted)">por 100g · P:${it.protein100}g</div></div><div style="font-weight:700;color:var(--accent)">${Math.round(it.kcal100)} kcal</div></div>`;
     }).join('');
   }, 600);
 });
