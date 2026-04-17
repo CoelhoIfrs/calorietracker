@@ -2003,5 +2003,210 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+  <script>
+/* =========================
+   CONFIGURAÇÃO RÁPIDA
+========================= */
+const SEARCH_CONFIG = {
+  inputId: "searchInput",
+  resultsId: "resultsList",
+  metaId: "searchMeta",
+  sourceId: "sourceSelect"
+};
+
+/* =========================
+   UTILITÁRIOS
+========================= */
+const SYNONYMS = {
+  "aipim": ["mandioca", "macaxeira"],
+  "mandioca": ["aipim", "macaxeira"],
+  "acucar": ["açúcar"],
+  "pimentao": ["pimento"],
+  "pimento": ["pimentão"]
+};
+
+function normalize(text = "") {
+  return String(text)
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function expandQuery(query = "") {
+  const base = normalize(query).split(" ").filter(Boolean);
+  const set = new Set(base);
+  base.forEach(t => (SYNONYMS[t] || []).forEach(s => set.add(normalize(s))));
+  return [...set].join(" ");
+}
+
+function debounce(fn, wait = 200) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
+}
+
+/* =========================
+   DETEÇÃO DOS DADOS LOCAIS
+   (adapte só se necessário)
+========================= */
+function getLocalData() {
+  // Tenta usar variáveis comuns já existentes no seu projeto
+  const candidates = [
+    window.allItems,
+    window.items,
+    window.recipes,
+    window.receitas,
+    window.products,
+    window.produtos
+  ];
+
+  const arr = candidates.find(x => Array.isArray(x));
+  if (!arr) return [];
+
+  // Normaliza campos para estrutura única
+  return arr.map((x, i) => ({
+    id: x.id || x.code || `local-${i}`,
+    name: x.name || x.nome || x.title || x.titulo || "",
+    category: x.category || x.categoria || "",
+    ingredients: x.ingredients || x.ingredientes || [],
+    tags: x.tags || [],
+    source: "local",
+    _raw: x
+  })).filter(x => x.name);
+}
+
+/* =========================
+   ÍNDICE DE PESQUISA LOCAL
+========================= */
+let LOCAL_DATA = getLocalData();
+let fuse = null;
+
+function rebuildFuse() {
+  LOCAL_DATA = getLocalData();
+
+  fuse = new Fuse(LOCAL_DATA, {
+    includeScore: true,
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+    keys: [
+      { name: "name", weight: 0.50 },
+      { name: "category", weight: 0.20 },
+      { name: "ingredients", weight: 0.20 },
+      { name: "tags", weight: 0.10 }
+    ]
+  });
+}
+
+function searchLocalSmart(query) {
+  if (!fuse) rebuildFuse();
+  const q = expandQuery(query);
+  if (!q) return [];
+
+  return fuse.search(q, { limit: 30 }).map(r => r.item);
+}
+
+/* =========================
+   API GLOBAL (Open Food Facts)
+========================= */
+async function searchOpenFoodFacts(query, pageSize = 20) {
+  const q = encodeURIComponent(query);
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=${pageSize}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Falha API");
+  const data = await res.json();
+
+  return (data.products || []).map((p, i) => ({
+    id: `off-${p.code || i}`,
+    name: p.product_name || p.generic_name || "Produto sem nome",
+    category: p.categories || "",
+    ingredients: [],
+    tags: [],
+    source: "api",
+    image: p.image_front_small_url || p.image_small_url || ""
+  })).filter(x => normalize(x.name).length >= 2);
+}
+
+/* =========================
+   UI RENDER
+========================= */
+function escapeHtml(str = "") {
+  return String(str).replace(/[&<>"']/g, m => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[m]));
+}
+
+function dedupeByName(list) {
+  const map = new Map();
+  for (const it of list) {
+    const key = normalize(it.name);
+    if (!map.has(key)) map.set(key, it);
+  }
+  return [...map.values()];
+}
+
+function renderResults(target, list) {
+  target.innerHTML = list.map(x => `
+    <div class="search-item" style="padding:8px;border-bottom:1px solid #eee;">
+      <strong>${escapeHtml(x.name)}</strong>
+      ${x.category ? ` <small>(${escapeHtml(x.category)})</small>` : ""}
+      <div style="font-size:12px;opacity:.7;">Fonte: ${x.source === "api" ? "Open Food Facts" : "Local"}</div>
+    </div>
+  `).join("");
+}
+
+/* =========================
+   INIT
+========================= */
+(function initSmartSearch() {
+  const input = document.getElementById(SEARCH_CONFIG.inputId);
+  const results = document.getElementById(SEARCH_CONFIG.resultsId);
+  const meta = document.getElementById(SEARCH_CONFIG.metaId);
+  const source = document.getElementById(SEARCH_CONFIG.sourceId);
+
+  if (!input || !results || !meta) {
+    console.warn("[SmartSearch] IDs não encontrados. Verifique searchInput/resultsList/searchMeta.");
+    return;
+  }
+
+  rebuildFuse();
+
+  const runSearch = async () => {
+    const q = input.value.trim();
+    const mode = source ? source.value : "all";
+
+    if (!q) {
+      meta.textContent = "Comece a escrever para procurar.";
+      results.innerHTML = "";
+      return;
+    }
+
+    meta.textContent = "A procurar...";
+    try {
+      let local = [];
+      let api = [];
+
+      if (mode === "all" || mode === "local") local = searchLocalSmart(q);
+      if (mode === "all" || mode === "api") api = await searchOpenFoodFacts(q, 20);
+
+      const merged = dedupeByName([...local, ...api]).slice(0, 30);
+      meta.textContent = `${merged.length} resultado(s) encontrado(s).`;
+      renderResults(results, merged);
+    } catch (e) {
+      const local = searchLocalSmart(q);
+      meta.textContent = `API indisponível. ${local.length} resultado(s) local(is).`;
+      renderResults(results, local);
+    }
+  };
+
+  input.addEventListener("input", debounce(runSearch, 200));
+  if (source) source.addEventListener("change", runSearch);
+})();
+</script>
+
 </body>
 </html>
